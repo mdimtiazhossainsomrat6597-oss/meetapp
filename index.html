@@ -6,55 +6,18 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>MeetApp</title>
-
-    <!-- ✅ PWA Manifest -->
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
-    <link rel="icon" type="image/png" sizes="512x512" href="https://ui-avatars.com/api/?name=MA&size=512&background=6c63ff&color=ffffff&bold=true&rounded=false">
-    <link rel="apple-touch-icon" sizes="192x192" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
-    <meta name="theme-color" content="#6c63ff">
-
-    <!-- ✅ PWA: Inline Service Worker -->
+    <!-- OneSignal Push Notification -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
-    if ('serviceWorker' in navigator) {
-      var swCode = `
-        const CACHE = 'meetapp-v2';
-        const ASSETS = ['/'];
-        self.addEventListener('install', e => {
-          e.waitUntil(
-            caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
-          );
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "81132740-4821-41ec-a750-d0433b5e6660",
+          serviceWorkerParam: { scope: "/meetapp/" },
+          serviceWorkerPath: "/meetapp/OneSignalSDKWorker.js"
         });
-        self.addEventListener('activate', e => {
-          e.waitUntil(
-            caches.keys().then(keys => Promise.all(
-              keys.filter(k => k !== CACHE).map(k => caches.delete(k))
-            )).then(() => self.clients.claim())
-          );
-        });
-        self.addEventListener('fetch', e => {
-          if (e.request.method !== 'GET') return;
-          e.respondWith(
-            caches.match(e.request).then(r => {
-              if (r) return r;
-              return fetch(e.request).then(resp => {
-                if (!resp || resp.status !== 200) return resp;
-                var respClone = resp.clone();
-                caches.open(CACHE).then(c => c.put(e.request, respClone));
-                return resp;
-              }).catch(() => caches.match('/'));
-            })
-          );
-        });
-      `;
-      var blob = new Blob([swCode], {type: 'application/javascript'});
-      var swUrl = URL.createObjectURL(blob);
-      navigator.serviceWorker.register(swUrl, {scope: './'})
-        .then(function(reg) { console.log('✅ SW registered:', reg.scope); })
-        .catch(function(err) { console.log('SW error:', err); });
-    }
+      });
     </script>
-
     <script>
 var TwemojiLocal = (function() {
     var BASE = 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/';
@@ -555,8 +518,11 @@ if (typeof twemoji === 'undefined') {
         .stat-item:last-child{border-right:none;}
         .stat-num{font-size:22px;font-weight:800;background:var(--grad-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Playfair Display',serif;}
         .stat-label{font-size:10px;color:var(--text-muted-light);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
-        .verified-badge{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:3px;flex-shrink:0;}
-        .verified-badge svg.seal{filter:drop-shadow(0 1px 4px rgba(24,119,242,0.55));}
+        .verified-badge{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:4px;flex-shrink:0;position:relative;}
+        .verified-badge svg.seal{filter:drop-shadow(0 2px 8px rgba(79,148,255,0.7)) drop-shadow(0 0px 3px rgba(120,180,255,0.5));transition:transform 0.2s ease,filter 0.2s ease;}
+        .verified-badge:hover svg.seal{transform:scale(1.18);filter:drop-shadow(0 3px 14px rgba(79,148,255,0.95)) drop-shadow(0 0 8px rgba(170,220,255,0.8));}
+        @keyframes badgeShimmer{0%{opacity:0;transform:translateX(-80%) skewX(-20deg);}40%{opacity:0.7;}100%{opacity:0;transform:translateX(80%) skewX(-20deg);}}
+        .verified-badge::after{content:'';position:absolute;width:35%;height:160%;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.75) 50%,transparent 70%);border-radius:50%;animation:badgeShimmer 3.5s ease-in-out infinite;pointer-events:none;}
         .verify-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(24,119,242,0.1);border:1px solid rgba(24,119,242,0.3);color:#1877F2;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
         .follow-section{background:var(--bg-card-solid);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;border:1px solid var(--border-light);box-shadow:var(--shadow-sm);}
         .follow-section-title{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
@@ -790,6 +756,7 @@ if (typeof twemoji === 'undefined') {
             <div class="notif-dot" id="notifDot"></div>
         </div>
         <button class="dark-toggle" id="darkToggleBtn" onclick="toggleDarkMode()">🌙</button>
+        <button class="dark-toggle" id="soundToggleBtn" onclick="toggleSound()" title="সাউন্ড নোটিফিকেশন" style="font-size:18px;">🔔</button>
     </div>
     <div class="event-banner">
         <div class="banner-title" id="bannerTitle">আসন্ন ইভেন্ট</div>
@@ -973,6 +940,7 @@ if (typeof twemoji === 'undefined') {
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
 const firebaseConfig = {
     apiKey:"AIzaSyBkV5DJpMwedW1ZbPYil4NBZL1GP_4BMz8",
@@ -986,6 +954,137 @@ const firebaseConfig = {
 let db;
 try { firebase.initializeApp(firebaseConfig); db=firebase.database(); }
 catch(e) { console.error('Firebase init error:',e); db=null; }
+
+// ===== ONESIGNAL PUSH NOTIFICATION SYSTEM =====
+const ONESIGNAL_APP_ID = '81132740-4821-41ec-a750-d0433b5e6660';
+const ONESIGNAL_REST_KEY = 'os_v2_app_qejsoqciefa6zj2q2bbtwxtgmcavl4iipzuuadvcsc5tx5s3hcyd2ocbrn445qdyzr3iwrtdtxrow7dgkqkrrepvis7adhoskcc5hhy';
+
+let _postListenerReady = false;
+let _osReady = false;
+
+// OneSignal Init
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+OneSignalDeferred.push(async function(OneSignal) {
+  try {
+    await OneSignal.init({
+      appId: ONESIGNAL_APP_ID,
+      notifyButton: { enable: false },
+      allowLocalhostAsSecureOrigin: true,
+    });
+    _osReady = true;
+    const permission = OneSignal.Notifications.permission;
+    if(!permission) {
+      setTimeout(async () => {
+        try { await OneSignal.Notifications.requestPermission(); } catch(e){}
+      }, 3000);
+    }
+  } catch(e){ console.warn('OneSignal init error:', e); }
+});
+
+// In-app Banner
+function showInAppBanner(title, body, emoji) {
+  emoji = emoji || '\uD83D\uDD14';
+  let banner = document.getElementById('pushBanner');
+  if(!banner){
+    banner = document.createElement('div');
+    banner.id = 'pushBanner';
+    banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-160px);background:linear-gradient(135deg,#1e1b2e,#2d1b4e);border:1.5px solid rgba(102,126,234,0.5);border-radius:18px;padding:14px 18px;display:flex;align-items:center;gap:12px;z-index:99999;box-shadow:0 12px 40px rgba(0,0,0,0.5);min-width:270px;max-width:360px;transition:transform 0.45s cubic-bezier(.34,1.56,.64,1);cursor:pointer;';
+    banner.onclick = function(){ banner.style.transform='translateX(-50%) translateY(-160px)'; };
+    document.body.appendChild(banner);
+  }
+  banner.innerHTML = '<div style="font-size:30px;flex-shrink:0;line-height:1;">'+emoji+'</div><div style="flex:1;overflow:hidden;"><div style="font-weight:700;font-size:13.5px;color:#fff;margin-bottom:3px;">'+title+'</div><div style="font-size:12px;color:rgba(255,255,255,0.72);line-height:1.45;">'+body+'</div></div><div style="font-size:18px;color:rgba(255,255,255,0.4);flex-shrink:0;">\u2715</div>';
+  setTimeout(function(){ banner.style.transform='translateX(-50%) translateY(0)'; }, 60);
+  setTimeout(function(){ banner.style.transform='translateX(-50%) translateY(-160px)'; }, 6000);
+}
+
+// OneSignal REST API দিয়ে সবাইকে push পাঠানো
+async function sendOneSignalPush(title, body, emoji) {
+  emoji = emoji || '\uD83D\uDCCC';
+  try {
+    await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Key ' + ONESIGNAL_REST_KEY
+      },
+      body: JSON.stringify({
+        app_id: ONESIGNAL_APP_ID,
+        included_segments: ['All'],
+        headings: { en: title },
+        contents: { en: body },
+        chrome_web_icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f514.svg',
+        ttl: 86400,
+        priority: 10
+      })
+    });
+  } catch(e){ console.warn('OneSignal push error:', e); }
+}
+
+// Firebase DB Broadcast (app খোলা/background থাকলে realtime)
+let _lastNotifId = Date.now();
+function startBroadcastListener(){
+  if(!db) return;
+  db.ref('broadcastNotif').on('value', function(snap) {
+    if(!snap.exists()) return;
+    const notif = snap.val();
+    if(!notif || !notif.id) return;
+    if(notif.id <= _lastNotifId) return;
+    if(currentUser && notif.posterUid === currentUser.uid) return;
+    _lastNotifId = notif.id;
+    const title = notif.title; const body = notif.body; const emoji = notif.emoji || '\uD83D\uDD14';
+    try { playSoundForEmoji(emoji); } catch(e){}
+    if(document.hidden && Notification.permission === 'granted'){
+      try { new Notification(title || 'MeetApp', { body: body || '', icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f514.svg', tag: 'meetapp-bc-' + notif.id, vibrate: [200,100,200] }); } catch(e){}
+    } else {
+      showInAppBanner(title, body, emoji);
+    }
+  });
+}
+
+// পোস্ট হলে — DB broadcast + OneSignal push
+async function broadcastPostNotif(title, body, emoji, posterUid){
+  if(!db) return;
+  const notifData = { id: Date.now(), title: title, body: body, emoji: emoji, posterUid: posterUid || '', ts: Date.now() };
+  try { await db.ref('broadcastNotif').set(notifData); } catch(e){}
+  sendOneSignalPush(title, body, emoji);
+}
+
+// Backward compat
+async function sendPushToAll(title, body, emoji){
+  emoji = emoji || '\uD83D\uDCCC';
+  if(currentUser) broadcastPostNotif(title, body, emoji, currentUser.uid);
+}
+
+function startPostPushListener(){
+  if(_postListenerReady || !db) return;
+  _postListenerReady = true;
+  startBroadcastListener();
+}
+
+// App বন্ধ থেকে খোলার পর missed notification
+let _lastOpenTime = parseInt(localStorage.getItem('meetapp_lastOpen') || '0');
+async function checkMissedNotifications(){
+  if(!db || !currentUser) return;
+  localStorage.setItem('meetapp_lastOpen', Date.now().toString());
+  if(!_lastOpenTime) return;
+  try {
+    const snap = await db.ref('broadcastNotif').once('value');
+    if(!snap.exists()) return;
+    const notif = snap.val();
+    if(!notif || !notif.id) return;
+    if(notif.id <= _lastOpenTime) return;
+    if(notif.posterUid === currentUser.uid) return;
+    const missedMin = Math.round((Date.now() - notif.id) / 60000);
+    const msg = (missedMin > 0 ? missedMin+'\u09AE\u09BF\u09A8\u09BF\u099F \u0986\u0997\u09C7' : '\u09B8\u09AE\u09CD\u09AA\u09CD\u09B0\u09A4\u09BF') + ' \u09A8\u09A4\u09C1\u09A8 \u09AA\u09CB\u09B8\u09CD\u099F \u098F\u09B8\u09C7\u099B\u09C7!';
+    setTimeout(function(){ showInAppBanner('MeetApp \uD83D\uDD14', msg, '\uD83D\uDD14'); try{SoundFX.notify();}catch(e){} }, 2000);
+  } catch(e){}
+}
+
+async function initPushNotifications(){
+  startBroadcastListener();
+}
+// ===== END ONESIGNAL PUSH SYSTEM =====
+
 
 let currentLanguage = localStorage.getItem('meetapp_lang')||'bn';
 let currentUser = JSON.parse(localStorage.getItem('meetapp_user')||'null');
@@ -1299,6 +1398,8 @@ function completeLogin(userData){
     applyLanguage(currentLanguage);
     // CHANGE 1: Set online presence after login
     setOnlinePresence();
+    // Push notification init
+    setTimeout(()=>{ initPushNotifications(); startPostPushListener(); checkMissedNotifications(); }, 1500);
 }
 
 function skipLogin(){
@@ -1308,6 +1409,7 @@ function skipLogin(){
     updateUserBar();
     initFirebaseListeners();
     applyLanguage(currentLanguage);
+    setTimeout(()=>startPostPushListener(), 1500);
 }
 
 function handleLogout(){
@@ -1469,7 +1571,7 @@ function selectCreateType(type){
     });
 }
 
-function sealBadgeSvg(size=20){ return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="seal" xmlns="http://www.w3.org/2000/svg"><path d="M50 5 L58 18 L73 12 L74 28 L89 28 L85 43 L99 50 L85 57 L89 72 L74 72 L73 88 L58 82 L50 95 L42 82 L27 88 L26 72 L11 72 L15 57 L1 50 L15 43 L11 28 L26 28 L27 12 Z" fill="url(#sealGrad${size})"/><defs><linearGradient id="sealGrad${size}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4f9ef8"/><stop offset="100%" style="stop-color:#1565c0"/></linearGradient></defs><polyline points="32,52 44,64 68,38" fill="none" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+function sealBadgeSvg(size=20){ const id='sg'+size; return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="seal" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="rg${id}" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#7ec8ff"/><stop offset="45%" stop-color="#2196f3"/><stop offset="100%" stop-color="#0d47a1"/></radialGradient><radialGradient id="glow${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient><filter id="f${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter></defs><path d="M50 3 L56 14 L63 8 L66 20 L75 16 L75 28 L87 27 L83 39 L95 42 L88 52 L97 59 L87 63 L91 76 L79 76 L77 89 L65 85 L59 96 L50 89 L41 96 L35 85 L23 89 L21 76 L9 76 L13 63 L3 59 L12 52 L5 42 L17 39 L13 27 L25 28 L25 16 L34 20 L37 8 L44 14 Z" fill="url(#rg${id})"/><path d="M50 3 L56 14 L63 8 L66 20 L75 16 L75 28 L87 27 L83 39 L95 42 L88 52 L97 59 L87 63 L91 76 L79 76 L77 89 L65 85 L59 96 L50 89 L41 96 L35 85 L23 89 L21 76 L9 76 L13 63 L3 59 L12 52 L5 42 L17 39 L13 27 L25 28 L25 16 L34 20 L37 8 L44 14 Z" fill="url(#glow${id})"/><circle cx="33" cy="30" r="3.5" fill="white" opacity="0.55"/><circle cx="25" cy="46" r="2" fill="white" opacity="0.35"/><circle cx="68" cy="22" r="2.5" fill="white" opacity="0.4"/><polyline points="31,51 44,65 69,37" fill="none" stroke="white" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"/><polyline points="31,51 44,65 69,37" fill="none" stroke="white" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
 
 function renderProfile(){
     const container=document.getElementById('profileContent');
@@ -1705,9 +1807,9 @@ function requestVerification(){
 function tryAdminDelete(id,type){ const code=prompt(currentLanguage==='bn'?'এডমিন কোড দিন:':'Enter admin secret code:'); if(code===ADMIN_SECRET) performDelete(id,type); else showNotification(currentLanguage==='bn'?'ভুল কোড!':'Wrong code!'); }
 function performDelete(id,type){ const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}`).remove().then(()=>showNotification(t('postDeleted'))); else{ if(type==='photo') photos=photos.filter(p=>p.id!==id); else if(type==='video') videos=videos.filter(v=>v.id!==id); else textPosts=textPosts.filter(tp=>tp.id!==id); displayPosts(); showNotification(t('postDeleted')); } }
 
-function uploadPhoto(){ const file=document.getElementById('photoFile'); const caption=document.getElementById('photoCaption').value.trim(); if(!file.files[0]) return showNotification(t('pleaseSelectPhoto')); const reader=new FileReader(); reader.onload=e=>{ const photo={id:Date.now(),type:'photo',image:e.target.result,caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('photos/'+photo.id).set(photo).then(()=>{showNotification(t('photoUploaded'));file.value='';document.getElementById('photoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));}); else{photos.push(photo);showNotification(t('photoUploaded'));file.value='';document.getElementById('photoCaption').value='';displayPosts();} }; reader.readAsDataURL(file.files[0]); }
-function uploadVideo(){ const file=document.getElementById('videoFile'); const caption=document.getElementById('videoCaption').value.trim(); if(!file.files[0]) return showNotification(t('pleaseSelectVideo')); const reader=new FileReader(); reader.onload=e=>{ const video={id:Date.now(),type:'video',video:e.target.result,caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('videos/'+video.id).set(video).then(()=>{showNotification(t('videoUploaded'));file.value='';document.getElementById('videoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));}); else{videos.push(video);showNotification(t('videoUploaded'));file.value='';document.getElementById('videoCaption').value='';displayPosts();} }; reader.readAsDataURL(file.files[0]); }
-function uploadWrittenPost(){ const content=document.getElementById('writtenPostContent').value.trim(); if(!content) return showNotification(t('pleaseEnterContent')); const tp={id:Date.now(),type:'text',content,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('textPosts/'+tp.id).set(tp).then(()=>{showNotification(t('postCreated'));document.getElementById('writtenPostContent').value='';bnSwitch('posts',document.getElementById('bnHome'));}); else{textPosts.push(tp);showNotification(t('postCreated'));document.getElementById('writtenPostContent').value='';displayPosts();} }
+function uploadPhoto(){ const file=document.getElementById('photoFile'); const caption=document.getElementById('photoCaption').value.trim(); if(!file.files[0]) return showNotification(t('pleaseSelectPhoto')); const reader=new FileReader(); reader.onload=e=>{ const photo={id:Date.now(),type:'photo',image:e.target.result,caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('photos/'+photo.id).set(photo).then(()=>{showNotification(t('photoUploaded'));file.value='';document.getElementById('photoCaption').value='';bnSwitch('posts',document.getElementById('bnHome')); sendPushToAll(`📷 ${currentUser&&currentUser.name||'কেউ'} নতুন ছবি পোস্ট করেছেন`, caption||'নতুন ছবি দেখুন!', '📷');}); else{photos.push(photo);showNotification(t('photoUploaded'));file.value='';document.getElementById('photoCaption').value='';displayPosts();} }; reader.readAsDataURL(file.files[0]); }
+function uploadVideo(){ const file=document.getElementById('videoFile'); const caption=document.getElementById('videoCaption').value.trim(); if(!file.files[0]) return showNotification(t('pleaseSelectVideo')); const reader=new FileReader(); reader.onload=e=>{ const video={id:Date.now(),type:'video',video:e.target.result,caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('videos/'+video.id).set(video).then(()=>{showNotification(t('videoUploaded'));file.value='';document.getElementById('videoCaption').value='';bnSwitch('posts',document.getElementById('bnHome')); sendPushToAll(`🎥 ${currentUser&&currentUser.name||'কেউ'} নতুন ভিডিও পোস্ট করেছেন`, caption||'নতুন ভিডিও দেখুন!', '🎥');}); else{videos.push(video);showNotification(t('videoUploaded'));file.value='';document.getElementById('videoCaption').value='';displayPosts();} }; reader.readAsDataURL(file.files[0]); }
+function uploadWrittenPost(){ const content=document.getElementById('writtenPostContent').value.trim(); if(!content) return showNotification(t('pleaseEnterContent')); const tp={id:Date.now(),type:'text',content,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('textPosts/'+tp.id).set(tp).then(()=>{showNotification(t('postCreated'));document.getElementById('writtenPostContent').value='';bnSwitch('posts',document.getElementById('bnHome')); sendPushToAll(`📝 ${currentUser&&currentUser.name||'কেউ'} নতুন পোস্ট করেছেন`, content.slice(0,80)||'নতুন পোস্ট দেখুন!', '📝');}); else{textPosts.push(tp);showNotification(t('postCreated'));document.getElementById('writtenPostContent').value='';displayPosts();} }
 
 function addReaction(id,type,emoji){ if(!currentUser){ showNotification(currentLanguage==='bn'?'রিয়্যাক্ট করতে লগইন করুন!':'Please login to react!'); return; } const uid=currentUser.uid; let arr=type==='video'?videos:type==='photo'?photos:textPosts; let item=arr.find(x=>x.id===id); if(!item) return; if(!item.reactedBy) item.reactedBy={}; if(item.reactedBy[uid]){ const prev=item.reactedBy[uid]; if(prev===emoji){ item.reactions[prev]=(item.reactions[prev]||1)-1; if(item.reactions[prev]<=0) delete item.reactions[prev]; delete item.reactedBy[uid]; } else { item.reactions[prev]=(item.reactions[prev]||1)-1; if(item.reactions[prev]<=0) delete item.reactions[prev]; if(!item.reactions) item.reactions={}; item.reactions[emoji]=(item.reactions[emoji]||0)+1; item.reactedBy[uid]=emoji; } } else { if(!item.reactions) item.reactions={}; item.reactions[emoji]=(item.reactions[emoji]||0)+1; item.reactedBy[uid]=emoji; if(item.uid&&item.uid!==uid) sendUserNotification(item.uid,`${emoji} <b>${currentUser.name}</b> ${currentLanguage==='bn'?'আপনার পোস্টে রিয়্যাক্ট করেছেন':'reacted to your post'}`,emoji); } const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}`).set(item); else displayPosts(); const picker=document.getElementById('reactionPicker-'+id); if(picker) picker.classList.remove('show'); }
 function showReactionPicker(id){ const picker=document.getElementById('reactionPicker-'+id); if(!picker) return; const isOpen=picker.classList.contains('show'); document.querySelectorAll('.reaction-picker.show').forEach(p=>p.classList.remove('show')); if(!isOpen){ picker.classList.add('show'); setTimeout(()=>applyTwemoji(picker),50); } }
@@ -1731,7 +1833,7 @@ function toggleEditForm(id,type){ const form=document.getElementById(`editForm-$
 function saveEdit(id,type){ const newText=document.getElementById(`editCaption-${id}`).value.trim(); if(!newText) return; let arr=type==='video'?videos:type==='photo'?photos:textPosts; let item=arr.find(x=>x.id===id); if(!item) return; if(type==='photo'||type==='video') item.caption=newText; else item.content=newText; item.editedAt=new Date().toLocaleString(); const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}`).set(item).then(()=>showNotification(t('postUpdated'))); else{displayPosts();showNotification(t('postUpdated'));} const form=document.getElementById(`editForm-${id}`); if(form) form.classList.remove('show'); }
 function deletePost(id,type){ if(!confirm(t('confirmDeletePost'))) return; performDelete(id,type); }
 
-function postHeaderHtml(post){ const isOwnPost=currentUser&&post.uid===currentUser.uid; const u=isOwnPost?currentUser:(allUsers[post.uid]||{}); const displayName=u.name||post.uploaderName||t('guestUser'); const isVerified=u.verified||false; const avatarLocked=u.avatarLocked||false; const avatarSrc=isOwnPost?(currentUser.avatar||null):(u.avatar&&!avatarLocked?u.avatar:null); const avatarInner=avatarSrc?`<img src="${avatarSrc}" alt="">`:`<span>${displayName.charAt(0).toUpperCase()}</span>`; const badge=isVerified?`<span class="verified-badge" title="Verified Account" style="margin-left:2px;">${sealBadgeSvg(17)}</span>`:''; let followBtn=''; if(currentUser&&currentUser.uid!==post.uid){ const following=isFollowing(post.uid); const label=following?(currentLanguage==='bn'?'✓ ফলোইং':'✓ Following'):(currentLanguage==='bn'?'+ ফলো':'+ Follow'); followBtn=`<button class="post-follow-btn ${following?'following':'not-following'}" onclick="event.stopPropagation();toggleFollow('${post.uid}')">${label}</button>`; } return `<div class="post-header"><div class="post-header-left" onclick="viewUserProfile('${post.uid}')" style="cursor:pointer;"><div class="post-avatar">${avatarInner}</div><div class="post-header-info"><div class="post-uploader-name">${displayName}${badge}</div><div class="post-upload-date">${post.uploadDate}${post.editedAt?' · ✏️':''}</div></div></div>${followBtn}</div>`; }
+function postHeaderHtml(post){ const isOwnPost=currentUser&&post.uid===currentUser.uid; const u=isOwnPost?currentUser:(allUsers[post.uid]||{}); const displayName=u.name||post.uploaderName||t('guestUser'); const isVerified=u.verified||u.username==='imtiaz'||false; const avatarLocked=(u.avatarLocked&&u.username!=='imtiaz')||false; const avatarSrc=isOwnPost?(currentUser.avatar||null):(u.avatar&&!avatarLocked?u.avatar:null); const avatarInner=avatarSrc?`<img src="${avatarSrc}" alt="">`:`<span>${displayName.charAt(0).toUpperCase()}</span>`; const badge=isVerified?`<span class="verified-badge" title="Verified Account" style="margin-left:2px;">${sealBadgeSvg(17)}</span>`:''; let followBtn=''; if(currentUser&&currentUser.uid!==post.uid){ const following=isFollowing(post.uid); const label=following?(currentLanguage==='bn'?'✓ ফলোইং':'✓ Following'):(currentLanguage==='bn'?'+ ফলো':'+ Follow'); followBtn=`<button class="post-follow-btn ${following?'following':'not-following'}" onclick="event.stopPropagation();toggleFollow('${post.uid}')">${label}</button>`; } return `<div class="post-header"><div class="post-header-left" onclick="viewUserProfile('${post.uid}')" style="cursor:pointer;"><div class="post-avatar">${avatarInner}</div><div class="post-header-info"><div class="post-uploader-name">${displayName}${badge}</div><div class="post-upload-date">${post.uploadDate}${post.editedAt?' · ✏️':''}</div></div></div>${followBtn}</div>`; }
 
 function displayPosts(){ const gallery=document.getElementById('postsGallery'); if(!gallery) return; if(isLoadingPosts){gallery.innerHTML=showLoadingAnimation('posts');return;} let all=[...photos.map(p=>({...p,type:'photo'})),...videos.map(v=>({...v,type:'video'})),...textPosts.map(tp=>({...tp,type:'text'}))].sort((a,b)=>b.id-a.id); if(all.length===0){gallery.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><h3>${t('noPostsYet')}</h3><p>${t('beFirstToPost')}</p></div>`;return;} gallery.innerHTML=all.map(post=>post.type==='photo'?createPhotoCard(post):post.type==='video'?createVideoCard(post):createTextCard(post)).join(''); }
 
@@ -1844,7 +1946,7 @@ function initFirebaseListeners(){
     db.ref('textPosts').on('value',snap=>{textPosts=snap.val()?Object.values(snap.val()):[];isLoadingPosts=false;displayPosts();renderProfile();displayBookmarks();});
     db.ref('events').on('value',snap=>{events=snap.val()?Object.values(snap.val()):[];isLoadingEvents=false;initEventSlider();displayEvents();checkAndDraftExpiredEvents();});
     db.ref('users').on('value',snap=>{
-        if(snap.exists()){ allUsers={}; snap.forEach(c=>{ allUsers[c.val().uid]=c.val(); }); if(currentUser&&allUsers[currentUser.uid]){ const fresh=allUsers[currentUser.uid]; currentUser.following=fresh.following||{}; currentUser.followers=fresh.followers||{}; localStorage.setItem('meetapp_user',JSON.stringify(currentUser)); } }
+        if(snap.exists()){ allUsers={}; snap.forEach(c=>{ const ud=c.val(); if(ud.username==='imtiaz'){ ud.verified=true; ud.avatarLocked=false; } allUsers[ud.uid]=ud; }); if(currentUser&&allUsers[currentUser.uid]){ const fresh=allUsers[currentUser.uid]; currentUser.following=fresh.following||{}; currentUser.followers=fresh.followers||{}; localStorage.setItem('meetapp_user',JSON.stringify(currentUser)); } }
         renderProfile(); displayPosts(); updateFooterAvatar();
         initStoryBar();
         // CHANGE 1: Update online badge visibility after users load
@@ -1907,7 +2009,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 // CHANGE 1: Remove presence when tab/browser closes
 window.addEventListener('beforeunload',()=>{ removeOnlinePresence(); });
 
-function viewUserProfile(uid){ if(!uid) return; if(currentUser&&uid===currentUser.uid){bnSwitch('profile',document.getElementById('bnProfile'));return;} const u=allUsers[uid]; if(!u) return; const uPosts=[...photos.filter(p=>p.uid===uid).map(p=>({...p,type:'photo'})),...videos.filter(v=>v.uid===uid).map(v=>({...v,type:'video'})),...textPosts.filter(tp=>tp.uid===uid).map(tp=>({...tp,type:'text'}))].sort((a,b)=>b.id-a.id); const av=u.avatar&&!u.avatarLocked?`<img src="${u.avatar}" alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(102,126,234,0.5);" onclick="viewAvatarFull('${u.avatar}')">`:`<div style="width:80px;height:80px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:white;border:3px solid rgba(102,126,234,0.5);">${u.avatarLocked?'🔒':(u.name||'?').charAt(0).toUpperCase()}</div>`; const badge=u.verified?`<span class="verified-badge">${sealBadgeSvg(22)}</span>`:''; const following=currentUser?isFollowing(uid):false; const followBtn=currentUser?`<button class="post-follow-btn ${following?'following':'not-following'}" onclick="toggleFollow('${uid}');viewUserProfile('${uid}')" style="margin-top:10px;padding:9px 24px;font-size:14px;">${following?(currentLanguage==='bn'?'✓ ফলোইং':'✓ Following'):(currentLanguage==='bn'?'+ ফলো করুন':'+ Follow')}</button>`:''
+function viewUserProfile(uid){ if(!uid) return; if(currentUser&&uid===currentUser.uid){bnSwitch('profile',document.getElementById('bnProfile'));return;} const u=allUsers[uid]; if(!u) return; const uPosts=[...photos.filter(p=>p.uid===uid).map(p=>({...p,type:'photo'})),...videos.filter(v=>v.uid===uid).map(v=>({...v,type:'video'})),...textPosts.filter(tp=>tp.uid===uid).map(tp=>({...tp,type:'text'}))].sort((a,b)=>b.id-a.id); const av=(u.avatar&&!(u.avatarLocked&&u.username!=='imtiaz'))?`<img src="${u.avatar}" alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(102,126,234,0.5);" onclick="viewAvatarFull('${u.avatar}')">`:`<div style="width:80px;height:80px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:white;border:3px solid rgba(102,126,234,0.5);">${(u.avatarLocked&&u.username!=='imtiaz')?'🔒':(u.name||'?').charAt(0).toUpperCase()}</div>`; const badge=(u.verified||u.username==='imtiaz')?`<span class="verified-badge">${sealBadgeSvg(22)}</span>`:''; const following=currentUser?isFollowing(uid):false; const followBtn=currentUser?`<button class="post-follow-btn ${following?'following':'not-following'}" onclick="toggleFollow('${uid}');viewUserProfile('${uid}')" style="margin-top:10px;padding:9px 24px;font-size:14px;">${following?(currentLanguage==='bn'?'✓ ফলোইং':'✓ Following'):(currentLanguage==='bn'?'+ ফলো করুন':'+ Follow')}</button>`:''
 ; document.getElementById('modalMedia').innerHTML=''; document.getElementById('modalBody').innerHTML=`<div style="text-align:center;padding:16px 0 10px;">${av}<div style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;font-weight:800;color:var(--text-on-light);">${u.name||''}${badge}</div><div style="color:var(--text-muted-light);font-size:13px;margin-top:2px;">@${u.username||''}</div>${u.bio?`<div style="color:var(--text-on-light);font-size:13px;margin-top:8px;line-height:1.5;">${u.bio}</div>`:''}<div style="display:flex;justify-content:center;gap:20px;margin-top:12px;padding:12px 0;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light);"><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--accent-violet);">${uPosts.length}</div><div style="font-size:11px;color:var(--text-muted-light);">${currentLanguage==='bn'?'পোস্ট':'Posts'}</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--accent-violet);">${Object.keys(u.followers||{}).length}</div><div style="font-size:11px;color:var(--text-muted-light);">${currentLanguage==='bn'?'ফলোয়ার':'Followers'}</div></div></div>${followBtn}</div><div style="margin-top:14px;"><div style="font-weight:700;font-size:15px;color:var(--text-on-light);margin-bottom:10px;">📌 ${currentLanguage==='bn'?'পোস্টসমূহ':'Posts'} (${uPosts.length})</div><div class="photo-grid">${uPosts.length?uPosts.map(p=>p.type==='photo'?createPhotoCard(p):p.type==='video'?createVideoCard(p):createTextCard(p)).join(''):`<p style="color:var(--text-muted-light);text-align:center;padding:20px;">${currentLanguage==='bn'?'কোনো পোস্ট নেই':'No posts yet'}</p>`}</div></div>`; document.getElementById('modalOverlay').classList.add('show'); }
 
 function viewAvatarFull(src){ document.getElementById('modalMedia').innerHTML=`<img src="${src}" style="width:100%;max-height:70vh;object-fit:contain;border-radius:12px 12px 0 0;">`; document.getElementById('modalBody').innerHTML=''; document.getElementById('modalOverlay').classList.add('show'); }
@@ -1954,12 +2056,137 @@ function openCreateSheet(type){ if(fabOpen) toggleFabMenu(); document.querySelec
 function applyDarkMode(){ document.body.classList.toggle('dark-mode',isDark); const btn=document.getElementById('darkToggleBtn'); if(btn){btn.innerHTML=isDark?'☀️':'🌙';setTimeout(function(){TwemojiLocal.parse(btn);},50);} }
 function toggleDarkMode(){ isDark=!isDark; localStorage.setItem('meetapp_dark',isDark?'1':'0'); applyDarkMode(); }
 
+function toggleSound(){
+  const newState = !SoundFX.isEnabled();
+  SoundFX.setEnabled(newState);
+  const btn = document.getElementById('soundToggleBtn');
+  if(btn) btn.textContent = newState ? '🔔' : '🔕';
+  showNotification(newState
+    ? (currentLanguage==='bn' ? '🔔 সাউন্ড চালু হয়েছে!' : '🔔 Sound ON!')
+    : (currentLanguage==='bn' ? '🔕 সাউন্ড বন্ধ হয়েছে!' : '🔕 Sound OFF!'));
+}
+
+// প্রথম ট্যাপেই AudioContext unlock করা (mobile এর জন্য)
+document.addEventListener('click', function unlockAudio(){
+  try{ new (window.AudioContext||window.webkitAudioContext)().resume(); }catch(e){}
+  document.removeEventListener('click', unlockAudio);
+}, {once: true});
+
 let bookmarks=JSON.parse(localStorage.getItem('meetapp_bookmarks')||'[]');
 function toggleBookmark(id,type){ id=String(id); if(isBookmarked(id)){bookmarks=bookmarks.filter(b=>b!==id);showNotification(currentLanguage==='bn'?'🔖 সংরক্ষণ বাতিল':'🔖 Bookmark removed');}else{bookmarks.push(id);showNotification(currentLanguage==='bn'?'🔖 পোস্ট সংরক্ষিত হয়েছে!':'🔖 Post bookmarked!');} localStorage.setItem('meetapp_bookmarks',JSON.stringify(bookmarks)); displayPosts(); displayBookmarks(); }
 function displayBookmarks(){ const grid=document.getElementById('bookmarkGrid'); if(!grid) return; const all=[...photos.map(p=>({...p,type:'photo'})),...videos.map(v=>({...v,type:'video'})),...textPosts.map(tp=>({...tp,type:'text'}))].filter(p=>isBookmarked(p.id)); if(!all.length){grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><p>${currentLanguage==='bn'?'কোনো সংরক্ষিত পোস্ট নেই':'No bookmarked posts yet'}</p></div>`;return;} grid.innerHTML=all.map(p=>p.type==='photo'?createPhotoCard(p):p.type==='video'?createVideoCard(p):createTextCard(p)).join(''); }
 
 let notifications=JSON.parse(localStorage.getItem('meetapp_notifs')||'[]');
-function addNotification(msg,emoji='🔔'){ if(!currentUser) return; const n={id:Date.now(),msg,emoji,time:new Date().toLocaleString(),unread:true}; notifications.unshift(n); if(notifications.length>100) notifications=notifications.slice(0,100); localStorage.setItem('meetapp_notifs',JSON.stringify(notifications)); updateNotifDot(); renderNotifList(); }
+// ===== SOUND NOTIFICATION SYSTEM =====
+const SoundFX = (function(){
+  let ctx = null;
+  let enabled = localStorage.getItem('meetapp_sound') !== '0';
+
+  function getCtx(){
+    if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function playTone(notes, vol=0.4){
+    if(!enabled) return;
+    try {
+      const c = getCtx();
+      notes.forEach(({freq, start, dur, type='sine', vol:v=vol})=>{
+        const osc = c.createOscillator();
+        const gain = c.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, c.currentTime + start);
+        gain.gain.setValueAtTime(0, c.currentTime + start);
+        gain.gain.linearRampToValueAtTime(v||vol, c.currentTime + start + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + start + dur);
+        osc.connect(gain);
+        gain.connect(c.destination);
+        osc.start(c.currentTime + start);
+        osc.stop(c.currentTime + start + dur + 0.05);
+      });
+    } catch(e){}
+  }
+
+  return {
+    isEnabled: ()=>enabled,
+    setEnabled: (v)=>{ enabled=v; localStorage.setItem('meetapp_sound', v?'1':'0'); },
+
+    // 👍 লাইক — soft pop
+    like: ()=> playTone([
+      {freq:520, start:0,    dur:0.12, type:'sine',     vol:0.25},
+      {freq:780, start:0.08, dur:0.15, type:'sine',     vol:0.3},
+      {freq:1040,start:0.16, dur:0.2,  type:'triangle', vol:0.2},
+    ]),
+
+    // 💬 কমেন্ট — double ding
+    comment: ()=> playTone([
+      {freq:660, start:0,    dur:0.18, type:'sine', vol:0.3},
+      {freq:880, start:0.12, dur:0.18, type:'sine', vol:0.3},
+      {freq:990, start:0.24, dur:0.25, type:'sine', vol:0.25},
+    ]),
+
+    // 😀 রিয়্যাক্ট — sparkle
+    react: ()=> playTone([
+      {freq:800,  start:0,    dur:0.1,  type:'triangle', vol:0.2},
+      {freq:1000, start:0.07, dur:0.1,  type:'triangle', vol:0.22},
+      {freq:1200, start:0.14, dur:0.15, type:'triangle', vol:0.2},
+      {freq:1500, start:0.22, dur:0.18, type:'sine',     vol:0.18},
+    ]),
+
+    // 👤 ফলো — ascending chime
+    follow: ()=> playTone([
+      {freq:440, start:0,    dur:0.2,  type:'sine', vol:0.28},
+      {freq:550, start:0.1,  dur:0.2,  type:'sine', vol:0.28},
+      {freq:660, start:0.2,  dur:0.2,  type:'sine', vol:0.28},
+      {freq:880, start:0.3,  dur:0.3,  type:'sine', vol:0.3},
+    ]),
+
+    // 🔔 সাধারণ নোটিফিকেশন — gentle bell
+    notify: ()=> playTone([
+      {freq:740, start:0,    dur:0.25, type:'sine',     vol:0.28},
+      {freq:1110,start:0.05, dur:0.35, type:'triangle', vol:0.22},
+    ]),
+
+    // 📩 মেনশন / বিশেষ — alert
+    mention: ()=> playTone([
+      {freq:600,  start:0,    dur:0.12, type:'square',   vol:0.15},
+      {freq:900,  start:0.1,  dur:0.12, type:'sine',     vol:0.25},
+      {freq:1200, start:0.2,  dur:0.12, type:'sine',     vol:0.25},
+      {freq:900,  start:0.3,  dur:0.2,  type:'sine',     vol:0.2},
+    ]),
+
+    // ✅ সাফল্য — success jingle
+    success: ()=> playTone([
+      {freq:523, start:0,    dur:0.15, type:'sine', vol:0.3},
+      {freq:659, start:0.12, dur:0.15, type:'sine', vol:0.3},
+      {freq:784, start:0.24, dur:0.15, type:'sine', vol:0.3},
+      {freq:1047,start:0.36, dur:0.35, type:'sine', vol:0.35},
+    ]),
+
+    // ❌ ব্যর্থতা — low buzz
+    error: ()=> playTone([
+      {freq:300, start:0,   dur:0.15, type:'sawtooth', vol:0.2},
+      {freq:250, start:0.12,dur:0.2,  type:'sawtooth', vol:0.18},
+    ]),
+  };
+})();
+
+// ইমোজি দেখে সাউন্ড বেছে নেওয়া
+function playSoundForEmoji(emoji){
+  if(!emoji) return SoundFX.notify();
+  if(emoji==='👍') return SoundFX.like();
+  if(emoji==='💬') return SoundFX.comment();
+  if(['😀','😍','😂','😮','😢','😡','❤️','🔥','👏'].includes(emoji)) return SoundFX.react();
+  if(emoji==='👤') return SoundFX.follow();
+  if(emoji==='🔔') return SoundFX.mention();
+  if(emoji==='✅') return SoundFX.success();
+  if(emoji==='❌') return SoundFX.error();
+  return SoundFX.notify();
+}
+// ===== END SOUND SYSTEM =====
+
+function addNotification(msg,emoji='🔔'){ if(!currentUser) return; playSoundForEmoji(emoji); const n={id:Date.now(),msg,emoji,time:new Date().toLocaleString(),unread:true}; notifications.unshift(n); if(notifications.length>100) notifications=notifications.slice(0,100); localStorage.setItem('meetapp_notifs',JSON.stringify(notifications)); updateNotifDot(); renderNotifList(); }
 function updateNotifDot(){ const dot=document.getElementById('notifDot'); if(dot) dot.classList.toggle('show',notifications.some(n=>n.unread)); }
 function openNotifPanel(){ document.getElementById('notifPanel').classList.add('show'); document.getElementById('notifOverlay').classList.add('show'); notifications.forEach(n=>n.unread=false); localStorage.setItem('meetapp_notifs',JSON.stringify(notifications)); updateNotifDot(); renderNotifList(); }
 function closeNotifPanel(){ document.getElementById('notifPanel').classList.remove('show'); document.getElementById('notifOverlay').classList.remove('show'); }
@@ -1999,7 +2226,10 @@ document.addEventListener('touchend',function(event){const now=new Date().getTim
 function applyTwemoji(target){ const el=target||document.body; try{TwemojiLocal.parse(el);}catch(e){} if(typeof twemoji!=='undefined'&&twemoji.parse!==TwemojiLocal.parse){try{twemoji.parse(el,{folder:'svg',ext:'.svg'});}catch(e){}} el.querySelectorAll('img.emoji').forEach(function(img){const src=img.getAttribute('src')||'';if(src.indexOf('twemoji')===-1&&src.indexOf('twimg.com')===-1&&src.indexOf('cdnjs')===-1){img.classList.remove('emoji');img.style.height='';img.style.width='';}}); }
 let _twEmojiPending=null;
 function applyTwemojiThrottled(target){if(_twEmojiPending) clearTimeout(_twEmojiPending);_twEmojiPending=setTimeout(function(){applyTwemoji(target);_twEmojiPending=null;},120);}
-window.addEventListener('load',function(){TwemojiLocal.parse(document.body);setTimeout(function(){applyTwemoji(document.body);},400);setTimeout(function(){applyTwemoji(document.body);},1500);setTimeout(function(){applyTwemoji(document.body);},4000);});
+window.addEventListener('load',function(){TwemojiLocal.parse(document.body);setTimeout(function(){applyTwemoji(document.body);},400);setTimeout(function(){applyTwemoji(document.body);},1500);setTimeout(function(){applyTwemoji(document.body);},4000);
+  // সাউন্ড বাটন আইকন ঠিক করা
+  const sb=document.getElementById('soundToggleBtn'); if(sb) sb.textContent=SoundFX.isEnabled()?'🔔':'🔕';
+});
 const _emojiObserver=new MutationObserver(function(mutations){let needsUpdate=false;mutations.forEach(function(mutation){if(mutation.addedNodes.length>0) needsUpdate=true;});if(needsUpdate) applyTwemojiThrottled(document.body);});
 window.addEventListener('load',function(){const observeTargets=[document.getElementById('postsGallery'),document.getElementById('profileContent'),document.getElementById('notifList'),document.getElementById('eventsList'),document.getElementById('draftEventsList'),document.getElementById('storyBar'),document.getElementById('modalBody'),document.getElementById('eventSlider'),document.getElementById('fabMenu'),document.getElementById('userBar'),document.getElementById('bottomNav'),document.querySelector('.footer'),document.querySelector('.header'),document.getElementById('notifPanel')]; observeTargets.forEach(function(el){if(el) _emojiObserver.observe(el,{childList:true,subtree:true});});});
 
