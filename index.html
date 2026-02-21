@@ -6,6 +6,55 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>MeetApp</title>
+
+    <!-- ✅ PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://ui-avatars.com/api/?name=MA&size=512&background=6c63ff&color=ffffff&bold=true&rounded=false">
+    <link rel="apple-touch-icon" sizes="192x192" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
+    <meta name="theme-color" content="#6c63ff">
+
+    <!-- ✅ PWA: Inline Service Worker -->
+    <script>
+    if ('serviceWorker' in navigator) {
+      var swCode = `
+        const CACHE = 'meetapp-v2';
+        const ASSETS = ['/'];
+        self.addEventListener('install', e => {
+          e.waitUntil(
+            caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+          );
+        });
+        self.addEventListener('activate', e => {
+          e.waitUntil(
+            caches.keys().then(keys => Promise.all(
+              keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+            )).then(() => self.clients.claim())
+          );
+        });
+        self.addEventListener('fetch', e => {
+          if (e.request.method !== 'GET') return;
+          e.respondWith(
+            caches.match(e.request).then(r => {
+              if (r) return r;
+              return fetch(e.request).then(resp => {
+                if (!resp || resp.status !== 200) return resp;
+                var respClone = resp.clone();
+                caches.open(CACHE).then(c => c.put(e.request, respClone));
+                return resp;
+              }).catch(() => caches.match('/'));
+            })
+          );
+        });
+      `;
+      var blob = new Blob([swCode], {type: 'application/javascript'});
+      var swUrl = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(swUrl, {scope: './'})
+        .then(function(reg) { console.log('✅ SW registered:', reg.scope); })
+        .catch(function(err) { console.log('SW error:', err); });
+    }
+    </script>
+
     <script>
 var TwemojiLocal = (function() {
     var BASE = 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/';
