@@ -870,6 +870,10 @@ if (typeof twemoji === 'undefined') {
             <button class="bn-item" id="bnEvents" onclick="bnSwitch('events',this)">
                 <div class="bn-icon">📅</div><span class="bn-label" id="bnLabelEvents">ইভেন্ট</span>
             </button>
+            <button class="bn-item" id="bnChat" onclick="openChatList()">
+                <div class="bn-icon" style="position:relative;">💬<span id="chatUnreadBadge" style="display:none;position:absolute;top:-4px;right:-6px;background:#e74c3c;color:#fff;border-radius:50%;font-size:9px;font-weight:700;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 3px;border:2px solid var(--bg-page);"></span></div>
+                <span class="bn-label">চ্যাট</span>
+            </button>
             <button class="bn-item" id="bnProfile" onclick="bnSwitch('profile',this)">
                 <div class="bn-icon" id="bnProfileIcon" style="font-size:16px;font-weight:700;color:var(--p1);">👤</div>
                 <span class="bn-label" id="bnLabelProfile">প্রোফাইল</span>
@@ -2368,5 +2372,1133 @@ window.addEventListener('load',function(){const observeTargets=[document.getElem
 (function(){var _sn=showNotification;showNotification=function(){_sn.apply(this,arguments);setTimeout(function(){applyTwemoji(document.getElementById('notification'));},100);};})();
 (function(){var _rnl=renderNotifList;renderNotifList=function(){_rnl.apply(this,arguments);setTimeout(function(){applyTwemoji(document.getElementById('notifList'));},200);};})();
 </script>
+
+<!-- ===================== MESSENGER CHAT SYSTEM ===================== -->
+<style>
+/* ── Chat List Screen ── */
+.chat-screen{position:fixed;inset:0;z-index:3000;background:var(--bg-page);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);}
+.chat-screen.open{transform:translateX(0);}
+.chat-header{background:var(--grad-header);padding:14px 16px;display:flex;align-items:center;gap:12px;min-height:60px;box-shadow:0 2px 12px rgba(22,18,42,0.18);}
+.chat-header-back{background:rgba(255,255,255,0.12);border:none;color:#fff;width:38px;height:38px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chat-header-title{flex:1;color:#fff;font-size:17px;font-weight:700;font-family:'DM Sans',sans-serif;}
+.chat-header-status{font-size:11px;color:rgba(255,255,255,0.65);font-weight:400;display:block;margin-top:1px;}
+.chat-header-av{width:38px;height:38px;border-radius:50%;background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;overflow:hidden;flex-shrink:0;border:2px solid rgba(255,255,255,0.3);}
+.chat-header-av img{width:100%;height:100%;object-fit:cover;}
+
+/* ── Conversation List ── */
+.conv-search{padding:10px 14px 6px;}
+.conv-search input{width:100%;padding:9px 14px;border-radius:22px;border:1.5px solid var(--border-light);background:var(--bg-card-solid);color:var(--text-primary);font-size:14px;font-family:'DM Sans','Noto Sans Bengali',sans-serif;outline:none;}
+.conv-search input:focus{border-color:var(--p1);}
+.conv-list{flex:1;overflow-y:auto;padding:4px 0;}
+.conv-item{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;transition:background 0.15s;border-bottom:1px solid var(--border-light);}
+.conv-item:active{background:rgba(108,92,231,0.07);}
+.conv-av{width:50px;height:50px;border-radius:50%;background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:18px;flex-shrink:0;overflow:hidden;position:relative;}
+.conv-av img{width:100%;height:100%;object-fit:cover;}
+.conv-online-dot{position:absolute;bottom:1px;right:1px;width:12px;height:12px;background:#2ecc71;border-radius:50%;border:2px solid var(--bg-page);}
+.conv-info{flex:1;min-width:0;}
+.conv-name{font-size:14px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;}
+.conv-last-msg{font-size:12px;color:var(--text-muted-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.conv-last-msg.unread-preview{color:var(--text-primary);font-weight:600;}
+.conv-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.conv-time{font-size:11px;color:var(--text-muted-light);}
+.conv-unread{background:var(--p1);color:#fff;border-radius:50%;font-size:11px;font-weight:700;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+.conv-empty{text-align:center;padding:60px 24px;color:var(--text-muted-light);}
+.conv-empty-icon{font-size:48px;margin-bottom:12px;}
+
+/* ── Individual Chat Screen ── */
+.msg-area{flex:1;overflow-y:auto;padding:12px 12px 8px;display:flex;flex-direction:column;gap:6px;}
+.msg-day-label{text-align:center;margin:8px 0;font-size:11px;color:var(--text-muted-light);background:var(--bg-glass);border-radius:12px;padding:3px 10px;align-self:center;}
+.msg-row{display:flex;align-items:flex-end;gap:6px;max-width:82%;}
+.msg-row.me{align-self:flex-end;flex-direction:row-reverse;}
+.msg-row.them{align-self:flex-start;}
+.msg-av-sm{width:26px;height:26px;border-radius:50%;background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;}
+.msg-av-sm img{width:100%;height:100%;object-fit:cover;}
+.msg-bubble{padding:9px 13px;border-radius:18px;font-size:14px;line-height:1.5;word-break:break-word;position:relative;font-family:'DM Sans','Noto Sans Bengali',sans-serif;}
+.msg-row.me .msg-bubble{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;border-bottom-right-radius:4px;}
+.msg-row.them .msg-bubble{background:var(--bg-card-solid);color:var(--text-primary);border:1px solid var(--border-light);border-bottom-left-radius:4px;}
+.msg-meta{display:flex;align-items:center;gap:3px;margin-top:3px;justify-content:flex-end;}
+.msg-time{font-size:10px;opacity:0.65;}
+.msg-row.me .msg-time{color:#fff;}
+.msg-tick{font-size:12px;display:flex;align-items:center;}
+.tick-sent{color:rgba(255,255,255,0.55);}
+.tick-delivered{color:rgba(255,255,255,0.55);}
+.tick-seen{color:#54d2f0;}
+.msg-row.me .msg-meta .msg-time{color:rgba(255,255,255,0.7);}
+
+/* ── pending offline style ── */
+.msg-row.pending .msg-bubble{opacity:0.7;}
+
+/* ── Chat Input Bar ── */
+.chat-input-bar{padding:8px 10px;background:var(--bg-card-solid);border-top:1px solid var(--border-light);display:flex;align-items:flex-end;gap:8px;}
+.chat-input-wrap{flex:1;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:22px;display:flex;align-items:flex-end;padding:6px 12px;gap:6px;transition:border-color 0.2s;}
+.chat-input-wrap:focus-within{border-color:var(--p1);}
+.chat-input-textarea{flex:1;border:none;background:transparent;resize:none;font-size:14px;font-family:'DM Sans','Noto Sans Bengali',sans-serif;color:var(--text-primary);outline:none;max-height:100px;line-height:1.5;padding:2px 0;}
+.chat-input-textarea::placeholder{color:var(--text-muted-light);}
+.chat-emoji-btn{font-size:20px;cursor:pointer;border:none;background:transparent;padding:2px;line-height:1;flex-shrink:0;}
+.chat-send-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px rgba(108,92,231,0.4);transition:transform 0.15s,opacity 0.15s;}
+.chat-send-btn:active{transform:scale(0.88);}
+.chat-send-btn:disabled{opacity:0.45;cursor:not-allowed;}
+
+/* ── Offline Banner ── */
+.chat-offline-banner{background:#e17055;color:#fff;font-size:12px;font-weight:600;text-align:center;padding:5px;display:none;}
+.chat-offline-banner.show{display:block;}
+
+/* ── Image in chat ── */
+.msg-img{max-width:200px;border-radius:12px;display:block;cursor:pointer;}
+.chat-img-btn{font-size:20px;cursor:pointer;border:none;background:transparent;padding:2px;line-height:1;flex-shrink:0;}
+
+/* ── Typing indicator ── */
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:8px 14px;background:var(--bg-card-solid);border:1px solid var(--border-light);border-radius:18px;border-bottom-left-radius:4px;width:fit-content;}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted-light);animation:typingBounce 1.2s infinite ease-in-out;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* ── Emoji Picker Mini ── */
+.mini-emoji-picker{position:absolute;bottom:calc(100% + 8px);left:0;background:var(--bg-card-solid);border:1px solid var(--border-light);border-radius:16px;padding:10px;box-shadow:0 8px 32px rgba(22,18,42,0.22);display:none;z-index:100;flex-wrap:wrap;gap:6px;max-width:280px;}
+.mini-emoji-picker.show{display:flex;}
+.mini-emoji-picker span{font-size:24px;cursor:pointer;padding:2px;border-radius:6px;transition:transform 0.15s;}
+.mini-emoji-picker span:hover{transform:scale(1.3);}
+.chat-input-wrap{position:relative;}
+
+/* ── Reply preview ── */
+.reply-preview{background:rgba(108,92,231,0.1);border-left:3px solid var(--p1);padding:6px 10px;margin:0 10px 6px;border-radius:0 8px 8px 0;display:none;align-items:center;gap:8px;}
+.reply-preview.show{display:flex;}
+.reply-preview-text{flex:1;font-size:12px;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.reply-close{border:none;background:transparent;color:var(--text-muted-light);cursor:pointer;font-size:16px;padding:0;}
+</style>
+
+
+/* ══════════════ WEBRTC CALL UI ══════════════ */
+.call-screen{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#0f0c29,#302b63,#24243e);color:#fff;font-family:'DM Sans','Noto Sans Bengali',sans-serif;transition:opacity 0.3s;}
+.call-screen.hidden{display:none;}
+.call-avatar-big{width:110px;height:110px;border-radius:50%;background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:700;color:#fff;overflow:hidden;border:4px solid rgba(255,255,255,0.25);margin-bottom:18px;position:relative;}
+.call-avatar-big img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.call-avatar-big::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid rgba(255,255,255,0.15);animation:callPulse 1.8s infinite;}
+@keyframes callPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:0.4}}
+.call-name{font-size:24px;font-weight:800;margin-bottom:8px;text-align:center;}
+.call-status{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:40px;text-align:center;}
+.call-timer{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:2px;margin-bottom:40px;display:none;}
+.call-btns{display:flex;gap:28px;align-items:center;}
+.call-btn{width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:26px;transition:transform 0.15s,opacity 0.15s;flex-direction:column;gap:4px;}
+.call-btn:active{transform:scale(0.88);}
+.call-btn-label{font-size:11px;color:rgba(255,255,255,0.7);font-weight:600;margin-top:6px;}
+.call-btn.end{background:#e74c3c;box-shadow:0 4px 20px rgba(231,76,60,0.5);}
+.call-btn.answer{background:#2ecc71;box-shadow:0 4px 20px rgba(46,204,113,0.5);}
+.call-btn.mute{background:rgba(255,255,255,0.12);}
+.call-btn.mute.active{background:#e74c3c;}
+.call-btn.cam{background:rgba(255,255,255,0.12);}
+.call-btn.cam.active{background:#e74c3c;}
+.call-btn.speaker{background:rgba(255,255,255,0.12);}
+.call-btn.speaker.active{background:rgba(108,92,231,0.7);}
+.call-btn-wrap{display:flex;flex-direction:column;align-items:center;}
+
+/* Video elements */
+.video-container{position:relative;width:100%;flex:1;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;display:none;}
+.video-container.show{display:flex;}
+#remoteVideo{width:100%;height:100%;object-fit:cover;}
+#localVideo{position:absolute;bottom:16px;right:16px;width:100px;height:140px;object-fit:cover;border-radius:12px;border:2px solid rgba(255,255,255,0.3);background:#111;z-index:2;}
+
+/* Incoming call animation */
+.incoming-ring{animation:ringShake 0.5s infinite alternate;}
+@keyframes ringShake{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+
+<!-- Chat List Screen -->
+<div class="chat-screen" id="chatListScreen">
+    <div class="chat-header">
+        <button class="chat-header-back" onclick="closeChatList()">←</button>
+        <div style="flex:1">
+            <div class="chat-header-title">💬 চ্যাট</div>
+        </div>
+    </div>
+    <div class="conv-search">
+        <input type="text" id="convSearchInput" placeholder="🔍 কাউকে খুঁজুন..." oninput="filterConvSearch(this.value)">
+    </div>
+    <div class="conv-list" id="convList"></div>
+</div>
+
+<!-- Individual Chat Screen -->
+<div class="chat-screen" id="chatMsgScreen">
+    <div class="chat-header" id="chatMsgHeader">
+        <button class="chat-header-back" onclick="closeMsgScreen()">←</button>
+        <div class="chat-header-av" id="chatPartnerAv">?</div>
+        <div style="flex:1;min-width:0;">
+            <div class="chat-header-title" id="chatPartnerName" style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+            <span class="chat-header-status" id="chatPartnerStatus">অফলাইন</span>
+        </div>
+        <button onclick="startCall('audio')" title="ভয়েস কল" style="background:rgba(255,255,255,0.12);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-right:4px;">📞</button>
+        <button onclick="startCall('video')" title="ভিডিও কল" style="background:rgba(255,255,255,0.12);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;">📹</button>
+    </div>
+    <div class="chat-offline-banner" id="chatOfflineBanner">📵 অফলাইন — মেসেজ পরে পাঠানো হবে</div>
+    <div class="msg-area" id="msgArea"></div>
+    <div class="reply-preview" id="replyPreview">
+        <div class="reply-preview-text" id="replyPreviewText"></div>
+        <button class="reply-close" onclick="cancelReply()">✕</button>
+    </div>
+    <div class="chat-input-bar">
+        <div class="chat-input-wrap" id="chatInputWrap">
+            <div class="mini-emoji-picker" id="miniEmojiPicker">
+                <span onclick="insertEmoji('😀')">😀</span><span onclick="insertEmoji('😂')">😂</span>
+                <span onclick="insertEmoji('😍')">😍</span><span onclick="insertEmoji('🥰')">🥰</span>
+                <span onclick="insertEmoji('😮')">😮</span><span onclick="insertEmoji('😢')">😢</span>
+                <span onclick="insertEmoji('😡')">😡</span><span onclick="insertEmoji('👍')">👍</span>
+                <span onclick="insertEmoji('❤️')">❤️</span><span onclick="insertEmoji('🔥')">🔥</span>
+                <span onclick="insertEmoji('✅')">✅</span><span onclick="insertEmoji('🎉')">🎉</span>
+                <span onclick="insertEmoji('🙏')">🙏</span><span onclick="insertEmoji('😎')">😎</span>
+                <span onclick="insertEmoji('🤔')">🤔</span><span onclick="insertEmoji('👏')">👏</span>
+                <span onclick="insertEmoji('💯')">💯</span><span onclick="insertEmoji('🚀')">🚀</span>
+            </div>
+            <button class="chat-emoji-btn" onclick="toggleEmojiPicker(event)">😊</button>
+            <textarea class="chat-input-textarea" id="chatTextInput" rows="1" placeholder="মেসেজ লিখুন..." onkeydown="chatInputKeydown(event)" oninput="chatInputAutoResize(this);sendTyping()"></textarea>
+        </div>
+        <label class="chat-img-btn" title="ছবি পাঠান">
+            📎<input type="file" accept="image/*" style="display:none" onchange="sendImageMsg(this)">
+        </label>
+        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">➤</button>
+    </div>
+</div>
+
+<script>
+// =====================================================================
+// MESSENGER CHAT SYSTEM — Offline-First with IndexedDB
+// ডাটা/ইন্টারনেট ছাড়াও মেসেজ লেখা যাবে, অনলাইন হলে আপনাআপনি পাঠাবে
+// =====================================================================
+
+let chatPartnerUid = null;
+let chatMessages   = {};     // msgId → msg (current chat in-memory)
+let chatListeners  = {};     // active Firebase listeners
+let isOnline       = navigator.onLine;
+let typingTimeout  = null;
+let replyToMsg     = null;
+let _chatIDB       = null;   // IndexedDB handle
+let _retryTimer    = null;
+
+// ─────────────────────────────────────────────────────────────────────
+// 1. IndexedDB  ── stores ALL messages & offline queue persistently
+// ─────────────────────────────────────────────────────────────────────
+function openIDB(){
+    return new Promise((res,rej)=>{
+        if(_chatIDB){ res(_chatIDB); return; }
+        const req = indexedDB.open('meetapp_chat',2);
+        req.onupgradeneeded = e=>{
+            const db2 = e.target.result;
+            if(!db2.objectStoreNames.contains('messages')){
+                const ms = db2.createObjectStore('messages',{keyPath:'id'});
+                ms.createIndex('chatId','chatId',{unique:false});
+                ms.createIndex('ts','ts',{unique:false});
+            }
+            if(!db2.objectStoreNames.contains('queue')){
+                db2.createObjectStore('queue',{keyPath:'id'});
+            }
+            if(!db2.objectStoreNames.contains('convmeta')){
+                db2.createObjectStore('convmeta',{keyPath:'uid'});
+            }
+        };
+        req.onsuccess = e=>{ _chatIDB=e.target.result; res(_chatIDB); };
+        req.onerror   = ()=>rej(req.error);
+    });
+}
+
+// IDB helpers
+function idbPut(store, obj){ return openIDB().then(d=>new Promise((res,rej)=>{ const tx=d.transaction(store,'readwrite'); tx.objectStore(store).put(obj); tx.oncomplete=()=>res(); tx.onerror=()=>rej(); })); }
+function idbGet(store, key){ return openIDB().then(d=>new Promise((res,rej)=>{ const tx=d.transaction(store,'readonly'); const r=tx.objectStore(store).get(key); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(); })); }
+function idbDel(store, key){ return openIDB().then(d=>new Promise((res,rej)=>{ const tx=d.transaction(store,'readwrite'); tx.objectStore(store).delete(key); tx.oncomplete=()=>res(); tx.onerror=()=>rej(); })); }
+function idbGetAll(store){ return openIDB().then(d=>new Promise((res,rej)=>{ const tx=d.transaction(store,'readonly'); const r=tx.objectStore(store).getAll(); r.onsuccess=()=>res(r.result||[]); r.onerror=()=>rej([]); })); }
+function idbGetByIndex(store, idx, val){ return openIDB().then(d=>new Promise((res,rej)=>{ const tx=d.transaction(store,'readonly'); const r=tx.objectStore(store).index(idx).getAll(val); r.onsuccess=()=>res(r.result||[]); r.onerror=()=>rej([]); })); }
+
+// Save single message to IDB
+async function idbSaveMsg(msg){ await idbPut('messages', msg); }
+// Load all messages for a chatId from IDB
+async function idbLoadMsgs(chatId){ const all = await idbGetByIndex('messages','chatId',chatId); return all.sort((a,b)=>a.ts-b.ts); }
+// Queue a message for offline sending
+async function idbEnqueue(msg){ await idbPut('queue',{...msg,_queued:true}); }
+// Get full offline queue
+async function idbGetQueue(){ return idbGetAll('queue'); }
+// Remove from queue
+async function idbDequeue(id){ await idbDel('queue',id); }
+// Conv meta
+async function idbSaveMeta(uid, meta){ const ex=await idbGet('convmeta',uid)||{uid}; await idbPut('convmeta',{...ex,...meta,uid}); }
+async function idbGetMeta(uid){ return idbGet('convmeta',uid)||null; }
+async function idbGetAllMeta(){ return idbGetAll('convmeta'); }
+
+// ─────────────────────────────────────────────────────────────────────
+// 2. Online / Offline detection + banner
+// ─────────────────────────────────────────────────────────────────────
+window.addEventListener('online',  ()=>{ isOnline=true;  updateChatOfflineBanner(); syncQueueWhenOnline(); });
+window.addEventListener('offline', ()=>{ isOnline=false; updateChatOfflineBanner(); });
+
+function updateChatOfflineBanner(){
+    const b = document.getElementById('chatOfflineBanner');
+    if(!b) return;
+    if(!isOnline){
+        b.innerHTML = '📵 ইন্টারনেট নেই — মেসেজ লেখা হচ্ছে, অনলাইন হলে পাঠাবে <span id="queueCount"></span>';
+        b.classList.add('show');
+    } else {
+        b.classList.remove('show');
+    }
+    updateQueueCountDisplay();
+}
+
+async function updateQueueCountDisplay(){
+    const el = document.getElementById('queueCount');
+    if(!el) return;
+    const q = await idbGetQueue();
+    el.textContent = q.length ? `(${q.length}টি পেন্ডিং)` : '';
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 3. Utilities
+// ─────────────────────────────────────────────────────────────────────
+function getChatId(a,b){ return [a,b].sort().join('_'); }
+function chatFmtTime(ts){
+    const d=new Date(ts); let h=d.getHours(),m=d.getMinutes();
+    const ap=h>=12?'PM':'AM'; h=h%12||12;
+    return h+':'+(m<10?'0'+m:m)+' '+ap;
+}
+function chatFmtDate(ts){
+    const d=new Date(ts),today=new Date(); today.setHours(0,0,0,0);
+    const yest=new Date(today); yest.setDate(yest.getDate()-1);
+    const dt=new Date(d); dt.setHours(0,0,0,0);
+    if(dt.getTime()===today.getTime()) return 'আজ';
+    if(dt.getTime()===yest.getTime()) return 'গতকাল';
+    return d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
+}
+function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function msgIdNow(){ return Date.now()+'_'+Math.random().toString(36).substr(2,6); }
+
+// ─────────────────────────────────────────────────────────────────────
+// 4. Unread Badge
+// ─────────────────────────────────────────────────────────────────────
+async function updateChatUnreadBadge(){
+    const all = await idbGetAllMeta();
+    const n = all.reduce((s,m)=>s+(m.unread||0),0);
+    const b = document.getElementById('chatUnreadBadge');
+    if(!b) return;
+    if(n>0){ b.textContent=n>99?'99+':n; b.style.display='flex'; }
+    else b.style.display='none';
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 5. Conversation List
+// ─────────────────────────────────────────────────────────────────────
+function openChatList(){
+    if(!currentUser){ showNotification('চ্যাট করতে লগইন করুন!'); return; }
+    document.getElementById('chatListScreen').classList.add('open');
+    renderConvList();
+    listenAllConversations();
+}
+function closeChatList(){ document.getElementById('chatListScreen').classList.remove('open'); }
+
+async function renderConvList(filter=''){
+    const container = document.getElementById('convList');
+    if(!container) return;
+    const allMeta = await idbGetAllMeta();
+    const metaMap = {};
+    allMeta.forEach(m=>metaMap[m.uid]=m);
+
+    let users = Object.values(allUsers).filter(u=>u.uid!==currentUser?.uid);
+    if(filter) users = users.filter(u=>(u.name||'').toLowerCase().includes(filter.toLowerCase())||(u.username||'').toLowerCase().includes(filter.toLowerCase()));
+    if(!users.length){ container.innerHTML=`<div class="conv-empty"><div class="conv-empty-icon">💬</div><div>কোনো ব্যবহারকারী নেই</div></div>`; return; }
+
+    users.sort((a,b)=>((metaMap[b.uid]?.lastMsgTime)||0)-((metaMap[a.uid]?.lastMsgTime)||0));
+
+    container.innerHTML = users.map(u=>{
+        const m = metaMap[u.uid]||{};
+        const onlineU = !!window._onlineUsers?.[u.uid];
+        const av = u.avatar?`<img src="${u.avatar}" alt="">`:`<span>${(u.name||'?').charAt(0).toUpperCase()}</span>`;
+        const onlineDot = onlineU?`<div class="conv-online-dot"></div>`:'';
+        const badge = m.unread?`<div class="conv-unread">${m.unread}</div>`:'';
+        const lastMsg = m.lastMsg||'';
+        const lastTime = m.lastMsgTime?chatFmtTime(m.lastMsgTime):'';
+        const vBadge = (u.verified||u.username==='imtiaz')?sealBadgeSvg(14):'';
+        const pendingIcon = m.hasPending?`<span style="font-size:10px;color:#e17055;" title="পেন্ডিং মেসেজ আছে">⏳</span>`:'';
+        return `<div class="conv-item" onclick="openChat('${u.uid}')">
+            <div class="conv-av">${av}${onlineDot}</div>
+            <div class="conv-info">
+                <div class="conv-name">${u.name||'?'}${vBadge}</div>
+                <div class="conv-last-msg ${m.unread?'unread-preview':''}">${lastMsg||'<span style="color:var(--text-muted-light);font-style:italic;">চ্যাট শুরু করুন</span>'}</div>
+            </div>
+            <div class="conv-meta">${lastTime?`<div class="conv-time">${lastTime}</div>`:''}${badge}${pendingIcon}</div>
+        </div>`;
+    }).join('');
+}
+function filterConvSearch(v){ renderConvList(v); }
+
+// ─────────────────────────────────────────────────────────────────────
+// 6. Presence
+// ─────────────────────────────────────────────────────────────────────
+window._onlineUsers = {};
+function listenPresenceForChat(){
+    if(!db) return;
+    db.ref('presence').on('value', snap=>{
+        window._onlineUsers={};
+        if(snap.exists()) snap.forEach(c=>{ const d=c.val(); if(d.online&&(Date.now()-(d.lastSeen||0))<120000) window._onlineUsers[c.key]=true; });
+        if(chatPartnerUid) updatePartnerStatus();
+    });
+}
+function updatePartnerStatus(){
+    const el=document.getElementById('chatPartnerStatus');
+    if(!el||!chatPartnerUid) return;
+    const on=window._onlineUsers[chatPartnerUid];
+    el.textContent=on?'🟢 অনলাইন':'অফলাইন';
+    el.style.color=on?'#2ecc71':'rgba(255,255,255,0.55)';
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 7. Listen conversations for incoming messages
+// ─────────────────────────────────────────────────────────────────────
+function listenAllConversations(){
+    if(!db||!currentUser) return;
+    db.ref('chats').once('value', snap=>{
+        if(!snap.exists()) return;
+        snap.forEach(cs=>{
+            const cid=cs.key;
+            if(cid.includes(currentUser.uid)){
+                const parts=cid.split('_');
+                const pUid=parts.find(p=>p!==currentUser.uid);
+                if(pUid&&!chatListeners[cid]) listenConversation(cid,pUid);
+            }
+        });
+    });
+}
+function listenConversation(chatId,partnerUid){
+    if(!db||chatListeners[chatId]) return;
+    chatListeners[chatId]=true;
+    db.ref('chats/'+chatId+'/messages').orderByChild('ts').on('value', async snap=>{
+        if(!snap.exists()) return;
+        // Save all to IDB
+        snap.forEach(c=>{ idbSaveMsg({...c.val(),id:c.key}); });
+        // Update conv meta for unread
+        const vals=[]; snap.forEach(c=>vals.push({...c.val(),id:c.key}));
+        const last=vals[vals.length-1];
+        if(last){
+            const isIncoming=last.from!==currentUser.uid;
+            const ex=await idbGetMeta(partnerUid)||{uid:partnerUid,unread:0};
+            const unread = (isIncoming&&chatPartnerUid!==partnerUid)?(ex.unread||0)+1:(chatPartnerUid===partnerUid?0:(ex.unread||0));
+            await idbSaveMeta(partnerUid,{lastMsg:last.type==='image'?'📷 ছবি':(last.text||''),lastMsgTime:last.ts,unread:chatPartnerUid===partnerUid?0:unread});
+            updateChatUnreadBadge();
+            renderConvList(document.getElementById('convSearchInput')?.value||'');
+        }
+        // If this chat is open, refresh messages
+        if(chatPartnerUid===partnerUid){
+            const msgs={};
+            snap.forEach(c=>{ msgs[c.key]={...c.val(),id:c.key}; });
+            // Merge pending
+            const q=await idbGetQueue();
+            q.filter(i=>i.chatId===chatId).forEach(i=>{ if(!msgs[i.id]) msgs[i.id]={...i,status:'queued'}; });
+            chatMessages=msgs;
+            renderMessages();
+            markMessagesAsSeen(partnerUid);
+        }
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 8. Open Chat
+// ─────────────────────────────────────────────────────────────────────
+async function openChat(uid){
+    if(!currentUser){ showNotification('চ্যাট করতে লগইন করুন!'); return; }
+    chatPartnerUid=uid;
+    const partner=allUsers[uid]||{name:'?',uid};
+    await idbSaveMeta(uid,{unread:0});
+    updateChatUnreadBadge();
+    const av=partner.avatar?`<img src="${partner.avatar}" alt="">`:((partner.name||'?').charAt(0).toUpperCase());
+    document.getElementById('chatPartnerAv').innerHTML=av;
+    document.getElementById('chatPartnerName').textContent=partner.name||'?';
+    updatePartnerStatus();
+    document.getElementById('chatMsgScreen').classList.add('open');
+    updateChatOfflineBanner();
+    await loadAndRenderChat(uid);
+    markMessagesAsSeen(uid);
+    listenTyping(uid);
+}
+
+function closeMsgScreen(){
+    const uid=chatPartnerUid;
+    chatPartnerUid=null;
+    document.getElementById('chatMsgScreen').classList.remove('open');
+    if(uid&&db) db.ref('typing/'+getChatId(currentUser.uid,uid)+'/'+currentUser.uid).remove();
+}
+
+async function loadAndRenderChat(partnerUid){
+    const chatId=getChatId(currentUser.uid,partnerUid);
+    // Load from IDB first (instant, no internet needed)
+    const idbMsgs = await idbLoadMsgs(chatId);
+    const msgs={};
+    idbMsgs.forEach(m=>msgs[m.id]=m);
+    // Also load queue (pending msgs)
+    const q = await idbGetQueue();
+    q.filter(i=>i.chatId===chatId).forEach(i=>{ msgs[i.id]={...i,status:'queued'}; });
+    chatMessages=msgs;
+    renderMessages();
+    // Then start Firebase listener
+    if(!chatListeners[chatId]) listenConversation(chatId,partnerUid);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 9. Render Messages
+// ─────────────────────────────────────────────────────────────────────
+function renderMessages(){
+    const area=document.getElementById('msgArea');
+    if(!area) return;
+    const msgs=Object.values(chatMessages).sort((a,b)=>a.ts-b.ts);
+    let html='',lastDate='';
+    msgs.forEach(msg=>{
+        const dl=chatFmtDate(msg.ts);
+        if(dl!==lastDate){ html+=`<div class="msg-day-label">${dl}</div>`; lastDate=dl; }
+        html+=renderOneMsgRow(msg);
+    });
+    html+=`<div id="typingRow" style="display:none;" class="msg-row them"><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`;
+    area.innerHTML=html;
+    area.scrollTop=area.scrollHeight;
+    area.querySelectorAll('.msg-bubble[data-mid]').forEach(b=>{
+        b.addEventListener('contextmenu',e=>{ e.preventDefault(); showMsgOptions(b.dataset.mid); });
+    });
+}
+
+function renderOneMsgRow(msg){
+    if(!msg) return '';
+    const isMe=msg.from===currentUser?.uid;
+    const isQueued=msg.status==='queued';
+    let tick='';
+    if(isMe){
+        if(isQueued)             tick=`<span class="msg-tick" style="color:rgba(255,255,255,0.4);" title="কিউতে আছে">⏳</span>`;
+        else if(msg.status==='pending') tick=`<span class="msg-tick tick-sent" title="পাঠানো হচ্ছে">✓</span>`;
+        else if(msg.status==='sent')    tick=`<span class="msg-tick tick-sent" title="পাঠানো হয়েছে">✓</span>`;
+        else if(msg.status==='delivered')tick=`<span class="msg-tick tick-delivered">✓✓</span>`;
+        else if(msg.status==='seen')    tick=`<span class="msg-tick tick-seen" title="দেখা হয়েছে">✓✓</span>`;
+    }
+    let replyHtml='';
+    if(msg.replyTo){ const o=chatMessages[msg.replyTo]; replyHtml=o?`<div style="background:rgba(0,0,0,0.12);border-left:3px solid rgba(255,255,255,0.5);padding:4px 8px;border-radius:4px;font-size:11px;margin-bottom:4px;opacity:0.85;">${o.type==='image'?'📷 ছবি':(o.text||'').substring(0,50)}</div>`:''; }
+    let content=msg.type==='image'?`<img src="${msg.image}" class="msg-img" onclick="viewImageFull('${msg.image}')" alt="ছবি">`:escapeHtml(msg.text||'');
+    let avHtml='';
+    if(!isMe){ const p=allUsers[chatPartnerUid]||{}; avHtml=`<div class="msg-av-sm">${p.avatar?`<img src="${p.avatar}" alt="">`:((p.name||'?').charAt(0).toUpperCase())}</div>`; }
+    return `<div class="msg-row ${isMe?'me':'them'} ${isQueued?'pending':''}" data-id="${msg.id||''}">
+        ${avHtml}
+        <div>
+            ${replyHtml}
+            <div class="msg-bubble" data-mid="${msg.id||''}">${content}</div>
+            <div class="msg-meta"><span class="msg-time">${chatFmtTime(msg.ts)}</span>${tick}</div>
+        </div>
+    </div>`;
+}
+
+function viewImageFull(src){
+    document.getElementById('modalMedia').innerHTML=`<img src="${src}" style="max-width:100%;border-radius:12px;">`;
+    document.getElementById('modalBody').innerHTML='';
+    document.getElementById('modalOverlay').classList.add('show');
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 10. Send Message  ── WORKS OFFLINE TOO
+// ─────────────────────────────────────────────────────────────────────
+async function sendChatMessage(){
+    if(!currentUser||!chatPartnerUid) return;
+    const ta=document.getElementById('chatTextInput');
+    const text=ta.value.trim();
+    if(!text) return;
+    ta.value=''; chatInputAutoResize(ta);
+    const msg=buildMsg({type:'text',text});
+    await dispatchMessage(msg);
+    cancelReply();
+}
+
+function buildMsg(extra){
+    return {
+        id: msgIdNow(),
+        chatId: getChatId(currentUser.uid,chatPartnerUid),
+        from: currentUser.uid,
+        to: chatPartnerUid,
+        ts: Date.now(),
+        status: isOnline&&db?'pending':'queued',
+        replyTo: replyToMsg?.id||null,
+        ...extra
+    };
+}
+
+async function dispatchMessage(msg){
+    // 1. Show instantly in UI
+    chatMessages[msg.id]=msg;
+    renderMessages();
+    // 2. Save to IDB always (works offline)
+    await idbSaveMsg(msg);
+    // 3. Update conv meta locally
+    await idbSaveMeta(chatPartnerUid,{
+        lastMsg:msg.type==='image'?'📷 ছবি':msg.text,
+        lastMsgTime:msg.ts,
+        unread:0
+    });
+    // 4. Try to send via Firebase
+    if(isOnline && db){
+        await pushMsgToFirebase(msg);
+    } else {
+        // Queue for later
+        await idbEnqueue(msg);
+        await idbSaveMeta(chatPartnerUid,{hasPending:true});
+        updateQueueCountDisplay();
+        // Try again when reconnected
+    }
+}
+
+async function pushMsgToFirebase(msg){
+    const chatId=msg.chatId;
+    const toSave={...msg,status:'sent',_queued:undefined};
+    delete toSave._queued;
+    try{
+        await new Promise((res,rej)=>{
+            db.ref('chats/'+chatId+'/messages/'+msg.id).set(toSave).then(res).catch(rej);
+        });
+        // Update local status
+        chatMessages[msg.id]={...chatMessages[msg.id],status:'sent'};
+        await idbSaveMsg({...msg,status:'sent'});
+        // Remove from queue if it was there
+        await idbDequeue(msg.id);
+        renderMessages();
+        // Mark as delivered after a short delay
+        setTimeout(()=>{ if(db) db.ref('chats/'+chatId+'/messages/'+msg.id+'/status').set('delivered'); },500);
+    } catch(err){
+        // Firebase failed — keep in queue, will retry
+        await idbEnqueue(msg);
+        await idbSaveMeta(chatPartnerUid||msg.to,{hasPending:true});
+        chatMessages[msg.id]={...chatMessages[msg.id],status:'queued'};
+        await idbSaveMsg({...msg,status:'queued'});
+        renderMessages();
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 11. Sync Queue When Online
+// ─────────────────────────────────────────────────────────────────────
+async function syncQueueWhenOnline(){
+    if(!db||!currentUser) return;
+    const q=await idbGetQueue();
+    if(!q.length) return;
+    let sent=0;
+    for(const item of q){
+        if(item.from!==currentUser.uid) continue;
+        try{
+            await pushMsgToFirebase(item);
+            sent++;
+        } catch(e){ /* keep in queue */ }
+    }
+    if(sent>0){
+        showNotification(`✅ ${sent}টি অফলাইন মেসেজ পাঠানো হয়েছে!`);
+        renderConvList();
+        if(chatPartnerUid) await loadAndRenderChat(chatPartnerUid);
+    }
+    clearInterval(_retryTimer);
+    _retryTimer=null;
+}
+
+// Auto-retry every 30s when offline
+function startRetryTimer(){
+    if(_retryTimer) return;
+    _retryTimer=setInterval(async()=>{
+        if(isOnline) { clearInterval(_retryTimer); _retryTimer=null; syncQueueWhenOnline(); }
+    },30000);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 12. Mark as Seen
+// ─────────────────────────────────────────────────────────────────────
+function markMessagesAsSeen(partnerUid){
+    if(!db||!currentUser) return;
+    const chatId=getChatId(currentUser.uid,partnerUid);
+    db.ref('chats/'+chatId+'/messages').orderByChild('to').equalTo(currentUser.uid).once('value',snap=>{
+        if(!snap.exists()) return;
+        const updates={};
+        snap.forEach(c=>{ if(c.val().status!=='seen') updates['chats/'+chatId+'/messages/'+c.key+'/status']='seen'; });
+        if(Object.keys(updates).length) db.ref().update(updates);
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 13. Send Image
+// ─────────────────────────────────────────────────────────────────────
+function sendImageMsg(input){
+    if(!input.files[0]||!currentUser||!chatPartnerUid) return;
+    const reader=new FileReader();
+    reader.onload=async e=>{
+        const msg=buildMsg({type:'image',image:e.target.result});
+        await dispatchMessage(msg);
+    };
+    reader.readAsDataURL(input.files[0]);
+    input.value='';
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 14. Typing Indicator
+// ─────────────────────────────────────────────────────────────────────
+function sendTyping(){
+    if(!db||!currentUser||!chatPartnerUid||!isOnline) return;
+    const cid=getChatId(currentUser.uid,chatPartnerUid);
+    db.ref('typing/'+cid+'/'+currentUser.uid).set(true);
+    clearTimeout(typingTimeout);
+    typingTimeout=setTimeout(()=>db.ref('typing/'+cid+'/'+currentUser.uid).remove(),2000);
+}
+function listenTyping(partnerUid){
+    if(!db||!currentUser) return;
+    const cid=getChatId(currentUser.uid,partnerUid);
+    db.ref('typing/'+cid+'/'+partnerUid).on('value',snap=>{
+        const r=document.getElementById('typingRow');
+        if(r){ r.style.display=snap.val()?'flex':'none'; const a=document.getElementById('msgArea'); if(a&&snap.val()) a.scrollTop=a.scrollHeight; }
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 15. Reply
+// ─────────────────────────────────────────────────────────────────────
+function showMsgOptions(msgId){
+    const msg=chatMessages[msgId]; if(!msg) return;
+    replyToMsg=msg;
+    const p=document.getElementById('replyPreview'),t=document.getElementById('replyPreviewText');
+    if(p&&t){ t.textContent=msg.type==='image'?'📷 ছবি':(msg.text||'').substring(0,60); p.classList.add('show'); }
+    document.getElementById('chatTextInput')?.focus();
+}
+function cancelReply(){ replyToMsg=null; document.getElementById('replyPreview')?.classList.remove('show'); }
+
+// ─────────────────────────────────────────────────────────────────────
+// 16. Emoji
+// ─────────────────────────────────────────────────────────────────────
+function toggleEmojiPicker(e){ e.stopPropagation(); document.getElementById('miniEmojiPicker').classList.toggle('show'); }
+function insertEmoji(em){ const ta=document.getElementById('chatTextInput'); if(!ta) return; const s=ta.selectionStart,e2=ta.selectionEnd; ta.value=ta.value.slice(0,s)+em+ta.value.slice(e2); ta.selectionStart=ta.selectionEnd=s+em.length; ta.focus(); document.getElementById('miniEmojiPicker').classList.remove('show'); }
+document.addEventListener('click',e=>{ if(!e.target.closest('.chat-emoji-btn')&&!e.target.closest('.mini-emoji-picker')) document.getElementById('miniEmojiPicker')?.classList.remove('show'); });
+
+// ─────────────────────────────────────────────────────────────────────
+// 17. Input helpers
+// ─────────────────────────────────────────────────────────────────────
+function chatInputKeydown(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendChatMessage(); } }
+function chatInputAutoResize(ta){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,100)+'px'; }
+
+// ─────────────────────────────────────────────────────────────────────
+// 18. Open chat from profile
+// ─────────────────────────────────────────────────────────────────────
+function openChatWith(uid){ if(!currentUser){ showNotification('চ্যাট করতে লগইন করুন!'); return; } openChatList(); setTimeout(()=>openChat(uid),150); }
+// startVideoChatInfo replaced by WebRTC system
+
+// ─────────────────────────────────────────────────────────────────────
+// 19. Init
+// ─────────────────────────────────────────────────────────────────────
+async function initChatSystem(){
+    if(!currentUser) return;
+    await openIDB(); // pre-open DB
+    listenPresenceForChat();
+    listenAllConversations();
+    await updateChatUnreadBadge();
+    updateChatOfflineBanner();
+    if(isOnline) syncQueueWhenOnline();
+    else startRetryTimer();
+}
+
+(function(){
+    const _origRP=renderProfile;
+    renderProfile=function(){
+        _origRP.apply(this,arguments);
+        if(currentUser&&!window._chatInitDone){ window._chatInitDone=true; initChatSystem(); }
+    };
+})();
+
+(function(){
+    const _origVUP=window.viewUserProfile;
+    window.viewUserProfile=function(uid){
+        _origVUP.apply(this,arguments);
+        setTimeout(()=>{
+            const mb=document.getElementById('modalBody');
+            if(!mb||!currentUser||uid===currentUser.uid) return;
+            if(mb.querySelector('.chat-with-btn')) return;
+            const btn=document.createElement('button');
+            btn.className='chat-with-btn';
+            btn.style.cssText='margin-top:10px;padding:9px 24px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;border:none;border-radius:22px;font-size:14px;font-weight:700;cursor:pointer;font-family:"DM Sans",sans-serif;display:flex;align-items:center;gap:6px;margin-left:auto;margin-right:auto;';
+            btn.innerHTML='💬 মেসেজ পাঠান';
+            btn.onclick=()=>{ closeModal(); openChatWith(uid); };
+            mb.insertBefore(btn,mb.querySelector('.photo-grid')||null);
+        },100);
+    };
+})();
+</script>
+
+<!-- ══ OUTGOING / ACTIVE CALL SCREEN ══ -->
+<div class="call-screen hidden" id="callScreen">
+    <div class="video-container" id="videoContainer">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <video id="localVideo" autoplay playsinline muted></video>
+    </div>
+    <div id="callInfoBlock" style="display:flex;flex-direction:column;align-items:center;padding:40px 20px 0;">
+        <div class="call-avatar-big" id="callAvatarBig">?</div>
+        <div class="call-name" id="callNameEl"></div>
+        <div class="call-status" id="callStatusEl">সংযোগ করা হচ্ছে...</div>
+        <div class="call-timer" id="callTimer">00:00</div>
+    </div>
+    <div class="call-btns" style="margin-top:auto;padding-bottom:48px;">
+        <div class="call-btn-wrap"><button class="call-btn mute" id="btnMute" onclick="toggleMute()" title="মিউট">🎙️</button><span class="call-btn-label">মিউট</span></div>
+        <div class="call-btn-wrap"><button class="call-btn end" onclick="endCall()">📵</button><span class="call-btn-label">রাখুন</span></div>
+        <div class="call-btn-wrap"><button class="call-btn speaker" id="btnSpeaker" onclick="toggleSpeaker()">🔊</button><span class="call-btn-label">স্পিকার</span></div>
+    </div>
+</div>
+
+<!-- ══ INCOMING CALL SCREEN ══ -->
+<div class="call-screen hidden" id="incomingCallScreen">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:80px 20px 0;">
+        <div style="font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:24px;">আসছে কল...</div>
+        <div class="call-avatar-big incoming-ring" id="incomingAvEl">?</div>
+        <div class="call-name" id="incomingNameEl"></div>
+        <div class="call-status" id="incomingTypeEl">ভয়েস কল</div>
+    </div>
+    <div class="call-btns" style="margin-top:auto;padding-bottom:60px;">
+        <div class="call-btn-wrap"><button class="call-btn end" onclick="rejectCall()">📵</button><span class="call-btn-label">প্রত্যাখ্যান</span></div>
+        <div class="call-btn-wrap" style="margin-left:40px;"><button class="call-btn answer" onclick="answerCall()">📞</button><span class="call-btn-label">গ্রহণ</span></div>
+    </div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// WEBRTC VOICE & VIDEO CALL SYSTEM
+// Firebase = signaling | WebRTC = peer-to-peer media
+// ══════════════════════════════════════════════════════════════════
+
+const STUN_SERVERS = {
+    iceServers:[
+        {urls:'stun:stun.l.google.com:19302'},
+        {urls:'stun:stun1.l.google.com:19302'},
+        {urls:'stun:stun2.l.google.com:19302'},
+    ]
+};
+
+let _pc         = null;   // RTCPeerConnection
+let _localStream= null;   // local MediaStream
+let _callId     = null;   // Firebase call doc key
+let _callType   = 'audio';// 'audio'|'video'
+let _isCaller   = false;
+let _callTimerInt=null;
+let _callSeconds =0;
+let _isMuted     =false;
+let _isSpeaker   =false;
+let _incomingCallData = null;
+
+// ── Start outgoing call ───────────────────────────────────────────
+async function startCall(type){
+    if(!currentUser){ showNotification('লগইন করুন!'); return; }
+    if(!chatPartnerUid){ showNotification('কাকে কল করবেন?'); return; }
+    if(!db){ showNotification('ইন্টারনেট সংযোগ প্রয়োজন কলের জন্য!'); return; }
+    if(!isOnline){ showNotification('📵 কল করতে ইন্টারনেট প্রয়োজন!'); return; }
+    _callType = type;
+    _isCaller = true;
+    _callId   = getChatId(currentUser.uid, chatPartnerUid)+'_call';
+
+    // Show outgoing UI
+    showCallScreen(chatPartnerUid, 'সংযোগ করা হচ্ছে...', type);
+
+    try {
+        // Get local media
+        _localStream = await navigator.mediaDevices.getUserMedia(
+            type==='video' ? {audio:true,video:{facingMode:'user'}} : {audio:true,video:false}
+        );
+        if(type==='video'){
+            document.getElementById('localVideo').srcObject = _localStream;
+            document.getElementById('videoContainer').classList.add('show');
+            document.getElementById('callInfoBlock').style.display='none';
+        }
+
+        // Create peer connection
+        _pc = new RTCPeerConnection(STUN_SERVERS);
+        _localStream.getTracks().forEach(t=>_pc.addTrack(t,_localStream));
+
+        // When we get remote stream
+        _pc.ontrack = e=>{
+            document.getElementById('remoteVideo').srcObject = e.streams[0];
+        };
+
+        // ICE candidates → Firebase
+        _pc.onicecandidate = e=>{
+            if(e.candidate && db){
+                db.ref('calls/'+_callId+'/callerCandidates').push(e.candidate.toJSON());
+            }
+        };
+
+        // Connection state
+        _pc.onconnectionstatechange = ()=>{
+            if(_pc.connectionState==='connected'){
+                document.getElementById('callStatusEl').textContent='সংযুক্ত ✅';
+                startCallTimer();
+            } else if(['disconnected','failed','closed'].includes(_pc.connectionState)){
+                endCall(true);
+            }
+        };
+
+        // Create offer
+        const offer = await _pc.createOffer();
+        await _pc.setLocalDescription(offer);
+
+        // Write call to Firebase
+        await db.ref('calls/'+_callId).set({
+            callerId: currentUser.uid,
+            callerName: currentUser.name||'?',
+            callerAvatar: currentUser.avatar||'',
+            receiverId: chatPartnerUid,
+            type: type,
+            offer: {sdp:offer.sdp, type:offer.type},
+            status:'ringing',
+            ts: Date.now()
+        });
+
+        // Listen for answer
+        db.ref('calls/'+_callId+'/answer').on('value', async snap=>{
+            if(!snap.val()||!_pc) return;
+            if(_pc.signalingState==='have-local-offer'){
+                const answer = new RTCSessionDescription(snap.val());
+                await _pc.setRemoteDescription(answer);
+            }
+        });
+
+        // Listen for callee ICE candidates
+        db.ref('calls/'+_callId+'/calleeCandidates').on('child_added', snap=>{
+            if(!_pc||!snap.val()) return;
+            _pc.addIceCandidate(new RTCIceCandidate(snap.val())).catch(()=>{});
+        });
+
+        // Listen for call status changes (rejected / ended)
+        db.ref('calls/'+_callId+'/status').on('value', snap=>{
+            const s = snap.val();
+            if(s==='rejected'){ showNotification('কল প্রত্যাখ্যান করা হয়েছে'); endCall(true); }
+            else if(s==='ended'){ endCall(true); }
+        });
+
+    } catch(err){
+        console.error('Call error:', err);
+        if(err.name==='NotAllowedError') showNotification('📵 মাইক্রোফোন/ক্যামেরার অনুমতি দিন!');
+        else showNotification('কল শুরু করা যায়নি: '+err.message);
+        endCall(true);
+    }
+}
+
+// ── Listen for incoming calls ─────────────────────────────────────
+function listenIncomingCalls(){
+    if(!db||!currentUser) return;
+    db.ref('calls').orderByChild('receiverId').equalTo(currentUser.uid).on('child_added', snap=>{
+        const data = snap.val();
+        if(!data) return;
+        // Check if call is recent (within 60s) and still ringing
+        if(data.status!=='ringing') return;
+        if(Date.now()-data.ts > 60000) return;
+        // Don't show if we're already in a call
+        if(_pc) return;
+        _incomingCallData = {...data, callKey:snap.key};
+        showIncomingCallUI(data);
+    });
+    // Also listen for changes
+    db.ref('calls').orderByChild('receiverId').equalTo(currentUser.uid).on('child_changed', snap=>{
+        const data = snap.val();
+        if(data?.status==='ended'||data?.status==='rejected'){
+            if(_incomingCallData?.callKey===snap.key){
+                hideIncomingCallUI();
+                _incomingCallData=null;
+            }
+        }
+    });
+}
+
+// ── Show incoming call UI ─────────────────────────────────────────
+function showIncomingCallUI(data){
+    const screen = document.getElementById('incomingCallScreen');
+    const av = data.callerAvatar?`<img src="${data.callerAvatar}" alt="">`:((data.callerName||'?').charAt(0).toUpperCase());
+    document.getElementById('incomingAvEl').innerHTML = av;
+    document.getElementById('incomingNameEl').textContent = data.callerName||'?';
+    document.getElementById('incomingTypeEl').textContent = data.type==='video'?'📹 ভিডিও কল':'📞 ভয়েস কল';
+    screen.classList.remove('hidden');
+    // Play ringtone (web audio)
+    playRingtone();
+}
+function hideIncomingCallUI(){
+    document.getElementById('incomingCallScreen').classList.add('hidden');
+    stopRingtone();
+}
+
+// ── Answer call ───────────────────────────────────────────────────
+async function answerCall(){
+    if(!_incomingCallData) return;
+    hideIncomingCallUI();
+    const data = _incomingCallData;
+    _callId = data.callKey;
+    _callType = data.type;
+    _isCaller = false;
+    chatPartnerUid = chatPartnerUid || data.callerId;
+
+    showCallScreen(data.callerId, data.callerName, data.type);
+
+    try {
+        _localStream = await navigator.mediaDevices.getUserMedia(
+            data.type==='video' ? {audio:true,video:{facingMode:'user'}} : {audio:true,video:false}
+        );
+        if(data.type==='video'){
+            document.getElementById('localVideo').srcObject = _localStream;
+            document.getElementById('videoContainer').classList.add('show');
+            document.getElementById('callInfoBlock').style.display='none';
+        }
+
+        _pc = new RTCPeerConnection(STUN_SERVERS);
+        _localStream.getTracks().forEach(t=>_pc.addTrack(t,_localStream));
+
+        _pc.ontrack = e=>{ document.getElementById('remoteVideo').srcObject = e.streams[0]; };
+
+        _pc.onicecandidate = e=>{
+            if(e.candidate && db) db.ref('calls/'+_callId+'/calleeCandidates').push(e.candidate.toJSON());
+        };
+
+        _pc.onconnectionstatechange = ()=>{
+            if(_pc.connectionState==='connected'){
+                document.getElementById('callStatusEl').textContent='সংযুক্ত ✅';
+                startCallTimer();
+            } else if(['disconnected','failed','closed'].includes(_pc.connectionState)){
+                endCall(true);
+            }
+        };
+
+        // Set remote offer
+        await _pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+        // Create answer
+        const answer = await _pc.createAnswer();
+        await _pc.setLocalDescription(answer);
+        await db.ref('calls/'+_callId+'/answer').set({sdp:answer.sdp,type:answer.type});
+        await db.ref('calls/'+_callId+'/status').set('answered');
+
+        // Listen for caller ICE candidates
+        db.ref('calls/'+_callId+'/callerCandidates').on('child_added', snap=>{
+            if(!_pc||!snap.val()) return;
+            _pc.addIceCandidate(new RTCIceCandidate(snap.val())).catch(()=>{});
+        });
+
+        // Listen for call end
+        db.ref('calls/'+_callId+'/status').on('value', snap=>{
+            if(snap.val()==='ended') endCall(true);
+        });
+
+    } catch(err){
+        console.error('Answer error:', err);
+        if(err.name==='NotAllowedError') showNotification('📵 মাইক্রোফোন/ক্যামেরার অনুমতি দিন!');
+        endCall(true);
+    }
+}
+
+// ── Reject call ───────────────────────────────────────────────────
+function rejectCall(){
+    if(_incomingCallData && db){
+        db.ref('calls/'+_incomingCallData.callKey+'/status').set('rejected');
+    }
+    hideIncomingCallUI();
+    _incomingCallData=null;
+    stopRingtone();
+}
+
+// ── End call ──────────────────────────────────────────────────────
+function endCall(silent=false){
+    stopCallTimer();
+    stopRingtone();
+    if(_callId && db && !silent){
+        db.ref('calls/'+_callId+'/status').set('ended');
+    }
+    if(_callId && db){
+        db.ref('calls/'+_callId+'/callerCandidates').off();
+        db.ref('calls/'+_callId+'/calleeCandidates').off();
+        db.ref('calls/'+_callId+'/answer').off();
+        db.ref('calls/'+_callId+'/status').off();
+    }
+    if(_localStream){ _localStream.getTracks().forEach(t=>t.stop()); _localStream=null; }
+    if(_pc){ _pc.close(); _pc=null; }
+    document.getElementById('remoteVideo').srcObject=null;
+    document.getElementById('localVideo').srcObject=null;
+    document.getElementById('videoContainer').classList.remove('show');
+    document.getElementById('callInfoBlock').style.display='flex';
+    document.getElementById('callScreen').classList.add('hidden');
+    document.getElementById('incomingCallScreen').classList.add('hidden');
+    _callId=null; _isCaller=false; _incomingCallData=null;
+    _isMuted=false; _isSpeaker=false;
+    const mb=document.getElementById('btnMute'); if(mb) mb.classList.remove('active');
+    const sb=document.getElementById('btnSpeaker'); if(sb) sb.classList.remove('active');
+}
+
+// ── Show call screen (outgoing/active) ────────────────────────────
+function showCallScreen(partnerUid, statusText, type){
+    const partner = allUsers[partnerUid]||{name:partnerUid};
+    const av = partner.avatar?`<img src="${partner.avatar}" alt="">`:((partner.name||'?').charAt(0).toUpperCase());
+    document.getElementById('callAvatarBig').innerHTML=av;
+    document.getElementById('callNameEl').textContent=partner.name||'?';
+    document.getElementById('callStatusEl').textContent=statusText||'সংযোগ করা হচ্ছে...';
+    document.getElementById('callTimer').style.display='none';
+    document.getElementById('callTimer').textContent='00:00';
+    document.getElementById('callScreen').classList.remove('hidden');
+}
+
+// ── Call timer ────────────────────────────────────────────────────
+function startCallTimer(){
+    _callSeconds=0;
+    document.getElementById('callTimer').style.display='block';
+    document.getElementById('callStatusEl').style.display='none';
+    _callTimerInt=setInterval(()=>{
+        _callSeconds++;
+        const m=Math.floor(_callSeconds/60), s=_callSeconds%60;
+        document.getElementById('callTimer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    },1000);
+}
+function stopCallTimer(){
+    clearInterval(_callTimerInt); _callTimerInt=null; _callSeconds=0;
+    const t=document.getElementById('callTimer'); if(t){ t.style.display='none'; t.textContent='00:00'; }
+    const cs=document.getElementById('callStatusEl'); if(cs) cs.style.display='block';
+}
+
+// ── Mute / Speaker ────────────────────────────────────────────────
+function toggleMute(){
+    if(!_localStream) return;
+    _isMuted=!_isMuted;
+    _localStream.getAudioTracks().forEach(t=>t.enabled=!_isMuted);
+    const btn=document.getElementById('btnMute');
+    if(btn){ btn.classList.toggle('active',_isMuted); btn.title=_isMuted?'আনমিউট':'মিউট'; btn.textContent=_isMuted?'🔇':'🎙️'; }
+}
+function toggleSpeaker(){
+    _isSpeaker=!_isSpeaker;
+    const rv=document.getElementById('remoteVideo');
+    if(rv) rv.muted=!_isSpeaker; // hacky but effective on mobile
+    const btn=document.getElementById('btnSpeaker');
+    if(btn){ btn.classList.toggle('active',_isSpeaker); btn.textContent=_isSpeaker?'🔈':'🔊'; }
+}
+
+// ── Ringtone via Web Audio ────────────────────────────────────────
+let _ringCtx=null, _ringNodes=[];
+function playRingtone(){
+    try{
+        _ringCtx=new (window.AudioContext||window.webkitAudioContext)();
+        function ring(){
+            if(!_ringCtx) return;
+            const osc=_ringCtx.createOscillator();
+            const gain=_ringCtx.createGain();
+            osc.connect(gain); gain.connect(_ringCtx.destination);
+            osc.frequency.setValueAtTime(880,_ringCtx.currentTime);
+            osc.frequency.setValueAtTime(660,_ringCtx.currentTime+0.15);
+            gain.gain.setValueAtTime(0.3,_ringCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001,_ringCtx.currentTime+0.3);
+            osc.start(); osc.stop(_ringCtx.currentTime+0.3);
+            _ringNodes.push(osc);
+        }
+        ring();
+        const iv=setInterval(ring,800);
+        _ringNodes.push({stop:()=>clearInterval(iv)});
+    }catch(e){}
+}
+function stopRingtone(){
+    _ringNodes.forEach(n=>{ try{n.stop();}catch(e){} });
+    _ringNodes=[];
+    if(_ringCtx){ try{_ringCtx.close();}catch(e){} _ringCtx=null; }
+}
+
+// ── Hook init into chat system ────────────────────────────────────
+(function(){
+    const _origInit=window.initChatSystem;
+    window.initChatSystem=async function(){
+        if(_origInit) await _origInit.apply(this,arguments);
+        listenIncomingCalls();
+    };
+})();
+</script>
+
 </body>
 </html>
