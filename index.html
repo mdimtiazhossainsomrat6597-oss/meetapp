@@ -1568,6 +1568,18 @@ function completeLogin(userData){
     setOnlinePresence();
     // Push notification init
     setTimeout(()=>{ initPushNotifications(); startPostPushListener(); checkMissedNotifications(); }, 1500);
+    // OneSignal Player ID → Firebase-এ সেভ করো
+    setTimeout(function() {
+        try {
+            OneSignalDeferred.push(async function(OneSignal) {
+                const playerId = await OneSignal.User.PushSubscription.id;
+                if (playerId && currentUser && db) {
+                    db.ref('users/' + currentUser.uid).update({ oneSignalId: playerId });
+                    console.log('✅ OneSignal ID সেভ হয়েছে:', playerId);
+                }
+            });
+        } catch(e) { console.warn('OneSignal ID সেভ হয়নি:', e); }
+    }, 4000);
 }
 
 function skipLogin(){
@@ -2032,6 +2044,8 @@ function adminRequestPost(targetUid, targetName){
         }).catch(err=>{
             showNotification('❌ Error: ' + err.message);
         });
+        // OneSignal Push — অ্যাপ বন্ধ থাকলেও যাবে
+        sendUserNotification(targetUid, notifMsg, '📢');
     } else {
         // Local mode — no Firebase, show warning
         showNotification(currentLanguage==='bn'
@@ -2042,7 +2056,25 @@ function adminRequestPost(targetUid, targetName){
 
 function sendUserNotification(targetUid,msg,emoji='🔔'){
     if(!db||!targetUid) return;
+    // Firebase-এ সেভ (আগের মতোই)
     db.ref('userNotifications/'+targetUid).push({msg,emoji,time:new Date().toISOString(),read:false,from:currentUser?currentUser.uid:''});
+    // OneSignal Push — অ্যাপ বন্ধ থাকলেও যাবে
+    db.ref('users/'+targetUid).once('value').then(function(snap){
+        const user = snap.val();
+        if(!user || !user.oneSignalId) return;
+        const plainText = msg.replace(/<[^>]+>/g,'');
+        fetch('https://onesignal.com/api/v1/notifications',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':'Key '+ONESIGNAL_REST_KEY},
+            body:JSON.stringify({
+                app_id: ONESIGNAL_APP_ID,
+                include_player_ids: [user.oneSignalId],
+                headings:{en:'MeetApp \uD83D\uDD14'},
+                contents:{en: emoji+' '+plainText},
+                ttl:86400
+            })
+        }).catch(function(){});
+    }).catch(function(){});
 }
 
 function requestVerification(){
@@ -2324,6 +2356,21 @@ window.addEventListener('DOMContentLoaded',()=>{
         } else {
             hideSplash();
         }
+        // আগে লগইন করা ইউজারদের oneSignalId সেভ করো
+        setTimeout(function(){
+            try {
+                OneSignalDeferred.push(async function(OneSignal) {
+                    const playerId = await OneSignal.User.PushSubscription.id;
+                    if(playerId && currentUser && db) {
+                        const snap = await db.ref('users/'+currentUser.uid+'/oneSignalId').once('value');
+                        if(!snap.val()) { // আগে সেভ না থাকলেই সেভ করো
+                            db.ref('users/'+currentUser.uid).update({ oneSignalId: playerId });
+                            console.log('✅ পুরনো ইউজার — OneSignal ID সেভ হয়েছে:', playerId);
+                        }
+                    }
+                });
+            } catch(e) {}
+        }, 5000);
     } else {
         hideSplash();
     }
