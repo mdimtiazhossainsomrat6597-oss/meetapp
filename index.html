@@ -6,16 +6,75 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>MeetApp</title>
-    <!-- OneSignal Push Notification -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "81132740-4821-41ec-a750-d0433b5e6660",
-          serviceWorkerParam: { scope: "/" },
-          serviceWorkerPath: "/OneSignalSDKWorker.js"
-        });
+    <!-- Firebase Cloud Messaging (FCM) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBkV5DJpMwedW1ZbPYil4NBZL1GP_4BMz8",
+        authDomain: "photo-share-app-c65fd.firebaseapp.com",
+        databaseURL: "https://photo-share-app-c65fd-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "photo-share-app-c65fd",
+        storageBucket: "photo-share-app-c65fd.firebasestorage.app",
+        messagingSenderId: "585105127605",
+        appId: "1:585105127605:web:cc948af7e01cef8c39e6fc",
+        measurementId: "G-YCT4B00WMY"
+      };
+
+      // Firebase initialize করুন
+      const app = initializeApp(firebaseConfig);
+      const messaging = getMessaging(app);
+
+      const VAPID_KEY = "BldCB-cSazYOR31KMiwNwhRfy6tHLjhkBHMwhSEBfIPnP_ydCDLOwDQSl6uZngcITW89hasLZBpqJudlNeK4bpE";
+
+      // ব্যবহারকারীর অনুমতি নিয়ে FCM Token সংগ্রহ
+      async function requestNotificationPermission() {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+            if (token) {
+              console.log("✅ FCM Token:", token);
+              // Firebase Realtime DB তে token সেভ করুন
+              if (typeof db !== "undefined" && typeof currentUser !== "undefined" && currentUser) {
+                db.ref("fcmTokens/" + currentUser.uid).set(token);
+              }
+            } else {
+              console.warn("⚠️ FCM Token পাওয়া যায়নি। Service Worker চেক করুন।");
+            }
+          } else {
+            console.warn("⚠️ নোটিফিকেশনের অনুমতি দেননি।");
+          }
+        } catch (err) {
+          console.error("❌ FCM Token Error:", err);
+        }
+      }
+
+      // Foreground নোটিফিকেশন হ্যান্ডেল করুন (অ্যাপ খোলা থাকলে)
+      onMessage(messaging, (payload) => {
+        console.log("📩 নোটিফিকেশন পেয়েছি:", payload);
+        const { title, body } = payload.notification || {};
+        if (title) {
+          // অ্যাপের ভেতরে নোটিফিকেশন দেখান
+          if (typeof showNotification === "function") {
+            showNotification("🔔 " + title + (body ? ": " + body : ""));
+          }
+          // Browser নোটিফিকেশনও দেখান
+          new Notification(title, { body: body || "", icon: "/icon.png" });
+        }
+      });
+
+      // পেজ লোড হলে অনুমতি চান
+      window.addEventListener("load", () => {
+        // ব্যবহারকারী লগইন করার পর token নিন
+        window._fcmRequestPermission = requestNotificationPermission;
+        // ৩ সেকেন্ড পর অটোমেটিক চেষ্টা
+        setTimeout(() => {
+          if (typeof currentUser !== "undefined" && currentUser) {
+            requestNotificationPermission();
+          }
+        }, 3000);
       });
     </script>
     <script>
