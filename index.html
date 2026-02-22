@@ -13,8 +13,8 @@
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "81132740-4821-41ec-a750-d0433b5e6660",
-          serviceWorkerParam: { scope: "/meetapp/" },
-          serviceWorkerPath: "/meetapp/OneSignalSDKWorker.js"
+          serviceWorkerParam: { scope: "/" },
+          serviceWorkerPath: "/OneSignalSDKWorker.js"
         });
       });
     </script>
@@ -2363,7 +2363,7 @@ window.addEventListener('DOMContentLoaded',()=>{
                     const playerId = await OneSignal.User.PushSubscription.id;
                     if(playerId && currentUser && db) {
                         const snap = await db.ref('users/'+currentUser.uid+'/oneSignalId').once('value');
-                        if(!snap.val()) { // আগে সেভ না থাকলেই সেভ করো
+                        if(!snap.val()) {
                             db.ref('users/'+currentUser.uid).update({ oneSignalId: playerId });
                             console.log('✅ পুরনো ইউজার — OneSignal ID সেভ হয়েছে:', playerId);
                         }
