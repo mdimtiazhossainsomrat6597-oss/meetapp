@@ -6,6 +6,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>MeetApp</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6c63ff">
+    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
     <!-- Firebase Cloud Messaging (FCM) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -269,8 +272,198 @@ if (typeof twemoji === 'undefined') {
         body.dark-mode .upload-section{background:var(--bg-card);border-color:rgba(162,155,254,0.10);}
         body.dark-mode .create-type-toggle{background:#231e3d;}
         body.dark-mode .follow-section{background:var(--bg-card);border-color:rgba(162,155,254,0.10);}
+
+        /* ══ APP THEMES ══ */
+        /* Theme: Tuhfaye Ramadan — রমজানের সবুজ ও সোনালি */
+        body.theme-ramadan{--p1:#00875a;--p2:#5bb38a;--p3:#f9a825;--p4:#00b67a;--p5:#ffe082;
+            --grad-brand:linear-gradient(135deg,#00875a 0%,#43aa8b 50%,#f9a825 100%);
+            --grad-btn:linear-gradient(135deg,#00875a,#00b67a);
+            --grad-header:linear-gradient(160deg,#00271a 0%,#003d28 45%,#004d33 75%,#001a12 100%);
+            --aurora-accent:linear-gradient(90deg,#00875a,#f9a825,#00b67a);
+        }
+        body.theme-ramadan .header{background:linear-gradient(160deg,#00271a 0%,#003d28 50%,#004d33 100%)!important;}
+        /* ══ Ramadan header decoration ══ */
+        .header-ramadan-deco{display:none;position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+        body.theme-ramadan .header-ramadan-deco{display:block;}
+        .header-eid-deco{display:none;position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+        body.theme-eid .header-eid-deco{display:block;}
+        .header>*:not(.header-ramadan-deco):not(.header-eid-deco){position:relative;z-index:1;}
+        body.theme-ramadan:not(.dark-mode){--bg-page:#f0fff6;--bg-card:rgba(240,255,246,0.92);--bg-card-solid:#e8f9f0;--border-light:rgba(0,135,90,0.12);}
+        body.theme-ramadan .meta-theme-color{content:'#00875a';}
+        /* ══ Ramadan moon banner ══ */
+        
+
+        /* ══════════════════════════════════════
+           Theme: Welcome for Eid — ঈদ মোবারক
+           সমৃদ্ধ সোনালি-বেগুনি উৎসব থিম
+        ══════════════════════════════════════ */
+        body.theme-eid{
+            --p1:#1a6b3a;--p2:#27ae60;--p3:#daa520;--p4:#f0d060;--p5:#2ecc71;
+            --grad-brand:linear-gradient(135deg,#0a2015 0%,#1a6b3a 40%,#daa520 80%,#f0d060 100%);
+            --grad-btn:linear-gradient(135deg,#1a6b3a,#27ae60);
+            --grad-header:linear-gradient(160deg,#020f07 0%,#0a2015 35%,#0f3320 65%,#1a5c30 85%,#0a2015 100%);
+            --aurora-accent:linear-gradient(90deg,#1a6b3a,#daa520,#f0d060);
+            --accent-gold:#daa520;
+        }
+        body.theme-eid .header{
+            background:linear-gradient(160deg,#020f07 0%,#0a2015 35%,#0f3320 60%,#1a5c30 80%,#0a2015 100%)!important;
+        }
+        body.theme-eid:not(.dark-mode){
+            --bg-page:#f0fff5;
+            --bg-card:rgba(240,255,245,0.94);
+            --bg-card-solid:#e0f5e8;
+            --border-light:rgba(26,107,58,0.12);
+            --text-primary:#0a2015;
+            --text-secondary:#1a5c30;
+        }
+        body.theme-eid.dark-mode{
+            --bg-page:#020f07;
+            --bg-card:rgba(10,32,21,0.95);
+            --bg-card-solid:#0a2015;
+        }
+
+        /* ══ LOGIN SCREEN — RAMADAN THEME ══ */
+        body.theme-ramadan #loginScreen{
+            background:linear-gradient(160deg,#00271a 0%,#003d28 45%,#004d33 75%,#001a12 100%)!important;
+        }
+        body.theme-ramadan #loginScreen::before{
+            background:radial-gradient(ellipse 70% 60% at 20% 20%,rgba(0,135,90,0.45) 0%,transparent 60%),
+                       radial-gradient(ellipse 50% 50% at 80% 80%,rgba(249,168,37,0.3) 0%,transparent 55%)!important;
+        }
+        body.theme-ramadan .login-box{
+            border-color:rgba(0,182,122,0.25)!important;
+            box-shadow:0 30px 70px rgba(0,0,0,0.5),0 0 40px rgba(0,135,90,0.15),inset 0 1px 0 rgba(255,255,255,0.1)!important;
+        }
+        body.theme-ramadan .login-logo h1{
+            background:linear-gradient(135deg,#00cc80,#f9a825,#43aa8b)!important;
+            -webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;
+        }
+        body.theme-ramadan .login-tab.active{
+            background:rgba(0,135,90,0.3)!important;color:#a5f0c5!important;
+        }
+        body.theme-ramadan .login-input:focus{
+            border-color:rgba(0,135,90,0.7)!important;background:rgba(0,135,90,0.1)!important;
+            box-shadow:0 0 0 4px rgba(0,135,90,0.15)!important;
+        }
+        body.theme-ramadan .login-action-btn{
+            background:linear-gradient(135deg,#00875a 0%,#43aa8b 50%,#f9a825 100%)!important;
+        }
+        body.theme-ramadan .login-lang-btn.active{
+            background:linear-gradient(135deg,rgba(0,135,90,0.65),rgba(249,168,37,0.5))!important;
+            border-color:rgba(0,182,122,0.5)!important;box-shadow:0 0 18px rgba(0,135,90,0.4)!important;
+        }
+        body.theme-ramadan .skip-btn{color:rgba(165,240,197,0.45)!important;}
+
+        /* ══ LOGIN SCREEN — EID THEME ══ */
+        body.theme-eid #loginScreen{
+            background:linear-gradient(160deg,#020f07 0%,#0a2015 35%,#0f3320 65%,#1a5c30 85%,#0a2015 100%)!important;
+        }
+        body.theme-eid #loginScreen::before{
+            background:radial-gradient(ellipse 70% 60% at 20% 20%,rgba(26,107,58,0.55) 0%,transparent 60%),
+                       radial-gradient(ellipse 50% 50% at 80% 80%,rgba(218,165,32,0.35) 0%,transparent 55%)!important;
+        }
+        body.theme-eid .login-box{
+            border-color:rgba(218,165,32,0.2)!important;
+            box-shadow:0 30px 70px rgba(0,0,0,0.6),0 0 50px rgba(26,107,58,0.2),inset 0 1px 0 rgba(218,165,32,0.1)!important;
+        }
+        body.theme-eid .login-logo h1{
+            background:linear-gradient(135deg,#ffffff 0%,#daa520 50%,#f0d060 100%)!important;
+            -webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;
+        }
+        body.theme-eid .login-tab.active{
+            background:rgba(26,107,58,0.35)!important;color:#f0d060!important;
+        }
+        body.theme-eid .login-input:focus{
+            border-color:rgba(218,165,32,0.6)!important;background:rgba(26,107,58,0.12)!important;
+            box-shadow:0 0 0 4px rgba(26,107,58,0.2)!important;
+        }
+        body.theme-eid .login-action-btn{
+            background:linear-gradient(135deg,#1a6b3a 0%,#27ae60 40%,#daa520 80%,#f0d060 100%)!important;
+            box-shadow:0 4px 20px rgba(26,107,58,0.5)!important;
+        }
+        body.theme-eid .login-lang-btn.active{
+            background:linear-gradient(135deg,rgba(26,107,58,0.65),rgba(218,165,32,0.5))!important;
+            border-color:rgba(218,165,32,0.4)!important;box-shadow:0 0 18px rgba(26,107,58,0.5)!important;
+        }
+        body.theme-eid .login-input{border-color:rgba(218,165,32,0.15)!important;}
+        body.theme-eid .pw-toggle{color:rgba(218,165,32,0.5)!important;}
+        body.theme-eid .pw-toggle:hover{color:rgba(218,165,32,0.9)!important;}
+        body.theme-eid .skip-btn{color:rgba(218,165,32,0.35)!important;}
+        body.theme-eid .login-divider::before,body.theme-eid .login-divider::after{background:rgba(218,165,32,0.15)!important;}
+
+        /* Eid golden glow on buttons/accents */
+        body.theme-eid .tab.active{background:linear-gradient(135deg,#1a6b3a,#daa520)!important;color:#fff!important;}
+        body.theme-eid .bn-create-btn{background:linear-gradient(135deg,#1a6b3a,#daa520)!important;box-shadow:0 4px 20px rgba(26,107,58,0.5)!important;}
+        body.theme-eid .stat-num{background:linear-gradient(135deg,#daa520,#f0d060)!important;-webkit-background-clip:text!important;background-clip:text!important;}
+
+        /* Eid banner — উৎসবমুখর */
+        .eid-banner{display:none;position:relative;overflow:hidden;
+            background:linear-gradient(90deg,#020f07,#0a2015,#0f3320,#1a5c30,#0f3320,#0a2015,#020f07);
+            background-size:200% 100%;
+            border-top:1px solid rgba(218,165,32,0.5);
+            border-bottom:2px solid rgba(218,165,32,0.7);
+            padding:0;text-align:center;
+            color:rgba(240,208,96,0.98);font-size:14px;font-weight:700;letter-spacing:2px;z-index:99;}
+        .eid-banner::before{content:'';position:absolute;inset:0;
+            background:radial-gradient(ellipse 80% 150% at 50% 50%,rgba(26,107,58,0.5),transparent 70%);
+            pointer-events:none;animation:eidGlow 3s ease-in-out infinite alternate;}
+        .eid-banner::after{content:'';position:absolute;top:0;left:-100%;right:0;bottom:0;
+            background:linear-gradient(90deg,transparent,rgba(255,215,0,0.15),transparent);
+            animation:eidShimmer 2.5s linear infinite;pointer-events:none;}
+        .eid-banner.show{display:block;animation:fadeIn 0.5s ease;}
+        .eid-banner-inner{
+            position:relative;z-index:2;
+            padding:10px 16px 8px;
+            display:flex;flex-direction:column;align-items:center;gap:2px;
+        }
+        .eid-banner-main{
+            font-family:'SolaimanLipi','Noto Sans Bengali',sans-serif;
+            font-size:15px;font-weight:900;letter-spacing:3px;
+            background:linear-gradient(135deg,#f0d060,#ffd700,#daa520,#f0d060);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            text-shadow:none;
+            filter:drop-shadow(0 0 8px rgba(255,215,0,0.6));
+            animation:eidPulse 2s ease-in-out infinite alternate;
+        }
+        .eid-banner-salami{
+            font-family:'SolaimanLipi','Noto Sans Bengali',sans-serif;
+            font-size:13px;font-weight:700;letter-spacing:2px;
+            background:linear-gradient(135deg,rgba(218,165,32,0.9),rgba(255,215,0,1),rgba(218,165,32,0.9));
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            text-shadow:none;opacity:0.95;
+        }
+        @keyframes eidGlow{from{opacity:0.6;}to{opacity:1;}}
+        @keyframes eidShimmer{0%{left:-100%;}100%{left:100%;}}
+        @keyframes eidPulse{from{filter:drop-shadow(0 0 6px rgba(255,215,0,0.5));}to{filter:drop-shadow(0 0 14px rgba(255,215,0,0.9));}}
+        .ramadan-banner{display:none;background:linear-gradient(90deg,#00271a,#003d28,#00271a);border-bottom:1px solid rgba(249,168,37,0.35);padding:7px 16px;text-align:center;color:rgba(249,212,35,0.92);font-size:14px;font-weight:700;letter-spacing:1.5px;position:relative;z-index:99;}
+        .ramadan-banner.show{display:block;animation:fadeIn 0.5s ease;}
+        body.theme-ramadan .ramadan-banner{background:linear-gradient(90deg,#00271a,#004d33,#00271a);}
+
+
+
+        /* ══ THEME MANAGER MODAL ══ */
+        .theme-manager-overlay{display:none;position:fixed;inset:0;background:rgba(22,18,42,0.82);z-index:4500;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px);}
+        .theme-manager-overlay.show{display:flex;animation:fadeIn 0.22s;}
+        .theme-manager-sheet{background:var(--bg-card-solid);border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;border:1px solid var(--border-card);box-shadow:0 -20px 60px rgba(22,18,42,0.5);animation:slideUp 0.3s ease;max-height:90vh;overflow-y:auto;}
+        .theme-manager-title{font-size:17px;font-weight:800;color:var(--text-primary);text-align:center;margin-bottom:18px;}
+        .theme-option-row{display:flex;gap:10px;margin-bottom:16px;}
+        .theme-option{flex:1;padding:14px 8px;border-radius:16px;border:2px solid var(--border-light);background:var(--bg-glass);display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+        .theme-option.active{border-color:var(--p1);background:rgba(108,92,231,0.1);}
+        .theme-option-icon{font-size:28px;}
+        .theme-option-label{font-size:11px;font-weight:700;color:var(--text-primary);text-align:center;}
+        .theme-schedule-block{background:var(--bg-page);border:1px solid var(--border-light);border-radius:14px;padding:14px;margin-bottom:12px;}
+        .theme-schedule-label{font-size:12px;font-weight:700;color:var(--text-muted-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+        .theme-date-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+        .theme-date-input{flex:1;padding:8px 10px;border:1.5px solid var(--border-light);border-radius:10px;font-size:13px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;background:var(--bg-page);color:var(--text-primary);outline:none;}
+        .theme-date-input:focus{border-color:var(--p1);}
+        .theme-save-btn{width:100%;padding:14px;border-radius:14px;border:none;background:var(--grad-brand);color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px;}
+        .theme-cancel-btn{width:100%;padding:11px;border-radius:14px;border:none;background:transparent;color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;}
+        .theme-status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:14px;}
+        .theme-status-badge.regular{background:rgba(108,92,231,0.12);color:var(--p1);}
+        .theme-status-badge.ramadan{background:rgba(0,135,90,0.12);color:#00875a;}
+        .theme-status-badge.eid{background:rgba(199,150,10,0.12);color:#c7960a;}
         /* ══ ONLINE COUNTER BADGE (admin only) ══ */
-        .online-badge{display:none;align-items:center;gap:5px;background:rgba(0,206,201,0.15);border:1px solid rgba(0,206,201,0.4);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--accent-mint);}
+        .online-badge{display:none;align-items:center;gap:4px;background:rgba(0,206,201,0.15);border:1px solid rgba(0,206,201,0.4);border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700;color:var(--accent-mint);flex-shrink:0;}
         .online-badge.show{display:flex;}
         .online-dot{width:8px;height:8px;background:#00cec9;border-radius:50%;animation:pulse 1.5s infinite;}
         /* ══ DRAFT EVENT CARD ══ */
@@ -406,6 +599,35 @@ if (typeof twemoji === 'undefined') {
             display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
             transition:opacity 0.5s cubic-bezier(0.4,0,0.2,1);overflow:hidden;
         }
+        /* Ramadan splash */
+        body.theme-ramadan #splashScreen{
+            background:radial-gradient(ellipse at 30% 20%,#003d28 0%,#001a0f 40%,#000d07 100%);
+        }
+        body.theme-ramadan #splashScreen::before{
+            background:
+                radial-gradient(ellipse 80% 55% at 15% 15%,rgba(0,135,90,0.45) 0%,transparent 60%),
+                radial-gradient(ellipse 60% 50% at 85% 80%,rgba(249,168,37,0.2) 0%,transparent 55%),
+                radial-gradient(ellipse 40% 40% at 70% 20%,rgba(0,182,122,0.15) 0%,transparent 50%);
+        }
+        body.theme-ramadan .splash-icon{background:linear-gradient(135deg,#00875a,#f9d423)!important;box-shadow:0 8px 28px rgba(0,135,90,0.6),0 2px 0 rgba(255,255,255,0.18) inset!important;}
+        body.theme-ramadan .splash-logo{background:linear-gradient(135deg,#ffffff 0%,#a5d6a7 50%,#f9d423 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;}
+        body.theme-ramadan .splash-bar{background:linear-gradient(90deg,#00875a,#f9d423)!important;}
+        body.theme-ramadan .splash-status{background:rgba(0,135,90,0.15)!important;border-color:rgba(0,182,122,0.25)!important;}
+        /* Eid splash */
+        body.theme-eid #splashScreen{
+            background:radial-gradient(ellipse at 30% 20%,#0f3320 0%,#0a2015 40%,#020f07 100%);
+        }
+        body.theme-eid #splashScreen::before{
+            background:
+                radial-gradient(ellipse 80% 55% at 15% 15%,rgba(26,107,58,0.55) 0%,transparent 60%),
+                radial-gradient(ellipse 60% 50% at 85% 80%,rgba(218,165,32,0.30) 0%,transparent 55%),
+                radial-gradient(ellipse 40% 40% at 70% 20%,rgba(240,208,96,0.18) 0%,transparent 50%);
+        }
+        body.theme-eid .splash-icon{background:linear-gradient(135deg,#1a6b3a,#daa520)!important;box-shadow:0 8px 28px rgba(26,107,58,0.7),0 2px 0 rgba(255,255,255,0.18) inset!important;}
+        body.theme-eid .splash-logo{background:linear-gradient(135deg,#ffffff 0%,#daa520 50%,#f0d060 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;}
+        body.theme-eid .splash-sub{color:rgba(218,165,32,0.55)!important;}
+        body.theme-eid .splash-bar{background:linear-gradient(90deg,#1a6b3a,#daa520,#f0d060)!important;}
+        body.theme-eid .splash-status{background:rgba(26,107,58,0.18)!important;border-color:rgba(218,165,32,0.3)!important;text-shadow:0 0 20px rgba(218,165,32,0.4),0 1px 3px rgba(0,0,0,0.5)!important;}
         #splashScreen::before{
             content:'';position:absolute;inset:0;pointer-events:none;
             background:
@@ -498,6 +720,10 @@ if (typeof twemoji === 'undefined') {
         .login-field{margin-bottom:14px;}
         .login-field label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,236,251,0.5);margin-bottom:7px;}
         .login-input{width:100%;padding:13px 16px;border:1.5px solid rgba(255,255,255,0.13);border-radius:var(--r-md);background:rgba(255,255,255,0.07);color:white;font-size:15px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
+        .pw-wrapper{position:relative;}
+        .pw-wrapper .login-input{padding-right:48px;}
+        .pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:18px;padding:4px;line-height:1;transition:color 0.2s;}
+        .pw-toggle:hover{color:rgba(255,255,255,0.85);}
         .login-input:focus{outline:none;border-color:rgba(108,92,231,0.7);background:rgba(108,92,231,0.1);box-shadow:0 0 0 4px rgba(108,92,231,0.15);}
         .login-input::placeholder{color:rgba(255,255,255,0.28);}
         .login-action-btn{width:100%;padding:14px;margin-top:6px;background:var(--grad-brand);border:none;border-radius:var(--r-md);color:white;font-size:15px;font-weight:700;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;cursor:pointer;box-shadow:var(--shadow-btn);transition:all 0.3s;letter-spacing:0.3px;}
@@ -517,17 +743,19 @@ if (typeof twemoji === 'undefined') {
         .login-loading p{color:white;font-size:14px;font-weight:500;}
         .user-bar{display:none;background:var(--bg-deep);padding:8px 12px;align-items:center;justify-content:space-between;position:relative;z-index:100;box-shadow:0 2px 16px rgba(22,18,42,0.18);gap:6px;}
         .user-bar.show{display:flex;}
-        .user-bar-left{display:flex;align-items:center;gap:9px;cursor:pointer;flex-shrink:0;}
+        .user-bar-left{display:flex;align-items:center;gap:9px;cursor:pointer;flex:1;min-width:0;overflow:hidden;}
         .user-bar-left:active{opacity:0.75;}
-        .user-bar-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+        .user-bar-right{display:flex;align-items:center;gap:4px;flex-shrink:0;}
         .user-avatar-sm{width:40px;height:40px;border-radius:50%;border:2px solid rgba(108,92,231,0.6);background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:white;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(108,92,231,0.3);}
         .user-avatar-sm img{width:100%;height:100%;object-fit:cover;}
-        .user-bar-name{font-size:14px;font-weight:700;color:rgba(240,236,251,0.95);display:flex;align-items:center;gap:3px;white-space:nowrap;}
-        .user-bar-sub{font-size:11px;color:rgba(240,236,251,0.42);margin-top:1px;}
-        .user-bar-icon-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+        .user-bar-name{font-size:14px;font-weight:700;color:rgba(240,236,251,0.95);display:flex;align-items:center;gap:3px;white-space:nowrap;max-width:170px;overflow:visible;}
+        .user-bar-sub{font-size:11px;color:rgba(240,236,251,0.42);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+        .user-bar-icon-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
         .user-bar-icon-btn:active{background:rgba(108,92,231,0.25);transform:scale(0.9);}
-        .logout-btn{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.28);color:#ff6b6b;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.2s;}
+        .logout-btn{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.28);color:#ff6b6b;padding:7px 10px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
         .logout-btn:active{background:#ff6b6b;color:white;}
+        .user-bar-icon-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+        .user-bar-icon-btn:active{background:rgba(108,92,231,0.25);transform:scale(0.9);}
         .event-banner{background:var(--bg-deep);overflow:hidden;position:relative;height:96px;border-bottom:1px solid rgba(108,92,231,0.15);}
         .banner-title{position:absolute;top:0;left:0;right:0;padding:10px 16px;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,251,0.5);z-index:2;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
         .event-slider{display:flex;animation:slide 50s linear infinite;position:absolute;top:40px;white-space:nowrap;}
@@ -787,6 +1015,40 @@ if (typeof twemoji === 'undefined') {
 <body>
 
 <div id="splashScreen">
+    <!-- Ramadan decoration (only visible with ramadan theme via CSS) -->
+    <div id="splashRamadanDeco" style="position:absolute;inset:0;pointer-events:none;z-index:1;display:none;">
+        <!-- moon top-right -->
+        <svg style="position:absolute;right:20px;top:20px;width:90px;height:90px;filter:drop-shadow(0 0 18px rgba(249,212,35,0.7));opacity:0.75;" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="46" fill="#f9d423"/>
+            <circle cx="72" cy="32" r="38" fill="#001a0f"/>
+        </svg>
+        <!-- stars -->
+        <svg style="position:absolute;right:128px;top:28px;width:16px;height:16px;opacity:0.65;filter:drop-shadow(0 0 5px #f9d423);" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#f9d423"/></svg>
+        <svg style="position:absolute;right:108px;top:72px;width:10px;height:10px;opacity:0.45;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#f9d423"/></svg>
+        <svg style="position:absolute;left:22px;top:32px;width:12px;height:12px;opacity:0.35;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#a5d6a7"/></svg>
+        <svg style="position:absolute;left:44px;top:80px;width:8px;height:8px;opacity:0.25;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#a5d6a7"/></svg>
+        <!-- mosque silhouette at bottom -->
+        <svg style="position:absolute;bottom:0;left:0;width:100%;height:100px;opacity:0.12;" viewBox="0 0 500 100" preserveAspectRatio="xMidYMax meet">
+            <path d="M0,100 L0,68 L30,68 L30,52 L44,32 L50,18 L56,32 L70,52 L70,68 L100,68 L100,48 L140,48 L140,34 L158,10 L166,0 L174,10 L192,34 L192,48 L232,48 L232,68 L252,68 L252,52 L266,32 L272,18 L278,32 L292,52 L292,68 L320,68 L320,48 L360,48 L360,34 L378,10 L386,0 L394,10 L412,34 L412,48 L452,48 L452,68 L470,68 L470,52 L484,32 L490,18 L496,32 L500,40 L500,100 Z" fill="#a5d6a7"/>
+        </svg>
+    </div>
+    <!-- Eid decoration -->
+    <div id="splashEidDeco" style="position:absolute;inset:0;pointer-events:none;z-index:1;display:none;">
+        <!-- big 8-pointed star top right -->
+        <svg style="position:absolute;right:14px;top:14px;width:86px;height:86px;filter:drop-shadow(0 0 18px rgba(218,165,32,1));opacity:0.88;" viewBox="0 0 100 100">
+            <polygon points="50,5 56,38 90,30 65,52 88,80 55,65 50,95 45,65 12,80 35,52 10,30 44,38" fill="#f0d060"/>
+            <polygon points="50,18 54,42 78,36 60,52 76,72 52,62 50,82 48,62 24,72 40,52 22,36 46,42" fill="#daa520"/>
+        </svg>
+        <!-- medium star left -->
+        <svg style="position:absolute;left:14px;top:16px;width:52px;height:52px;opacity:0.55;filter:drop-shadow(0 0 8px rgba(26,107,58,0.8));" viewBox="0 0 100 100">
+            <polygon points="50,5 56,38 90,30 65,52 88,80 55,65 50,95 45,65 12,80 35,52 10,30 44,38" fill="#27ae60"/>
+        </svg>
+        <!-- small sparkle stars -->
+        <svg style="position:absolute;right:112px;top:22px;width:18px;height:18px;opacity:0.75;filter:drop-shadow(0 0 5px #f0d060);" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#f0d060"/></svg>
+        <svg style="position:absolute;right:96px;top:68px;width:11px;height:11px;opacity:0.45;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#daa520"/></svg>
+        <svg style="position:absolute;left:74px;top:24px;width:14px;height:14px;opacity:0.4;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#daa520"/></svg>
+        <svg style="position:absolute;left:40px;top:74px;width:8px;height:8px;opacity:0.3;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#c39bd3"/></svg>
+    </div>
     <div class="splash-glass">
         <div class="splash-icon" id="splashAppIcon"></div>
         <div class="splash-logo">MeetApp</div>
@@ -824,6 +1086,22 @@ if (typeof twemoji === 'undefined') {
 </div>
 
 <div id="loginScreen" style="display:none">
+    <!-- Login theme decorations -->
+    <div id="loginThemeDeco" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;">
+        <div id="loginEidDeco" style="display:none;position:absolute;inset:0;">
+            <div style="position:absolute;top:8%;left:8%;font-size:26px;opacity:0.3;animation:auroPulse 3s infinite;">🌙</div>
+            <div style="position:absolute;top:5%;right:10%;font-size:18px;opacity:0.35;animation:auroPulse 2.5s infinite 0.5s;">✨</div>
+            <div style="position:absolute;top:15%;right:20%;font-size:13px;opacity:0.28;animation:auroPulse 4s infinite 1s;">⭐</div>
+            <div style="position:absolute;bottom:12%;left:12%;font-size:14px;opacity:0.28;animation:auroPulse 3.5s infinite 0.8s;">✨</div>
+            <div style="position:absolute;bottom:8%;right:15%;font-size:22px;opacity:0.28;animation:auroPulse 3s infinite 1.2s;">🌟</div>
+        </div>
+        <div id="loginRamadanDeco" style="display:none;position:absolute;inset:0;">
+            <div style="position:absolute;top:6%;left:6%;font-size:30px;opacity:0.28;animation:auroPulse 3s infinite;">☪️</div>
+            <div style="position:absolute;top:4%;right:8%;font-size:20px;opacity:0.32;animation:auroPulse 2.5s infinite 0.5s;">🌙</div>
+            <div style="position:absolute;bottom:10%;left:10%;font-size:16px;opacity:0.25;animation:auroPulse 3.5s infinite 0.7s;">🌿</div>
+            <div style="position:absolute;bottom:7%;right:12%;font-size:14px;opacity:0.28;animation:auroPulse 3s infinite 1s;">✨</div>
+        </div>
+    </div>
     <div class="login-box">
         <div class="login-loading" id="loginLoading">
             <div class="spin"></div>
@@ -850,7 +1128,10 @@ if (typeof twemoji === 'undefined') {
             </div>
             <div class="login-field">
                 <label id="llPassLabel">পাসওয়ার্ড</label>
-                <input class="login-input" type="password" id="loginPassword" placeholder="পাসওয়ার্ড লিখুন">
+                <div class="pw-wrapper">
+                    <input class="login-input" type="password" id="loginPassword" placeholder="পাসওয়ার্ড লিখুন">
+                    <button type="button" class="pw-toggle" onclick="togglePw('loginPassword',this)" title="পাসওয়ার্ড দেখুন">👁️</button>
+                </div>
             </div>
             <button class="login-action-btn" onclick="doLogin()" id="llLoginBtn">লগইন করুন</button>
         </div>
@@ -872,7 +1153,10 @@ if (typeof twemoji === 'undefined') {
             </div>
             <div class="login-field">
                 <label id="llNewPassLabel">পাসওয়ার্ড</label>
-                <input class="login-input" type="password" id="regPassword" placeholder="কমপক্ষে ৪ অক্ষর">
+                <div class="pw-wrapper">
+                    <input class="login-input" type="password" id="regPassword" placeholder="কমপক্ষে ৪ অক্ষর">
+                    <button type="button" class="pw-toggle" onclick="togglePw('regPassword',this)" title="পাসওয়ার্ড দেখুন">👁️</button>
+                </div>
             </div>
             <button class="login-action-btn" onclick="doRegister()" id="llRegBtn">অ্যাকাউন্ট তৈরি করুন</button>
         </div>
@@ -883,6 +1167,43 @@ if (typeof twemoji === 'undefined') {
 
 <div id="mainApp" style="display:none">
     <div class="notification" id="notification"></div>
+    <!-- ══ THEMED BANNERS ══ -->
+    <div class="ramadan-banner" id="ramadanBanner">🌙 রমজান মোবারক</div>
+    <div class="eid-banner" id="eidBanner"><div class="eid-banner-inner"><div class="eid-banner-main">🌙✨ ঈদ মোবারক ✨🌙</div><div class="eid-banner-salami">🎁 ঈদের সালামি দিন 🎁</div></div></div>
+    <!-- ══ THEME MANAGER MODAL ══ -->
+    <div class="theme-manager-overlay" id="themeManagerOverlay" onclick="closeThemeManagerOutside(event)">
+      <div class="theme-manager-sheet">
+        <div style="width:40px;height:4px;background:var(--border-light);border-radius:2px;margin:0 auto 16px;"></div>
+        <div class="theme-manager-title">🎨 অ্যাপ থিম ম্যানেজমেন্ট</div>
+        <div id="themeManagerCurrentBadge"></div>
+        <div class="theme-option-row">
+          <div class="theme-option" id="themeOptRegular" onclick="selectThemeOption('regular')">
+            <div class="theme-option-icon">💜</div>
+            <div class="theme-option-label">Regular</div>
+          </div>
+          <div class="theme-option" id="themeOptRamadan" onclick="selectThemeOption('ramadan')">
+            <div class="theme-option-icon">🌙</div>
+            <div class="theme-option-label">তুহফায়ে রমজান</div>
+          </div>
+          <div class="theme-option" id="themeOptEid" onclick="selectThemeOption('eid')">
+            <div class="theme-option-icon">🎉</div>
+            <div class="theme-option-label">ঈদের শুভেচ্ছা</div>
+          </div>
+        </div>
+        <div class="theme-schedule-block">
+          <div class="theme-schedule-label">📅 সময়সীমা (ঐচ্ছিক — খালি রাখলে সবসময়ের জন্য)</div>
+          <div class="theme-date-row">
+            <input type="date" class="theme-date-input" id="themeStartDate" placeholder="শুরু">
+            <span style="color:var(--text-muted-light);font-size:13px;">→</span>
+            <input type="date" class="theme-date-input" id="themeEndDate" placeholder="শেষ">
+          </div>
+          <div style="font-size:11px;color:var(--text-muted-light);">তারিখ না দিলে থিমটি এখনই সক্রিয় হবে এবং পরিবর্তন না করা পর্যন্ত থাকবে।</div>
+        </div>
+        <div id="themeScheduleList" style="margin-bottom:12px;"></div>
+        <button class="theme-save-btn" onclick="saveThemeSchedule()">💾 সংরক্ষণ করুন</button>
+        <button class="theme-cancel-btn" onclick="closeThemeManager()">বাতিল করুন</button>
+      </div>
+    </div>
     <!-- ══ POSTING ANIMATION OVERLAY ══ -->
     <div class="posting-overlay" id="postingOverlay">
         <div class="posting-spinner-wrap">
@@ -942,6 +1263,91 @@ if (typeof twemoji === 'undefined') {
     </div>
     <div class="container">
         <div class="header">
+            <!-- Ramadan moon + stars decoration -->
+            <div class="header-ramadan-deco">
+                <!-- soft glow behind moon -->
+                <svg style="position:absolute;right:-30px;top:-30px;opacity:0.18;width:220px;height:220px;" viewBox="0 0 200 200"><defs><radialGradient id="mglow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f9d423" stop-opacity="1"/><stop offset="100%" stop-color="#f9d423" stop-opacity="0"/></radialGradient></defs><circle cx="100" cy="100" r="100" fill="url(#mglow)"/></svg>
+                <!-- crescent moon -->
+                <svg style="position:absolute;right:10px;top:8px;width:72px;height:72px;filter:drop-shadow(0 0 10px rgba(249,212,35,0.8));opacity:0.88;" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="46" fill="#f9d423"/>
+                    <circle cx="72" cy="32" r="38" fill="#003d28"/>
+                </svg>
+                <!-- stars scattered -->
+                <svg style="position:absolute;right:100px;top:12px;width:14px;height:14px;opacity:0.7;filter:drop-shadow(0 0 4px #f9d423);" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#f9d423"/></svg>
+                <svg style="position:absolute;right:82px;top:44px;width:9px;height:9px;opacity:0.5;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#f9d423"/></svg>
+                <svg style="position:absolute;left:14px;top:16px;width:11px;height:11px;opacity:0.4;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#a5d6a7"/></svg>
+                <svg style="position:absolute;left:32px;top:52px;width:7px;height:7px;opacity:0.3;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#a5d6a7"/></svg>
+                <!-- mosque silhouette bottom -->
+                <svg style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;height:52px;opacity:0.13;" viewBox="0 0 500 52" preserveAspectRatio="xMidYMax meet">
+                    <path d="M0,52 L0,36 L28,36 L28,26 L38,14 L42,8 L44,4 L46,8 L50,14 L60,26 L60,36 L88,36 L88,20 L120,20 L120,12 L134,2 L140,0 L146,2 L160,12 L160,20 L192,20 L192,36 L208,36 L208,26 L218,14 L222,8 L224,4 L226,8 L230,14 L240,26 L240,36 L258,36 L258,20 L290,20 L290,12 L304,2 L310,0 L316,2 L330,12 L330,20 L362,20 L362,36 L378,36 L378,26 L388,14 L392,8 L394,4 L396,8 L400,14 L410,26 L410,36 L440,36 L440,20 L472,20 L472,36 L500,36 L500,52 Z" fill="#a5d6a7"/>
+                </svg>
+            </div>
+            <!-- Eid stars decoration -->
+            <div class="header-eid-deco">
+                <!-- purple glow backdrop -->
+                <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 120% at 50% 50%,rgba(26,107,58,0.45),transparent 70%);"></div>
+                <!-- golden shimmer top edge -->
+                <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,rgba(218,165,32,0.4),rgba(240,208,96,1),rgba(218,165,32,0.4),transparent);"></div>
+
+                <!-- Mosque silhouette at bottom -->
+                <svg style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;height:48px;opacity:0.18;" viewBox="0 0 500 48" preserveAspectRatio="xMidYMax meet">
+                    <path d="M0,48 L0,32 L30,32 L30,22 L40,12 L44,6 L46,2 L48,6 L52,12 L62,22 L62,32 L92,32 L92,18 L124,18 L124,10 L138,2 L144,0 L150,2 L164,10 L164,18 L196,18 L196,32 L210,32 L210,22 L220,12 L224,6 L226,2 L228,6 L232,12 L242,22 L242,32 L260,32 L260,18 L292,18 L292,10 L306,2 L312,0 L318,2 L332,10 L332,18 L364,18 L364,32 L378,32 L378,22 L388,12 L392,6 L394,2 L396,6 L400,12 L410,22 L410,32 L440,32 L440,18 L472,18 L472,32 L500,32 L500,48 Z" fill="#daa520"/>
+                </svg>
+
+                <!-- Hanging lantern left -->
+                <svg style="position:absolute;left:18px;top:4px;width:22px;height:52px;opacity:0.75;filter:drop-shadow(0 0 6px rgba(255,165,0,0.8));" viewBox="0 0 22 52">
+                    <line x1="11" y1="0" x2="11" y2="8" stroke="#daa520" stroke-width="1.5"/>
+                    <ellipse cx="11" cy="10" rx="5" ry="3" fill="#daa520"/>
+                    <rect x="5" y="12" width="12" height="26" rx="6" fill="rgba(255,140,0,0.85)"/>
+                    <rect x="7" y="15" width="8" height="20" rx="4" fill="rgba(255,200,50,0.4)"/>
+                    <ellipse cx="11" cy="38" rx="5" ry="3" fill="#daa520"/>
+                    <line x1="11" y1="41" x2="11" y2="46" stroke="#daa520" stroke-width="1.5"/>
+                    <ellipse cx="11" cy="47" rx="3" ry="2" fill="#daa520"/>
+                </svg>
+
+                <!-- Hanging lantern right side -->
+                <svg style="position:absolute;right:92px;top:0px;width:20px;height:48px;opacity:0.65;filter:drop-shadow(0 0 5px rgba(200,100,255,0.7));" viewBox="0 0 22 52">
+                    <line x1="11" y1="0" x2="11" y2="8" stroke="#27ae60" stroke-width="1.5"/>
+                    <ellipse cx="11" cy="10" rx="5" ry="3" fill="#27ae60"/>
+                    <rect x="5" y="12" width="12" height="24" rx="6" fill="rgba(155,89,182,0.8)"/>
+                    <rect x="7" y="15" width="8" height="18" rx="4" fill="rgba(200,150,255,0.4)"/>
+                    <ellipse cx="11" cy="36" rx="5" ry="3" fill="#27ae60"/>
+                    <line x1="11" y1="39" x2="11" y2="44" stroke="#27ae60" stroke-width="1.5"/>
+                    <ellipse cx="11" cy="45" rx="3" ry="2" fill="#27ae60"/>
+                </svg>
+
+                <!-- "ঈদের সালামি দিন" text — centered, behind content -->
+                <div style="position:absolute;bottom:14px;left:0;right:0;text-align:center;pointer-events:none;">
+                    <span style="font-family:'SolaimanLipi','Noto Sans Bengali',sans-serif;font-size:16px;font-weight:900;letter-spacing:3px;
+                        background:linear-gradient(135deg,#f0d060,#ffd700,#ffec8b,#ffd700,#daa520);
+                        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+                        text-shadow:none;
+                        filter:drop-shadow(0 0 12px rgba(255,215,0,0.8)) drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+                        display:inline-block;
+                        animation:eidPulse 2s ease-in-out infinite alternate;">
+                        🎁 ঈদের সালামি দিন 🎁
+                    </span>
+                </div>
+                <!-- extra glow orbs -->
+                <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200px;height:80px;background:radial-gradient(ellipse at center,rgba(218,165,32,0.12),transparent 70%);pointer-events:none;"></div>
+
+                <!-- big 8-pointed star top right -->
+                <svg style="position:absolute;right:8px;top:6px;width:74px;height:74px;filter:drop-shadow(0 0 14px rgba(218,165,32,0.85));opacity:0.90;" viewBox="0 0 100 100">
+                    <polygon points="50,5 56,38 90,30 65,52 88,80 55,65 50,95 45,65 12,80 35,52 10,30 44,38" fill="#f0d060"/>
+                    <polygon points="50,20 54,43 76,37 61,52 74,70 52,61 50,80 48,61 26,70 39,52 24,37 46,43" fill="#daa520"/>
+                </svg>
+                <!-- medium purple star top left -->
+                <svg style="position:absolute;left:8px;top:8px;width:44px;height:44px;opacity:0.60;filter:drop-shadow(0 0 8px rgba(155,89,182,0.7));" viewBox="0 0 100 100">
+                    <polygon points="50,5 56,38 90,30 65,52 88,80 55,65 50,95 45,65 12,80 35,52 10,30 44,38" fill="#c39bd3"/>
+                </svg>
+                <!-- sparkle stars -->
+                <svg style="position:absolute;right:92px;top:10px;width:16px;height:16px;opacity:0.80;filter:drop-shadow(0 0 4px #f0d060);" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#f0d060"/></svg>
+                <svg style="position:absolute;right:74px;top:48px;width:10px;height:10px;opacity:0.50;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 7.5,14 2,9.2 9.6,8.8" fill="#daa520"/></svg>
+                <svg style="position:absolute;left:58px;top:14px;width:10px;height:10px;opacity:0.40;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#daa520"/></svg>
+                <svg style="position:absolute;left:32px;top:52px;width:7px;height:7px;opacity:0.30;" viewBox="0 0 24 24"><polygon points="12,2 14.4,8.8 22,9.2 16.5,14 18.5,21.5 12,17.5 5.5,21.5 7.5,14 2,9.2 9.6,8.8" fill="#c39bd3"/></svg>
+                <!-- golden bottom shimmer line -->
+                <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(218,165,32,0.5),rgba(255,215,0,0.8),rgba(218,165,32,0.5),transparent);"></div>
+            </div>
             <div class="header-controls">
                 <div class="language-toggle">
                     <button class="lang-btn" id="langEnBtn" onclick="changeLanguage('en')">English</button>
@@ -1159,7 +1565,6 @@ if (typeof twemoji === 'undefined') {
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
 const firebaseConfig = {
     apiKey:"AIzaSyBkV5DJpMwedW1ZbPYil4NBZL1GP_4BMz8",
@@ -1174,31 +1579,7 @@ let db;
 try { firebase.initializeApp(firebaseConfig); db=firebase.database(); }
 catch(e) { console.error('Firebase init error:',e); db=null; }
 
-// ===== ONESIGNAL PUSH NOTIFICATION SYSTEM =====
-const ONESIGNAL_APP_ID = '81132740-4821-41ec-a750-d0433b5e6660';
-const ONESIGNAL_REST_KEY = 'os_v2_app_qejsoqciefa6zj2q2bbtwxtgmcavl4iipzuuadvcsc5tx5s3hcyd2ocbrn445qdyzr3iwrtdtxrow7dgkqkrrepvis7adhoskcc5hhy';
-
 let _postListenerReady = false;
-let _osReady = false;
-
-// OneSignal Init
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-OneSignalDeferred.push(async function(OneSignal) {
-  try {
-    await OneSignal.init({
-      appId: ONESIGNAL_APP_ID,
-      notifyButton: { enable: false },
-      allowLocalhostAsSecureOrigin: true,
-    });
-    _osReady = true;
-    const permission = OneSignal.Notifications.permission;
-    if(!permission) {
-      setTimeout(async () => {
-        try { await OneSignal.Notifications.requestPermission(); } catch(e){}
-      }, 3000);
-    }
-  } catch(e){ console.warn('OneSignal init error:', e); }
-});
 
 // In-app Banner
 function showInAppBanner(title, body, emoji) {
@@ -1216,27 +1597,9 @@ function showInAppBanner(title, body, emoji) {
   setTimeout(function(){ banner.style.transform='translateX(-50%) translateY(-160px)'; }, 6000);
 }
 
-// OneSignal REST API দিয়ে সবাইকে push পাঠানো
-async function sendOneSignalPush(title, body, emoji) {
-  emoji = emoji || '\uD83D\uDCCC';
-  try {
-    await fetch('https://onesignal.com/api/v1/notifications', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Key ' + ONESIGNAL_REST_KEY
-      },
-      body: JSON.stringify({
-        app_id: ONESIGNAL_APP_ID,
-        included_segments: ['All'],
-        headings: { en: title },
-        contents: { en: body },
-        chrome_web_icon: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f514.svg',
-        ttl: 86400,
-        priority: 10
-      })
-    });
-  } catch(e){ console.warn('OneSignal push error:', e); }
+// FCM দিয়ে সবাইকে broadcast push পাঠানো (DB broadcast trigger করে)
+async function sendFcmBroadcast(title, body, emoji) {
+  // broadcastPostNotif already handles DB broadcast; this is a no-op stub for compat
 }
 
 // Firebase DB Broadcast (app খোলা/background থাকলে realtime)
@@ -1260,12 +1623,12 @@ function startBroadcastListener(){
   });
 }
 
-// পোস্ট হলে — DB broadcast + OneSignal push
+// পোস্ট হলে — DB broadcast + FCM push
 async function broadcastPostNotif(title, body, emoji, posterUid){
   if(!db) return;
   const notifData = { id: Date.now(), title: title, body: body, emoji: emoji, posterUid: posterUid || '', ts: Date.now() };
   try { await db.ref('broadcastNotif').set(notifData); } catch(e){}
-  sendOneSignalPush(title, body, emoji);
+  sendFcmBroadcast(title, body, emoji);
 }
 
 // Backward compat
@@ -1315,6 +1678,20 @@ const reactionEmojis=['👍','❤️','😂','😮','😢','😡'];
 const ADMIN_SECRET = 'IMTIAZ2011';
 const BADGE_SECRET = 'IMTIAZ1311';
 let isDark = localStorage.getItem('meetapp_dark')==='1';
+// ── Apply cached theme right away (splash screen দেখার সময়ই থিম প্রস্তুত হবে) ──
+(function(){
+    const t = localStorage.getItem('meetapp_theme') || 'regular';
+    document.body.classList.remove('theme-ramadan','theme-eid');
+    const srd = document.getElementById('splashRamadanDeco');
+    const sed = document.getElementById('splashEidDeco');
+    if(t==='ramadan'){ document.body.classList.add('theme-ramadan'); if(srd) srd.style.display='block'; }
+    else if(t==='eid'){ document.body.classList.add('theme-eid'); if(sed) sed.style.display='block'; }
+    // Login screen deco on load
+    const led = document.getElementById('loginEidDeco');
+    const lrd = document.getElementById('loginRamadanDeco');
+    if(led) led.style.display = t==='eid' ? 'block' : 'none';
+    if(lrd) lrd.style.display = t==='ramadan' ? 'block' : 'none';
+})();
 const APP_START_TIME = Date.now();
 const DEFAULT_SPLASH_ICON = "data:image/png;base64,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";
 function getSplashIcon(){ return localStorage.getItem('meetapp_splash_icon')||DEFAULT_SPLASH_ICON; }
@@ -1556,6 +1933,20 @@ function isValidPhone(phone){
     return /^(\+?880|0)1[3-9]\d{8}$/.test(p) || /^\d{10,14}$/.test(p);
 }
 
+function togglePw(id, btn){
+    const inp = document.getElementById(id);
+    if(!inp) return;
+    if(inp.type === 'password'){
+        inp.type = 'text';
+        btn.textContent = '🙈';
+        btn.title = 'পাসওয়ার্ড লুকান';
+    } else {
+        inp.type = 'password';
+        btn.textContent = '👁️';
+        btn.title = 'পাসওয়ার্ড দেখুন';
+    }
+}
+
 async function doLogin(){
     const username=document.getElementById('loginUsername').value.trim();
     const password=document.getElementById('loginPassword').value;
@@ -1627,18 +2018,9 @@ function completeLogin(userData){
     setOnlinePresence();
     // Push notification init
     setTimeout(()=>{ initPushNotifications(); startPostPushListener(); checkMissedNotifications(); }, 1500);
-    // OneSignal Player ID → Firebase-এ সেভ করো
-    setTimeout(function() {
-        try {
-            OneSignalDeferred.push(async function(OneSignal) {
-                const playerId = await OneSignal.User.PushSubscription.id;
-                if (playerId && currentUser && db) {
-                    db.ref('users/' + currentUser.uid).update({ oneSignalId: playerId });
-                    console.log('✅ OneSignal ID সেভ হয়েছে:', playerId);
-                }
-            });
-        } catch(e) { console.warn('OneSignal ID সেভ হয়নি:', e); }
-    }, 4000);
+    // FCM permission already requested via window._fcmRequestPermission
+    // App Theme
+    setTimeout(()=>{ initAppTheme(); listenAppTheme(); }, 500);
 }
 
 function skipLogin(){
@@ -1649,6 +2031,8 @@ function skipLogin(){
     initFirebaseListeners();
     applyLanguage(currentLanguage);
     setTimeout(()=>startPostPushListener(), 1500);
+    // App Theme (no auth needed – read-only)
+    setTimeout(()=>{ initAppTheme(); listenAppTheme(); }, 500);
 }
 
 function handleLogout(){
@@ -1673,7 +2057,7 @@ function updateUserBar(){
     const badgeSpan=document.getElementById('userBarBadge');
     if(currentUser){
         // Name + inline badge
-        const badgeHtml=currentUser.verified?sealBadgeSvg(15):'';
+        const badgeHtml=(currentUser.verified||currentUser.username==='imtiaz')?sealBadgeSvg(15):'';
         nameEl.innerHTML=(currentUser.name||t('guestUser'))+(badgeHtml?` <span class="verified-badge" style="vertical-align:middle;margin-left:2px;">${badgeHtml}</span>`:'');
         subEl.textContent='@'+(currentUser.username||'');
         if(currentUser.avatar){
@@ -1881,7 +2265,7 @@ function renderProfile(){
                     <button class="save-name-btn" onclick="saveBio()" style="margin-top:8px;width:100%;">${currentLanguage==='bn'?'💾 সংরক্ষণ করুন':'💾 Save'}</button>
                     <button onclick="showPasswordChange()" style="margin-top:8px;width:100%;padding:10px;background:rgba(124,92,191,0.1);border:1.5px solid rgba(124,92,191,0.3);border-radius:10px;color:var(--accent-violet);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🔐 ${currentLanguage==='bn'?'পাসওয়ার্ড পরিবর্তন':'Change Password'}</button>
                     ${isAdmin()?`<button onclick="adminApproveVerification()" style="margin-top:6px;width:100%;padding:8px;background:rgba(245,166,35,0.1);border:1.5px solid rgba(245,166,35,0.3);border-radius:10px;color:var(--accent-gold);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🔑 Admin: ভেরিফিকেশন অনুমোদন</button>`:''}
-                    ${isSuperAdmin()?`<button onclick="adminManageAdmins()" style="margin-top:6px;width:100%;padding:8px;background:rgba(255,107,107,0.1);border:1.5px solid rgba(255,107,107,0.3);border-radius:10px;color:var(--accent-coral);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">👑 Admin ম্যানেজমেন্ট</button><button onclick="changeSplashIcon()" style="margin-top:6px;width:100%;padding:8px;background:rgba(108,92,231,0.1);border:1.5px solid rgba(108,92,231,0.3);border-radius:10px;color:var(--p1);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🖼️ Splash Icon পরিবর্তন</button>`:''}
+                    ${isSuperAdmin()?`<button onclick="adminManageAdmins()" style="margin-top:6px;width:100%;padding:8px;background:rgba(255,107,107,0.1);border:1.5px solid rgba(255,107,107,0.3);border-radius:10px;color:var(--accent-coral);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">👑 Admin ম্যানেজমেন্ট</button><button onclick="changeSplashIcon()" style="margin-top:6px;width:100%;padding:8px;background:rgba(108,92,231,0.1);border:1.5px solid rgba(108,92,231,0.3);border-radius:10px;color:var(--p1);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🖼️ Splash Icon পরিবর্তন</button><button onclick="openThemeManager()" style="margin-top:6px;width:100%;padding:8px;background:linear-gradient(135deg,rgba(108,92,231,0.12),rgba(249,168,37,0.1));border:1.5px solid rgba(108,92,231,0.3);border-radius:10px;color:var(--p1);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🎨 অ্যাপ থিম ম্যানেজমেন্ট</button>`:''}
 
                 </div>
             </div>
@@ -2103,7 +2487,7 @@ function adminRequestPost(targetUid, targetName){
         }).catch(err=>{
             showNotification('❌ Error: ' + err.message);
         });
-        // OneSignal Push — অ্যাপ বন্ধ থাকলেও যাবে
+        // FCM Push — অ্যাপ বন্ধ থাকলেও যাবে
         sendUserNotification(targetUid, notifMsg, '📢');
     } else {
         // Local mode — no Firebase, show warning
@@ -2113,27 +2497,28 @@ function adminRequestPost(targetUid, targetName){
     }
 }
 
+const FCM_SERVER_URL = 'https://fcm-server-m7fx.onrender.com/send-notification';
+
+function sendFcmPush(targetUid, title, body){
+    if(!db||!targetUid) return;
+    db.ref('fcmTokens/'+targetUid).once('value').then(function(snap){
+        const token = snap.val();
+        if(!token) return;
+        fetch(FCM_SERVER_URL,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({token, title, body})
+        }).catch(function(){});
+    }).catch(function(){});
+}
+
 function sendUserNotification(targetUid,msg,emoji='🔔'){
     if(!db||!targetUid) return;
     // Firebase-এ সেভ (আগের মতোই)
     db.ref('userNotifications/'+targetUid).push({msg,emoji,time:new Date().toISOString(),read:false,from:currentUser?currentUser.uid:''});
-    // OneSignal Push — অ্যাপ বন্ধ থাকলেও যাবে
-    db.ref('users/'+targetUid).once('value').then(function(snap){
-        const user = snap.val();
-        if(!user || !user.oneSignalId) return;
-        const plainText = msg.replace(/<[^>]+>/g,'');
-        fetch('https://onesignal.com/api/v1/notifications',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','Authorization':'Key '+ONESIGNAL_REST_KEY},
-            body:JSON.stringify({
-                app_id: ONESIGNAL_APP_ID,
-                include_player_ids: [user.oneSignalId],
-                headings:{en:'MeetApp \uD83D\uDD14'},
-                contents:{en: emoji+' '+plainText},
-                ttl:86400
-            })
-        }).catch(function(){});
-    }).catch(function(){});
+    // FCM Push — অ্যাপ বন্ধ থাকলেও যাবে
+    const plainText = msg.replace(/<[^>]+>/g,'');
+    sendFcmPush(targetUid, 'MeetApp 🔔', emoji+' '+plainText);
 }
 
 function requestVerification(){
@@ -2214,7 +2599,30 @@ function addEvent(){
     if(!title||!time) return showNotification(t('enterEventDetails'));
     const timeFormatted=format12hr(time);
     const newEvent={id:Date.now(),title,time:timeFormatted,rawTime:time,description,createdDate:new Date().toLocaleString(),uid:currentUser?.uid||'guest',draft:false};
-    if(db) db.ref('events/'+newEvent.id).set(newEvent).then(()=>{showNotification(t('eventAdded'));document.getElementById('eventTitle').value='';document.getElementById('eventTime').value='';document.getElementById('eventDescription').value='';});
+    if(db) db.ref('events/'+newEvent.id).set(newEvent).then(()=>{
+        showNotification(t('eventAdded'));
+        document.getElementById('eventTitle').value='';
+        document.getElementById('eventTime').value='';
+        document.getElementById('eventDescription').value='';
+        // সব user-দের notify করুন
+        db.ref('fcmTokens').once('value').then(function(snap){
+            const tokens = snap.val();
+            if(!tokens) return;
+            const creatorName = currentUser ? (currentUser.name||'কেউ') : 'কেউ';
+            Object.entries(tokens).forEach(function([uid, token]){
+                if(uid === (currentUser&&currentUser.uid)) return; // নিজেকে বাদ দিন
+                fetch(FCM_SERVER_URL,{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({
+                        token,
+                        title:'MeetApp 📅 নতুন ইভেন্ট!',
+                        body: creatorName+' একটি নতুন ইভেন্ট যোগ করেছেন: '+title+' ('+timeFormatted+')'
+                    })
+                }).catch(function(){});
+            });
+        });
+    });
     else{events.push(newEvent);showNotification(t('eventAdded'));displayEvents();initEventSlider();}
 }
 
@@ -2384,6 +2792,9 @@ function updateFooterAvatar(){ const el=document.getElementById('footerCreatorAv
 window.addEventListener('DOMContentLoaded',()=>{
     attachAvatarListener();
     applyDarkMode();
+    // ── Apply cached theme instantly (before Firebase responds) ──
+    const cachedTheme = localStorage.getItem('meetapp_theme') || 'regular';
+    applyAppTheme(cachedTheme);
     updateNotifDot();
     renderNotifList();
     updateSearchPlaceholder();
@@ -2406,6 +2817,9 @@ window.addEventListener('DOMContentLoaded',()=>{
         updateUserBar();
         initFirebaseListeners();
         applyLanguage(currentLanguage);
+        // ── Start theme listener on refresh too ──
+        initAppTheme();
+        listenAppTheme();
         if(db){
             db.ref('users/'+currentUser.uid).once('value').then(snap=>{
                 if(snap.exists()){currentUser=snap.val();localStorage.setItem('meetapp_user',JSON.stringify(currentUser));updateUserBar();}
@@ -2415,22 +2829,11 @@ window.addEventListener('DOMContentLoaded',()=>{
         } else {
             hideSplash();
         }
-        // আগে লগইন করা ইউজারদের oneSignalId সেভ করো
-        setTimeout(function(){
-            try {
-                OneSignalDeferred.push(async function(OneSignal) {
-                    const playerId = await OneSignal.User.PushSubscription.id;
-                    if(playerId && currentUser && db) {
-                        const snap = await db.ref('users/'+currentUser.uid+'/oneSignalId').once('value');
-                        if(!snap.val()) {
-                            db.ref('users/'+currentUser.uid).update({ oneSignalId: playerId });
-                            console.log('✅ পুরনো ইউজার — OneSignal ID সেভ হয়েছে:', playerId);
-                        }
-                    }
-                });
-            } catch(e) {}
-        }, 5000);
+        // FCM permission already handled at login
     } else {
+        // Guest: still load theme from Firebase
+        initAppTheme();
+        listenAppTheme();
         hideSplash();
     }
 });
@@ -2743,6 +3146,202 @@ function dismissPWA(){localStorage.setItem('meetapp_pwa_dismissed','1');document
 document.addEventListener('click',e=>{if(!e.target.closest('.react-hold-wrap')) document.querySelectorAll('.reaction-picker.show').forEach(p=>p.classList.remove('show'));});
 let lastTouchEnd=0;
 document.addEventListener('touchend',function(event){const now=new Date().getTime();if(now-lastTouchEnd<=300) event.preventDefault();lastTouchEnd=now;},false);
+
+
+/* ═══════════════════════════════════════════
+   APP THEME MANAGEMENT SYSTEM
+   Only Super Admin (@imtiaz) can configure.
+   Themes apply to ALL users based on date range.
+═══════════════════════════════════════════ */
+let _currentAppTheme = 'regular';
+let _themeSelectedInUI = 'regular';
+const THEME_DB_KEY = 'appThemeSchedules';
+
+// Apply a theme to document
+function applyAppTheme(theme){
+    _currentAppTheme = theme;
+    localStorage.setItem('meetapp_theme', theme); // ← cache করা হলো
+    document.body.classList.remove('theme-ramadan','theme-eid');
+    const rb = document.getElementById('ramadanBanner');
+    const eb = document.getElementById('eidBanner');
+    if(rb) rb.classList.remove('show');
+    if(eb) eb.classList.remove('show');
+    // Splash decorations
+    const srd = document.getElementById('splashRamadanDeco');
+    const sed = document.getElementById('splashEidDeco');
+    if(srd) srd.style.display = 'none';
+    if(sed) sed.style.display = 'none';
+    if(theme === 'ramadan'){
+        document.body.classList.add('theme-ramadan');
+        if(rb) rb.classList.add('show');
+        if(srd) srd.style.display = 'block';
+    } else if(theme === 'eid'){
+        document.body.classList.add('theme-eid');
+        if(eb) eb.classList.add('show');
+        if(sed) sed.style.display = 'block';
+    }
+    // ══ Login screen theme decorations ══
+    const loginEidDeco = document.getElementById('loginEidDeco');
+    const loginRamadanDeco = document.getElementById('loginRamadanDeco');
+    if(loginEidDeco) loginEidDeco.style.display = theme==='eid' ? 'block' : 'none';
+    if(loginRamadanDeco) loginRamadanDeco.style.display = theme==='ramadan' ? 'block' : 'none';
+
+    // Update meta theme-color
+    let metaTheme = document.querySelector('meta[name="theme-color"]');
+    if(!metaTheme){ metaTheme=document.createElement('meta'); metaTheme.name='theme-color'; document.head.appendChild(metaTheme); }
+    metaTheme.content = theme==='ramadan'?'#00875a': theme==='eid'?'#0f3320':'#6c63ff';
+}
+
+// Load theme schedules from Firebase and apply matching theme for today
+function initAppTheme(){
+    if(!db){ applyAppTheme('regular'); return; }
+    db.ref(THEME_DB_KEY).once('value', snap => {
+        if(!snap.exists()){ applyAppTheme('regular'); return; }
+        const schedules = snap.val(); // array or object of {theme, startDate, endDate}
+        const today = new Date();
+        const todayStr = today.toISOString().slice(0,10); // YYYY-MM-DD
+        let matched = 'regular';
+        Object.values(schedules).forEach(s => {
+            if(s.theme && s.startDate && s.endDate && todayStr >= s.startDate && todayStr <= s.endDate){
+                matched = s.theme;
+            }
+        });
+        applyAppTheme(matched);
+    });
+}
+
+// Listen for real-time theme changes from Firebase
+let _themeListenerActive = false;
+function listenAppTheme(){
+    if(!db || _themeListenerActive) return;
+    _themeListenerActive = true;
+    db.ref(THEME_DB_KEY).on('value', snap => {
+        if(!snap.exists()){ applyAppTheme('regular'); return; }
+        const schedules = snap.val();
+        const todayStr = new Date().toISOString().slice(0,10);
+        let matched = 'regular';
+        Object.values(schedules).forEach(s => {
+            if(s.theme && s.startDate && s.endDate && todayStr >= s.startDate && todayStr <= s.endDate){
+                matched = s.theme;
+            }
+        });
+        applyAppTheme(matched);
+    });
+}
+
+// Open theme manager modal (super admin only)
+function openThemeManager(){
+    if(!isSuperAdmin()){ showNotification('❌ শুধু Super Admin পারবেন!'); return; }
+    _themeSelectedInUI = _currentAppTheme;
+    refreshThemeManagerUI();
+    document.getElementById('themeManagerOverlay').classList.add('show');
+    document.body.style.overflow='hidden';
+    // Load existing schedules
+    if(db){
+        db.ref(THEME_DB_KEY).once('value', snap => {
+            renderThemeScheduleList(snap.exists() ? snap.val() : {});
+        });
+    }
+}
+
+function closeThemeManager(){
+    document.getElementById('themeManagerOverlay').classList.remove('show');
+    document.body.style.overflow='';
+}
+
+function closeThemeManagerOutside(e){
+    if(e.target===document.getElementById('themeManagerOverlay')) closeThemeManager();
+}
+
+function selectThemeOption(theme){
+    _themeSelectedInUI = theme;
+    refreshThemeManagerUI();
+}
+
+function refreshThemeManagerUI(){
+    ['regular','ramadan','eid'].forEach(t => {
+        const el = document.getElementById('themeOpt'+t.charAt(0).toUpperCase()+t.slice(1));
+        if(el) el.classList.toggle('active', t===_themeSelectedInUI);
+    });
+    const badge = document.getElementById('themeManagerCurrentBadge');
+    if(badge){
+        const labels = {regular:'💜 Regular (বর্তমান)', ramadan:'🌙 তুহফায়ে রমজান (বর্তমান)', eid:'🎉 ঈদের শুভেচ্ছা (বর্তমান)'};
+        const cls = {regular:'regular',ramadan:'ramadan',eid:'eid'};
+        badge.innerHTML = `<span class="theme-status-badge ${cls[_currentAppTheme]}">${labels[_currentAppTheme]||_currentAppTheme}</span>`;
+    }
+}
+
+function renderThemeScheduleList(schedules){
+    const el = document.getElementById('themeScheduleList');
+    if(!el) return;
+    const list = Object.entries(schedules);
+    if(!list.length){ el.innerHTML='<div style="font-size:12px;color:var(--text-muted-light);text-align:center;padding:8px;">কোনো শিডিউল নেই</div>'; return; }
+    const themeEmoji = {regular:'💜',ramadan:'🌙',eid:'🎉'};
+    el.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--text-muted-light);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📋 সংরক্ষিত শিডিউলসমূহ</div>`+
+        list.map(([key,s])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg-page);border:1px solid var(--border-light);border-radius:10px;margin-bottom:6px;font-size:12px;">
+            <span>${themeEmoji[s.theme]||'🎨'} <b>${s.theme}</b>: ${s.startDate} → ${s.endDate}</span>
+            <button onclick="deleteThemeSchedule('${key}')" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:#ff6b6b;border-radius:8px;padding:3px 8px;font-size:11px;cursor:pointer;font-family:inherit;">✕</button>
+        </div>`).join('');
+}
+
+function saveThemeSchedule(){
+    if(!isSuperAdmin()){ showNotification('❌ শুধু Super Admin পারবেন!'); return; }
+    const theme = _themeSelectedInUI;
+    const startDate = document.getElementById('themeStartDate').value;
+    const endDate = document.getElementById('themeEndDate').value;
+    // Date is optional: if not provided, theme activates immediately as "always on"
+    const key = 'schedule_'+Date.now();
+    const entry = {
+        theme,
+        startDate: startDate || '2000-01-01',
+        endDate: endDate || '2099-12-31',
+        permanent: (!startDate && !endDate),
+        setBy:'imtiaz',
+        setAt: new Date().toISOString()
+    };
+    if(db){
+        // Remove old permanent/active schedules first if setting a new one
+        db.ref(THEME_DB_KEY).once('value', snap => {
+            const promises = [];
+            if(snap.exists()){
+                snap.forEach(child => {
+                    const s = child.val();
+                    if(s.permanent) promises.push(db.ref(THEME_DB_KEY+'/'+child.key).remove());
+                });
+            }
+            Promise.all(promises).then(() => {
+                db.ref(THEME_DB_KEY+'/'+key).set(entry, err => {
+                    if(err){ showNotification('❌ সেভ করা যায়নি!'); return; }
+                    const msg = theme==='regular' ? '✅ Regular থিম সক্রিয় হয়েছে!' :
+                                theme==='ramadan' ? '✅ তুহফায়ে রমজান থিম সক্রিয়!' :
+                                '✅ ঈদের থিম সক্রিয় হয়েছে!';
+                    showNotification(msg);
+                    applyAppTheme(theme);
+                    db.ref(THEME_DB_KEY).once('value', snap2 => {
+                        renderThemeScheduleList(snap2.exists()?snap2.val():{});
+                    });
+                });
+            });
+        });
+    } else {
+        // No DB: apply locally
+        applyAppTheme(theme);
+        showNotification('✅ থিম সক্রিয় হয়েছে! (local only)');
+        closeThemeManager();
+    }
+}
+
+function deleteThemeSchedule(key){
+    if(!isSuperAdmin()){ showNotification('❌ শুধু Super Admin পারবেন!'); return; }
+    if(!db){ showNotification('❌ Database সংযুক্ত নেই!'); return; }
+    db.ref(THEME_DB_KEY+'/'+key).remove(() => {
+        showNotification('🗑️ শিডিউল মুছে দেওয়া হয়েছে!');
+        db.ref(THEME_DB_KEY).once('value', snap => {
+            renderThemeScheduleList(snap.exists()?snap.val():{});
+        });
+        initAppTheme(); // re-evaluate current theme
+    });
+}
 
 function applyTwemoji(target){ const el=target||document.body; try{TwemojiLocal.parse(el);}catch(e){} if(typeof twemoji!=='undefined'&&twemoji.parse!==TwemojiLocal.parse){try{twemoji.parse(el,{folder:'svg',ext:'.svg'});}catch(e){}} el.querySelectorAll('img.emoji').forEach(function(img){const src=img.getAttribute('src')||'';if(src.indexOf('twemoji')===-1&&src.indexOf('twimg.com')===-1&&src.indexOf('cdnjs')===-1){img.classList.remove('emoji');img.style.height='';img.style.width='';}}); }
 let _twEmojiPending=null;
