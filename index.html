@@ -1632,9 +1632,20 @@ async function broadcastPostNotif(title, body, emoji, posterUid){
 }
 
 // Backward compat
+const VERCEL_NOTIFY_URL = 'https://meetapp-notify.vercel.app/api/notify';
+
 async function sendPushToAll(title, body, emoji){
   emoji = emoji || '\uD83D\uDCCC';
   if(currentUser) broadcastPostNotif(title, body, emoji, currentUser.uid);
+  try {
+    await fetch(VERCEL_NOTIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body })
+    });
+  } catch(e) {
+    console.warn('Push notification error:', e);
+  }
 }
 
 function startPostPushListener(){
@@ -2019,6 +2030,17 @@ function completeLogin(userData){
     // Push notification init
     setTimeout(()=>{ initPushNotifications(); startPostPushListener(); checkMissedNotifications(); }, 1500);
     // FCM permission already requested via window._fcmRequestPermission
+    // OneSignal — Median app এ user register করো
+    setTimeout(()=>{
+        if(typeof median !== 'undefined' && median.onesignal && userData.uid){
+            try {
+                median.onesignal.externalUserId.set({ externalId: userData.uid });
+                console.log('✅ OneSignal user registered:', userData.uid);
+            } catch(e) {
+                console.warn('⚠️ OneSignal register error:', e);
+            }
+        }
+    }, 2000);
     // App Theme
     setTimeout(()=>{ initAppTheme(); listenAppTheme(); }, 500);
 }
