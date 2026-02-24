@@ -541,6 +541,55 @@ if (typeof twemoji === 'undefined') {
         .ts-bg-swatch.selected{border-color:white;transform:scale(1.18);}
         .text-story-char-row{display:flex;justify-content:flex-end;padding:6px 2px 0;}
         .text-story-char{font-size:11px;color:rgba(255,255,255,0.4);}
+        /* ══ FRIEND REQUEST STYLES ══ */
+        .frq-btn{display:inline-block;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.2s;border:1.5px solid;background:transparent;}
+        .frq-btn.frq-none{background:rgba(108,92,231,0.10);border-color:rgba(108,92,231,0.35);color:var(--p1);}
+        .frq-btn.frq-sent{background:rgba(253,203,110,0.10);border-color:rgba(253,203,110,0.5);color:#c9870c;}
+        .frq-btn.frq-recv{background:rgba(46,213,115,0.10);border-color:rgba(46,213,115,0.4);color:#1e9e52;}
+        .frq-btn.frq-friends{background:rgba(108,92,231,0.08);border-color:rgba(108,92,231,0.2);color:var(--p1);}
+        .frq-btn:active{transform:scale(0.93);}
+        .frq-section{background:var(--bg-card-solid);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;border:1px solid var(--border-light);box-shadow:var(--shadow-sm);}
+        .frq-section-title{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;}
+        .frq-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg-page);border-radius:var(--r-sm);border:1px solid var(--border-light);margin-bottom:8px;}
+        .frq-item-left{display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;}
+        .frq-av{width:40px;height:40px;border-radius:50%;background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:15px;overflow:hidden;border:2px solid rgba(108,92,231,0.2);flex-shrink:0;}
+        .frq-av img{width:100%;height:100%;object-fit:cover;}
+        .frq-name{font-size:13px;font-weight:700;color:var(--text-primary);}
+        .frq-uname{font-size:11px;color:var(--text-muted-light);}
+        .frq-actions{display:flex;gap:6px;align-items:center;}
+        .frq-accept{background:var(--grad-btn);color:white;border:none;border-radius:16px;padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
+        .frq-decline{background:transparent;color:#ff6b6b;border:1.5px solid rgba(255,107,107,0.35);border-radius:16px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
+        .frq-badge{background:#ff4757;color:white;font-size:9px;font-weight:700;border-radius:50%;width:15px;height:15px;line-height:15px;text-align:center;display:inline-block;margin-left:4px;vertical-align:middle;}
+        /* ══ MESSAGING STYLES ══ */
+        .msg-header-bar{padding:4px 0 14px;}
+        .msg-page-title{font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:12px;}
+        .msg-search-input{width:100%;padding:11px 16px;border:1.5px solid var(--border-light);border-radius:22px;font-size:14px;background:var(--bg-card-solid);color:var(--text-primary);font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;outline:none;transition:border 0.2s;box-sizing:border-box;}
+        .msg-search-input:focus{border-color:var(--p1);}
+        .msg-user-list{display:flex;flex-direction:column;}
+        .msg-user-item{display:flex;align-items:center;gap:13px;padding:12px 14px;background:var(--bg-card-solid);border:1px solid var(--border-light);border-radius:var(--r-md);margin-bottom:8px;cursor:pointer;transition:background 0.2s;}
+        .msg-user-item:active{background:rgba(108,92,231,0.07);}
+        .msg-uav{width:46px;height:46px;border-radius:50%;background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:white;flex-shrink:0;overflow:hidden;}
+        .msg-uav img{width:100%;height:100%;object-fit:cover;}
+        .msg-uname{font-size:14px;font-weight:700;color:var(--text-primary);}
+        .msg-upreview{font-size:12px;color:var(--text-muted-light);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+        .msg-chat-win{display:flex;flex-direction:column;height:calc(100vh - 130px);}
+        .msg-chat-top{display:flex;align-items:center;gap:12px;padding:10px 0 14px;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+        .msg-back{background:none;border:none;font-size:22px;cursor:pointer;color:var(--p1);padding:0 8px 0 0;font-weight:700;}
+        .msg-cav{width:40px;height:40px;border-radius:50%;background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:white;overflow:hidden;flex-shrink:0;}
+        .msg-cav img{width:100%;height:100%;object-fit:cover;}
+        .msg-cname{font-size:15px;font-weight:700;color:var(--text-primary);}
+        .msg-bubbles{flex:1;overflow-y:auto;padding:14px 0;display:flex;flex-direction:column;gap:6px;}
+        .msg-bubble{max-width:74%;padding:9px 13px;border-radius:18px;font-size:14px;line-height:1.5;word-break:break-word;}
+        .msg-bubble.sent{background:var(--grad-btn);color:white;align-self:flex-end;border-bottom-right-radius:4px;}
+        .msg-bubble.recv{background:var(--bg-card-solid);color:var(--text-primary);align-self:flex-start;border:1px solid var(--border-light);border-bottom-left-radius:4px;}
+        .msg-btime{font-size:10px;opacity:0.6;margin-top:3px;text-align:right;}
+        .msg-bubble.recv .msg-btime{text-align:left;}
+        .msg-date-sep{text-align:center;font-size:11px;color:var(--text-muted-light);padding:5px 0;font-weight:600;}
+        .msg-input-row{display:flex;gap:8px;padding:10px 0;border-top:1px solid var(--border-light);flex-shrink:0;align-items:center;}
+        .msg-input{flex:1;padding:10px 15px;border:1.5px solid var(--border-light);border-radius:22px;font-size:14px;background:var(--bg-card-solid);color:var(--text-primary);font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;outline:none;}
+        .msg-input:focus{border-color:var(--p1);}
+        .msg-send{background:var(--grad-btn);color:white;border:none;border-radius:50%;width:42px;height:42px;font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(108,92,231,0.3);}
+        .msg-empty{text-align:center;padding:40px 20px;color:var(--text-muted-light);font-size:14px;}
         .search-bar-wrap{position:relative;margin-bottom:16px;}
         .search-input{width:100%;padding:12px 44px 12px 16px;border:1.5px solid var(--border-light);border-radius:var(--r-lg);font-size:15px;background:var(--bg-card-solid);color:var(--text-primary);font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
         .search-input:focus{outline:none;border-color:var(--p1);box-shadow:0 0 0 4px rgba(108,92,231,0.10);}
@@ -1386,8 +1435,9 @@ if (typeof twemoji === 'undefined') {
             <button class="bn-item active" id="bnHome" onclick="bnSwitch('posts',this)">
                 <div class="bn-icon">🏠</div><span class="bn-label" id="bnLabelHome">হোম</span>
             </button>
-            <button class="bn-item" id="bnSearch" onclick="bnSearch()">
-                <div class="bn-icon">🔍</div><span class="bn-label" id="bnLabelSearch">খুঁজুন</span>
+            <button class="bn-item" id="bnMessages" onclick="bnSwitch('messages',this)">
+                <div class="bn-icon" style="position:relative;">💬<span id="msgNavBadge" style="display:none;position:absolute;top:-5px;right:-8px;background:#ff4757;color:white;font-size:9px;font-weight:700;border-radius:50%;width:15px;height:15px;line-height:15px;text-align:center;border:2px solid var(--bg-page);"></span></div>
+                <span class="bn-label">মেসেজ</span>
             </button>
             <div class="bn-create">
                 <button class="bn-create-btn" id="bnCreateBtn" onclick="toggleFabMenu()"><span style="font-size:26px;line-height:1;pointer-events:none;">✚</span></button>
@@ -1396,7 +1446,7 @@ if (typeof twemoji === 'undefined') {
                 <div class="bn-icon">📅</div><span class="bn-label" id="bnLabelEvents">ইভেন্ট</span>
             </button>
             <button class="bn-item" id="bnProfile" onclick="bnSwitch('profile',this)">
-                <div class="bn-icon" id="bnProfileIcon" style="font-size:16px;font-weight:700;color:var(--p1);">👤</div>
+                <div class="bn-icon" id="bnProfileIcon" style="font-size:16px;font-weight:700;color:var(--p1);position:relative;">👤<span id="frqNavBadge" style="display:none;position:absolute;top:-5px;right:-8px;background:#ff4757;color:white;font-size:9px;font-weight:700;border-radius:50%;width:15px;height:15px;line-height:15px;text-align:center;border:2px solid var(--bg-page);"></span></div>
                 <span class="bn-label" id="bnLabelProfile">প্রোফাইল</span>
             </button>
         </nav>
@@ -1457,6 +1507,31 @@ if (typeof twemoji === 'undefined') {
             </div>
             <div id="profile" class="tab-content">
                 <div id="profileContent"></div>
+            </div>
+            <!-- ══ MESSAGES TAB ══ -->
+            <div id="messages" class="tab-content">
+                <div id="msgListView">
+                    <div class="msg-header-bar">
+                        <div class="msg-page-title">💬 মেসেজ</div>
+                        <input type="text" id="msgSearchInput" class="msg-search-input" placeholder="🔍 নাম খুঁজুন..." oninput="filterMsgUsers(this.value)">
+                    </div>
+                    <div id="msgUserList" class="msg-user-list"><div class="msg-empty">লোড হচ্ছে...</div></div>
+                </div>
+                <div id="msgChatView" style="display:none;">
+                    <div class="msg-chat-top">
+                        <button class="msg-back" onclick="closeMsgChat()">←</button>
+                        <div class="msg-cav" id="msgChatAv"></div>
+                        <div>
+                            <div class="msg-cname" id="msgChatName"></div>
+                            <div style="font-size:11px;color:#2ed573;font-weight:600;">অ্যাক্টিভ</div>
+                        </div>
+                    </div>
+                    <div class="msg-bubbles" id="msgBubbles"></div>
+                    <div class="msg-input-row">
+                        <input type="text" id="msgTextInput" class="msg-input" placeholder="মেসেজ লিখুন..." onkeydown="if(event.key==='Enter')doSendMsg()">
+                        <button class="msg-send" onclick="doSendMsg()">➤</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="footer">
@@ -2287,7 +2362,7 @@ function renderProfile(){
                     <button class="save-name-btn" onclick="saveBio()" style="margin-top:8px;width:100%;">${currentLanguage==='bn'?'💾 সংরক্ষণ করুন':'💾 Save'}</button>
                     <button onclick="showPasswordChange()" style="margin-top:8px;width:100%;padding:10px;background:rgba(124,92,191,0.1);border:1.5px solid rgba(124,92,191,0.3);border-radius:10px;color:var(--accent-violet);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🔐 ${currentLanguage==='bn'?'পাসওয়ার্ড পরিবর্তন':'Change Password'}</button>
                     ${isAdmin()?`<button onclick="adminApproveVerification()" style="margin-top:6px;width:100%;padding:8px;background:rgba(245,166,35,0.1);border:1.5px solid rgba(245,166,35,0.3);border-radius:10px;color:var(--accent-gold);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🔑 Admin: ভেরিফিকেশন অনুমোদন</button>`:''}
-                    ${isSuperAdmin()?`<button onclick="adminManageAdmins()" style="margin-top:6px;width:100%;padding:8px;background:rgba(255,107,107,0.1);border:1.5px solid rgba(255,107,107,0.3);border-radius:10px;color:var(--accent-coral);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">👑 Admin ম্যানেজমেন্ট</button><button onclick="changeSplashIcon()" style="margin-top:6px;width:100%;padding:8px;background:rgba(108,92,231,0.1);border:1.5px solid rgba(108,92,231,0.3);border-radius:10px;color:var(--p1);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🖼️ Splash Icon পরিবর্তন</button><button onclick="openThemeManager()" style="margin-top:6px;width:100%;padding:8px;background:linear-gradient(135deg,rgba(108,92,231,0.12),rgba(249,168,37,0.1));border:1.5px solid rgba(108,92,231,0.3);border-radius:10px;color:var(--p1);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🎨 অ্যাপ থিম ম্যানেজমেন্ট</button>`:''}
+                    ${isSuperAdmin()?`<button onclick="adminManageAdmins()" style="margin-top:6px;width:100%;padding:8px;background:rgba(255,107,107,0.1);border:1.5px solid rgba(255,107,107,0.3);border-radius:10px;color:var(--accent-coral);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">👑 Admin ম্যানেজমেন্ট</button><button onclick="changeSplashIcon()" style="margin-top:6px;width:100%;padding:8px;background:rgba(108,92,231,0.1);border:1.5px solid rgba(108,92,231,0.3);border-radius:10px;color:var(--p1);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🖼️ Splash Icon পরিবর্তন</button><button onclick="openThemeManager()" style="margin-top:6px;width:100%;padding:8px;background:linear-gradient(135deg,rgba(108,92,231,0.12),rgba(249,168,37,0.1));border:1.5px solid rgba(108,92,231,0.3);border-radius:10px;color:var(--p1);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🎨 অ্যাপ থিম ম্যানেজমেন্ট</button><button onclick="sendAdminNotification()" style="margin-top:6px;width:100%;padding:8px;background:linear-gradient(135deg,rgba(108,99,255,0.12),rgba(167,139,250,0.1));border:1.5px solid rgba(108,99,255,0.35);border-radius:10px;color:#6c63ff;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">🔔 সবাইকে নোটিফিকেশন পাঠান</button>`:''}
 
                 </div>
             </div>
@@ -2319,6 +2394,26 @@ function canDelete(post){ if(!currentUser) return false; return currentUser.uid=
 function isAdmin(){ if(!currentUser) return false; return currentUser.username==='imtiaz'||currentUser.adminVerified===true; }
 function isSuperAdmin(){ return currentUser&&currentUser.username==='imtiaz'; }
 function canEdit(post){ return currentUser&&post.uid===currentUser.uid; }
+
+// ── Super Admin: সবাইকে নোটিফিকেশন পাঠান ──
+function sendAdminNotification() {
+  if (!isSuperAdmin()) { showNotification('❌ শুধু Super Admin পারবেন!'); return; }
+  const title = prompt('নোটিফিকেশনের শিরোনাম লিখুন:');
+  if (!title) return;
+  const body = prompt('নোটিফিকেশনের বিস্তারিত লিখুন (খালি রাখলেও হবে):') || '';
+  if (!db) { showNotification('❌ Database সংযুক্ত নেই!'); return; }
+  db.ref('broadcastNotif').push({
+    title: title,
+    body: body,
+    sentBy: currentUser ? currentUser.uid : 'admin',
+    createdAt: new Date().toISOString(),
+    status: 'pending'
+  }).then(() => {
+    showNotification('✅ নোটিফিকেশন পাঠানো হচ্ছে...');
+  }).catch(function(err) {
+    showNotification('❌ পাঠাতে সমস্যা হয়েছে: ' + err.message);
+  });
+}
 
 function renderAdminUsersPanel(){
     const allUserList = Object.values(allUsers);
@@ -2600,7 +2695,7 @@ function toggleEditForm(id,type){ const form=document.getElementById(`editForm-$
 function saveEdit(id,type){ const newText=document.getElementById(`editCaption-${id}`).value.trim(); if(!newText) return; let arr=type==='video'?videos:type==='photo'?photos:textPosts; let item=arr.find(x=>x.id===id); if(!item) return; if(type==='photo'||type==='video') item.caption=newText; else item.content=newText; item.editedAt=new Date().toLocaleString(); const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}`).set(item).then(()=>showNotification(t('postUpdated'))); else{displayPosts();showNotification(t('postUpdated'));} const form=document.getElementById(`editForm-${id}`); if(form) form.classList.remove('show'); }
 function deletePost(id,type){ if(!confirm(t('confirmDeletePost'))) return; performDelete(id,type); }
 
-function postHeaderHtml(post){ const isOwnPost=currentUser&&post.uid===currentUser.uid; const u=isOwnPost?currentUser:(allUsers[post.uid]||{}); const displayName=u.name||post.uploaderName||t('guestUser'); const isVerified=u.verified||u.username==='imtiaz'||false; const avatarLocked=(u.avatarLocked&&u.username!=='imtiaz')||false; const avatarSrc=isOwnPost?(currentUser.avatar||null):(u.avatar&&!avatarLocked?u.avatar:null); const avatarInner=avatarSrc?`<img src="${avatarSrc}" alt="">`:`<span>${displayName.charAt(0).toUpperCase()}</span>`; const badge=isVerified?`<span class="verified-badge" title="Verified Account" style="margin-left:3px;vertical-align:middle;">${sealBadgeSvg(16)}</span>`:''; let followBtn=''; if(currentUser&&currentUser.uid!==post.uid){ const following=isFollowing(post.uid); const label=following?(currentLanguage==='bn'?'✓ ফলোইং':'✓ Following'):(currentLanguage==='bn'?'+ ফলো':'+ Follow'); followBtn=`<button class="post-follow-btn ${following?'following':'not-following'}" onclick="event.stopPropagation();toggleFollow('${post.uid}')">${label}</button>`; } return `<div class="post-header"><div class="post-header-left" onclick="viewUserProfile('${post.uid}')" style="cursor:pointer;"><div class="post-avatar">${avatarInner}</div><div class="post-header-info"><div class="post-uploader-name">${displayName}${badge}</div><div class="post-upload-date">${post.uploadDate}${post.editedAt?' · ✏️':''}</div></div></div>${followBtn}</div>`; }
+function postHeaderHtml(post){ const isOwnPost=currentUser&&post.uid===currentUser.uid; const u=isOwnPost?currentUser:(allUsers[post.uid]||{}); const displayName=u.name||post.uploaderName||t('guestUser'); const isVerified=u.verified||u.username==='imtiaz'||false; const avatarLocked=(u.avatarLocked&&u.username!=='imtiaz')||false; const avatarSrc=isOwnPost?(currentUser.avatar||null):(u.avatar&&!avatarLocked?u.avatar:null); const avatarInner=avatarSrc?`<img src="${avatarSrc}" alt="">`:`<span>${displayName.charAt(0).toUpperCase()}</span>`; const badge=isVerified?`<span class="verified-badge" title="Verified Account" style="margin-left:3px;vertical-align:middle;">${sealBadgeSvg(16)}</span>`:''; let actionArea=''; if(currentUser&&currentUser.uid!==post.uid){ const following=isFollowing(post.uid); const followLabel=following?(currentLanguage==='bn'?'✓ ফলোইং':'✓ Following'):(currentLanguage==='bn'?'+ ফলো':'+ Follow'); const fst=typeof frqStatus==='function'?frqStatus(post.uid):'none'; const friendLabel=typeof frqLabel==='function'?frqLabel(fst):(currentLanguage==='bn'?'👥 বন্ধু যোগ করুন':'👥 Add Friend'); const friendCls=typeof frqClass==='function'?frqClass(fst):'frq-none'; actionArea=`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;"><button class="post-follow-btn ${following?'following':'not-following'}" onclick="event.stopPropagation();toggleFollow('${post.uid}')">${followLabel}</button><button class="frq-btn ${friendCls}" data-frq="${post.uid}" onclick="event.stopPropagation();doFriendAction('${post.uid}')">${friendLabel}</button></div>`; } return `<div class="post-header"><div class="post-header-left" onclick="viewUserProfile('${post.uid}')" style="cursor:pointer;"><div class="post-avatar">${avatarInner}</div><div class="post-header-info"><div class="post-uploader-name">${displayName}${badge}</div><div class="post-upload-date">${post.uploadDate}${post.editedAt?' · ✏️':''}</div></div></div>${actionArea}</div>`; }
 
 function displayPosts(){ const gallery=document.getElementById('postsGallery'); if(!gallery) return; if(isLoadingPosts){gallery.innerHTML=showLoadingAnimation('posts');return;} let all=[...photos.map(p=>({...p,type:'photo'})),...videos.map(v=>({...v,type:'video'})),...textPosts.map(tp=>({...tp,type:'text'}))].sort((a,b)=>b.id-a.id); if(all.length===0){gallery.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><h3>${t('noPostsYet')}</h3><p>${t('beFirstToPost')}</p></div>`;return;} gallery.innerHTML=all.map(post=>post.type==='photo'?createPhotoCard(post):post.type==='video'?createVideoCard(post):createTextCard(post)).join(''); }
 
@@ -2863,8 +2958,9 @@ window.addEventListener('DOMContentLoaded',()=>{
 // CHANGE 1: Remove presence when tab/browser closes
 window.addEventListener('beforeunload',()=>{ removeOnlinePresence(); });
 
-function viewUserProfile(uid){ if(!uid) return; if(currentUser&&uid===currentUser.uid){bnSwitch('profile',document.getElementById('bnProfile'));return;} const u=allUsers[uid]; if(!u) return; const uPosts=[...photos.filter(p=>p.uid===uid).map(p=>({...p,type:'photo'})),...videos.filter(v=>v.uid===uid).map(v=>({...v,type:'video'})),...textPosts.filter(tp=>tp.uid===uid).map(tp=>({...tp,type:'text'}))].sort((a,b)=>b.id-a.id); const av=(u.avatar&&!(u.avatarLocked&&u.username!=='imtiaz'))?`<img src="${u.avatar}" alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(102,126,234,0.5);" onclick="viewAvatarFull('${u.avatar}')">`:`<div style="width:80px;height:80px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:white;border:3px solid rgba(102,126,234,0.5);">${(u.avatarLocked&&u.username!=='imtiaz')?'🔒':(u.name||'?').charAt(0).toUpperCase()}</div>`; const badge=(u.verified||u.username==='imtiaz')?`<span class="verified-badge">${sealBadgeSvg(16)}</span>`:''; const following=currentUser?isFollowing(uid):false; const followBtn=currentUser?`<button class="post-follow-btn ${following?'following':'not-following'}" onclick="toggleFollow('${uid}');viewUserProfile('${uid}')" style="margin-top:10px;padding:9px 24px;font-size:14px;">${following?(currentLanguage==='bn'?'✓ ফলোইং':'✓ Following'):(currentLanguage==='bn'?'+ ফলো করুন':'+ Follow')}</button>`:''
-; document.getElementById('modalMedia').innerHTML=''; document.getElementById('modalBody').innerHTML=`<div style="text-align:center;padding:16px 0 10px;">${av}<div style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;font-weight:800;color:var(--text-on-light);">${u.name||''}${badge}</div><div style="color:var(--text-muted-light);font-size:13px;margin-top:2px;">@${u.username||''}</div>${u.bio?`<div style="color:var(--text-on-light);font-size:13px;margin-top:8px;line-height:1.5;">${u.bio}</div>`:''}<div style="display:flex;justify-content:center;gap:20px;margin-top:12px;padding:12px 0;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light);"><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--accent-violet);">${uPosts.length}</div><div style="font-size:11px;color:var(--text-muted-light);">${currentLanguage==='bn'?'পোস্ট':'Posts'}</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--accent-violet);">${Object.keys(u.followers||{}).length}</div><div style="font-size:11px;color:var(--text-muted-light);">${currentLanguage==='bn'?'ফলোয়ার':'Followers'}</div></div></div>${followBtn}</div><div style="margin-top:14px;"><div style="font-weight:700;font-size:15px;color:var(--text-on-light);margin-bottom:10px;">📌 ${currentLanguage==='bn'?'পোস্টসমূহ':'Posts'} (${uPosts.length})</div><div class="photo-grid">${uPosts.length?uPosts.map(p=>p.type==='photo'?createPhotoCard(p):p.type==='video'?createVideoCard(p):createTextCard(p)).join(''):`<p style="color:var(--text-muted-light);text-align:center;padding:20px;">${currentLanguage==='bn'?'কোনো পোস্ট নেই':'No posts yet'}</p>`}</div></div>`; document.getElementById('modalOverlay').classList.add('show'); }
+function viewUserProfile(uid){ if(!uid) return; if(currentUser&&uid===currentUser.uid){bnSwitch('profile',document.getElementById('bnProfile'));return;} const u=allUsers[uid]; if(!u) return; const uPosts=[...photos.filter(p=>p.uid===uid).map(p=>({...p,type:'photo'})),...videos.filter(v=>v.uid===uid).map(v=>({...v,type:'video'})),...textPosts.filter(tp=>tp.uid===uid).map(tp=>({...tp,type:'text'}))].sort((a,b)=>b.id-a.id); const av=(u.avatar&&!(u.avatarLocked&&u.username!=='imtiaz'))?`<img src="${u.avatar}" alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(102,126,234,0.5);" onclick="viewAvatarFull('${u.avatar}')">`:`<div style="width:80px;height:80px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:white;border:3px solid rgba(102,126,234,0.5);">${(u.avatarLocked&&u.username!=='imtiaz')?'🔒':(u.name||'?').charAt(0).toUpperCase()}</div>`; const badge=(u.verified||u.username==='imtiaz')?`<span class="verified-badge">${sealBadgeSvg(16)}</span>`:''; const following=currentUser?isFollowing(uid):false; const followBtn=currentUser?`<button class="post-follow-btn ${following?'following':'not-following'}" onclick="toggleFollow('${uid}');viewUserProfile('${uid}')" style="margin-top:10px;padding:9px 20px;font-size:14px;">${following?(currentLanguage==='bn'?'✓ ফলোইং':'✓ Following'):(currentLanguage==='bn'?'+ ফলো করুন':'+ Follow')}</button>`:'';
+const fst=typeof frqStatus==='function'?frqStatus(uid):'none'; const fLabel=typeof frqLabel==='function'?frqLabel(fst):(currentLanguage==='bn'?'👥 বন্ধু যোগ করুন':'👥 Add Friend'); const fCls=typeof frqClass==='function'?frqClass(fst):'frq-none'; const friendBtn=currentUser?`<button class="frq-btn ${fCls}" data-frq="${uid}" onclick="doFriendAction('${uid}');setTimeout(()=>viewUserProfile('${uid}'),700)" style="margin-top:8px;padding:9px 20px;font-size:14px;">${fLabel}</button>`:'';
+; document.getElementById('modalMedia').innerHTML=''; document.getElementById('modalBody').innerHTML=`<div style="text-align:center;padding:16px 0 10px;">${av}<div style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;font-weight:800;color:var(--text-on-light);">${u.name||''}${badge}</div><div style="color:var(--text-muted-light);font-size:13px;margin-top:2px;">@${u.username||''}</div>${u.bio?`<div style="color:var(--text-on-light);font-size:13px;margin-top:8px;line-height:1.5;">${u.bio}</div>`:''}<div style="display:flex;justify-content:center;gap:20px;margin-top:12px;padding:12px 0;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light);"><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--accent-violet);">${uPosts.length}</div><div style="font-size:11px;color:var(--text-muted-light);">${currentLanguage==='bn'?'পোস্ট':'Posts'}</div></div><div style="text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--accent-violet);">${Object.keys(u.followers||{}).length}</div><div style="font-size:11px;color:var(--text-muted-light);">${currentLanguage==='bn'?'ফলোয়ার':'Followers'}</div></div></div><div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">${followBtn}${friendBtn}</div></div><div style="margin-top:14px;"><div style="font-weight:700;font-size:15px;color:var(--text-on-light);margin-bottom:10px;">📌 ${currentLanguage==='bn'?'পোস্টসমূহ':'Posts'} (${uPosts.length})</div><div class="photo-grid">${uPosts.length?uPosts.map(p=>p.type==='photo'?createPhotoCard(p):p.type==='video'?createVideoCard(p):createTextCard(p)).join(''):`<p style="color:var(--text-muted-light);text-align:center;padding:20px;">${currentLanguage==='bn'?'কোনো পোস্ট নেই':'No posts yet'}</p>`}</div></div>`; document.getElementById('modalOverlay').classList.add('show'); }
 
 function viewAvatarFull(src){ document.getElementById('modalMedia').innerHTML=`<img src="${src}" style="width:100%;max-height:70vh;object-fit:contain;border-radius:12px 12px 0 0;">`; document.getElementById('modalBody').innerHTML=''; document.getElementById('modalOverlay').classList.add('show'); }
 function viewOwnAvatar(){ if(!currentUser||!currentUser.avatar) return; viewAvatarFull(currentUser.avatar); }
@@ -2898,10 +2994,10 @@ function adminManageAdmins(){ if(!isSuperAdmin()){showNotification('❌ শু�
 function updateSearchPlaceholder(){ const inp=document.getElementById('headerSearchInput'); if(inp) inp.placeholder=currentLanguage==='bn'?'🔍 নাম বা ইউজারনেম খুঁজুন...':'🔍 Search name or username...'; }
 function showSearchDrop(){ if((document.getElementById('headerSearchInput').value||'').trim()) document.getElementById('headerSearchDrop').style.display='block'; }
 function hideSearchDrop(){ document.getElementById('headerSearchDrop').style.display='none'; }
-function doHeaderSearch(){ const q=(document.getElementById('headerSearchInput').value||'').trim().toLowerCase(); const drop=document.getElementById('headerSearchDrop'); if(!drop) return; if(!q){drop.style.display='none';return;} drop.style.display='block'; const matched=Object.values(allUsers).filter(u=>(u.name||'').toLowerCase().includes(q)||(u.username||'').toLowerCase().includes(q)).slice(0,8); if(!matched.length){drop.innerHTML=`<div style="padding:16px;text-align:center;color:var(--text-muted-light);font-size:13px;">${currentLanguage==='bn'?'কেউ পাওয়া যায়নি':'No users found'}</div>`;return;} drop.innerHTML=matched.map(u=>{ const av=u.avatar?`<img src="${u.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="">`:`<div style="width:40px;height:40px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white;flex-shrink:0;">${(u.name||'?').charAt(0)}</div>`; const badge=u.verified?sealBadgeSvg(16):''; return `<div onclick="viewUserProfile('${u.uid}');hideSearchDrop();document.getElementById('headerSearchInput').value='';" style="display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border-light);" onmouseover="this.style.background='rgba(102,126,234,0.08)'" onmouseout="this.style.background=''">${av}<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:14px;color:var(--text-on-light);display:flex;align-items:center;gap:4px;">${u.name||''}${badge}</div><div style="font-size:12px;color:var(--text-muted-light);">@${u.username||''}</div></div></div>`; }).join(''); }
+function doHeaderSearch(){ const q=(document.getElementById('headerSearchInput').value||'').trim().toLowerCase(); const drop=document.getElementById('headerSearchDrop'); if(!drop) return; if(!q){drop.style.display='none';return;} drop.style.display='block'; const matched=Object.values(allUsers).filter(u=>(u.name||'').toLowerCase().includes(q)||(u.username||'').toLowerCase().includes(q)).slice(0,8); if(!matched.length){drop.innerHTML=`<div style="padding:16px;text-align:center;color:var(--text-muted-light);font-size:13px;">${currentLanguage==='bn'?'কেউ পাওয়া যায়নি':'No users found'}</div>`;return;} drop.innerHTML=matched.map(u=>{ const av=u.avatar?`<img src="${u.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="">`:`<div style="width:40px;height:40px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white;flex-shrink:0;">${(u.name||'?').charAt(0)}</div>`; const badge=u.verified?sealBadgeSvg(16):''; return `<div onmousedown="viewUserProfile('${u.uid}');hideSearchDrop();document.getElementById('headerSearchInput').value='';" style="display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border-light);" onmouseover="this.style.background='rgba(102,126,234,0.08)'" onmouseout="this.style.background=''">${av}<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:14px;color:var(--text-on-light);display:flex;align-items:center;gap:4px;">${u.name||''}${badge}</div><div style="font-size:12px;color:var(--text-muted-light);">@${u.username||''}</div></div></div>`; }).join(''); }
 
 function bnSwitch(tab,el){ document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active')); if(el) el.classList.add('active'); showTab(tab,null); const bar=document.getElementById('fbCreateBar'); if(bar) bar.style.display=(tab==='posts')?'flex':'none'; }
-function bnSearch(){ document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active')); document.getElementById('bnSearch').classList.add('active'); const inp=document.getElementById('headerSearchInput'); if(inp){inp.focus();inp.scrollIntoView({behavior:'smooth',block:'center'});} }
+function bnSearch(){ const inp=document.getElementById('headerSearchInput'); if(inp){inp.focus();inp.scrollIntoView({behavior:'smooth',block:'center'});} }
 
 let fabOpen=false;
 function toggleFabMenu(){ fabOpen=!fabOpen; document.getElementById('fabOverlay').classList.toggle('show',fabOpen); document.getElementById('fabMenu').classList.toggle('show',fabOpen); const btn=document.getElementById('bnCreateBtn'); if(btn){ btn.style.background=fabOpen?'linear-gradient(135deg,#fd79a8,#fdcb6e)':'var(--grad-brand)'; btn.innerHTML=fabOpen?'<span style="font-size:22px;pointer-events:none;">✕</span>':'<span style="font-size:26px;pointer-events:none;">✚</span>'; setTimeout(function(){TwemojiLocal.parse(btn);},50); } if(fabOpen){var fm=document.getElementById('fabMenu');if(fm) setTimeout(function(){TwemojiLocal.parse(fm);},80);} }
@@ -3381,6 +3477,380 @@ window.addEventListener('load',function(){const observeTargets=[document.getElem
 (function(){var _is=initStoryBar;initStoryBar=function(){_is.apply(this,arguments);setTimeout(function(){applyTwemoji(document.getElementById('storyBar'));},200);};})();
 (function(){var _sn=showNotification;showNotification=function(){_sn.apply(this,arguments);setTimeout(function(){applyTwemoji(document.getElementById('notification'));},100);};})();
 (function(){var _rnl=renderNotifList;renderNotifList=function(){_rnl.apply(this,arguments);setTimeout(function(){applyTwemoji(document.getElementById('notifList'));},200);};})();
+
+// ══════════════════════════════════════════════════════
+// FRIEND REQUEST SYSTEM
+// ══════════════════════════════════════════════════════
+var _frqData = {};   // incoming requests to me
+var _frqSent = {};   // requests I sent
+var _frqFriends = {}; // accepted friends
+
+function initFriendSystem() {
+    if (!db || !currentUser) return;
+    db.ref('friendRequests/' + currentUser.uid).on('value', function(snap) {
+        _frqData = snap.exists() ? snap.val() : {};
+        var count = Object.keys(_frqData).filter(function(k){ return _frqData[k] && _frqData[k].status === 'pending'; }).length;
+        var badge = document.getElementById('frqNavBadge');
+        if (badge) { badge.style.display = count > 0 ? 'block' : 'none'; badge.textContent = count; }
+        var pc = document.getElementById('profileContent');
+        if (pc && pc.innerHTML) renderProfile();
+    });
+    db.ref('sentFriendRequests/' + currentUser.uid).on('value', function(snap) {
+        _frqSent = snap.exists() ? snap.val() : {};
+    });
+    db.ref('friends/' + currentUser.uid).on('value', function(snap) {
+        _frqFriends = snap.exists() ? snap.val() : {};
+    });
+}
+
+function frqStatus(targetUid) {
+    if (!currentUser) return 'none';
+    if (_frqFriends[targetUid]) return 'friends';
+    if (_frqSent[targetUid]) return 'sent';
+    if (_frqData[targetUid] && _frqData[targetUid].status === 'pending') return 'recv';
+    return 'none';
+}
+
+function frqLabel(status) {
+    var bn = currentLanguage === 'bn';
+    if (status === 'friends') return bn ? '✓ বন্ধু' : '✓ Friend';
+    if (status === 'sent') return bn ? '⏳ অপেক্ষায়...' : '⏳ Pending...';
+    if (status === 'recv') return bn ? '✅ গ্রহণ করুন' : '✅ Accept';
+    return bn ? '👥 বন্ধু যোগ করুন' : '👥 Add Friend';
+}
+
+function frqClass(status) {
+    if (status === 'friends') return 'frq-friends';
+    if (status === 'sent') return 'frq-sent';
+    if (status === 'recv') return 'frq-recv';
+    return 'frq-none';
+}
+
+function doFriendAction(targetUid) {
+    if (!currentUser) { showNotification(currentLanguage==='bn'?'লগইন করুন!':'Please login!'); return; }
+    var st = frqStatus(targetUid);
+    if (st === 'none') { sendFriendReq(targetUid); }
+    else if (st === 'sent') { cancelFriendReq(targetUid); }
+    else if (st === 'recv') { acceptFriendReq(targetUid); }
+    else if (st === 'friends') { removeFriend(targetUid); }
+    // immediately update buttons with expected new state (optimistic UI)
+    var newSt = frqStatus(targetUid);
+    document.querySelectorAll('[data-frq="' + targetUid + '"]').forEach(function(btn) {
+        btn.className = 'frq-btn ' + frqClass(newSt);
+        btn.textContent = frqLabel(newSt);
+    });
+}
+
+function sendFriendReq(uid) {
+    if (!db) return;
+    var req = { fromUid: currentUser.uid, fromName: currentUser.name || '', fromAvatar: currentUser.avatar || '', fromUsername: currentUser.username || '', ts: Date.now(), status: 'pending' };
+    db.ref('friendRequests/' + uid + '/' + currentUser.uid).set(req);
+    db.ref('sentFriendRequests/' + currentUser.uid + '/' + uid).set({ ts: Date.now() });
+    _frqSent[uid] = { ts: Date.now() };
+    sendUserNotification(uid, '👥 <b>' + (currentUser.name || 'কেউ') + '</b> আপনাকে বন্ধু হিসেবে যোগ করতে চান!', '👥');
+    showNotification('✅ বন্ধু অনুরোধ পাঠানো হয়েছে!');
+}
+
+function cancelFriendReq(uid) {
+    if (!db) return;
+    db.ref('friendRequests/' + uid + '/' + currentUser.uid).remove();
+    db.ref('sentFriendRequests/' + currentUser.uid + '/' + uid).remove();
+    delete _frqSent[uid];
+    showNotification('🚫 অনুরোধ বাতিল করা হয়েছে');
+}
+
+function acceptFriendReq(fromUid) {
+    if (!db) return;
+    db.ref('friends/' + currentUser.uid + '/' + fromUid).set(true);
+    db.ref('friends/' + fromUid + '/' + currentUser.uid).set(true);
+    db.ref('friendRequests/' + currentUser.uid + '/' + fromUid).remove();
+    db.ref('sentFriendRequests/' + fromUid + '/' + currentUser.uid).remove();
+    _frqFriends[fromUid] = true;
+    delete _frqData[fromUid];
+    sendUserNotification(fromUid, '🎉 <b>' + (currentUser.name || 'কেউ') + '</b> আপনার বন্ধু অনুরোধ গ্রহণ করেছেন!', '🎉');
+    showNotification('🎉 বন্ধু হিসেবে যুক্ত হয়েছেন!');
+    renderProfile();
+    // message tab খোলা থাকলে refresh করো
+    var msgTab = document.getElementById('messages');
+    if (msgTab && msgTab.classList.contains('active')) loadMsgUserList();
+}
+
+function declineFriendReq(fromUid) {
+    if (!db) return;
+    db.ref('friendRequests/' + currentUser.uid + '/' + fromUid).remove();
+    db.ref('sentFriendRequests/' + fromUid + '/' + currentUser.uid).remove();
+    delete _frqData[fromUid];
+    showNotification('🚫 অনুরোধ প্রত্যাখ্যান করা হয়েছে');
+    renderProfile();
+}
+
+function removeFriend(uid) {
+    if (!db) return;
+    db.ref('friends/' + currentUser.uid + '/' + uid).remove();
+    db.ref('friends/' + uid + '/' + currentUser.uid).remove();
+    delete _frqFriends[uid];
+    showNotification('🚫 বন্ধু তালিকা থেকে সরানো হয়েছে');
+}
+
+function renderFriendRequestsSection() {
+    var pending = Object.keys(_frqData).filter(function(k){ return _frqData[k] && _frqData[k].status === 'pending'; });
+    if (!pending.length) return '';
+    var items = pending.map(function(uid) {
+        var r = _frqData[uid];
+        var av = r.fromAvatar ? '<img src="' + r.fromAvatar + '">' : (r.fromName || '?').charAt(0).toUpperCase();
+        return '<div class="frq-item"><div class="frq-item-left" onclick="viewUserProfile(\'' + uid + '\')">' +
+            '<div class="frq-av">' + av + '</div>' +
+            '<div><div class="frq-name">' + (r.fromName || 'ব্যবহারকারী') + '</div>' +
+            '<div class="frq-uname">@' + (r.fromUsername || '') + '</div></div></div>' +
+            '<div class="frq-actions">' +
+            '<button class="frq-accept" onclick="acceptFriendReq(\'' + uid + '\')">✅ গ্রহণ</button>' +
+            '<button class="frq-decline" onclick="declineFriendReq(\'' + uid + '\')">✕</button>' +
+            '</div></div>';
+    }).join('');
+    return '<div class="frq-section"><div class="frq-section-title">👥 বন্ধু অনুরোধ <span class="frq-badge">' + pending.length + '</span></div>' + items + '</div>';
+}
+
+function renderFriendsListSection() {
+    var uids = Object.keys(_frqFriends);
+    if (!uids.length) return '<div class="frq-section"><div class="frq-section-title">👫 আমার বন্ধুরা</div><div class="follow-empty">এখনো কোনো বন্ধু নেই।</div></div>';
+    var items = uids.map(function(uid) {
+        var u = allUsers[uid];
+        if (!u) return '';
+        var av = u.avatar ? '<img src="' + u.avatar + '">' : (u.name || '?').charAt(0).toUpperCase();
+        return '<div class="frq-item"><div class="frq-item-left" onclick="viewUserProfile(\'' + uid + '\')">' +
+            '<div class="frq-av">' + av + '</div>' +
+            '<div><div class="frq-name">' + (u.name || 'ব্যবহারকারী') + '</div>' +
+            '<div class="frq-uname">@' + (u.username || '') + '</div></div></div>' +
+            '<div class="frq-actions">' +
+            '<button class="frq-btn frq-friends" onclick="openMsgChatByUid(\'' + uid + '\')" style="font-size:11px;">💬 মেসেজ</button>' +
+            '<button class="frq-decline" onclick="removeFriend(\'' + uid + '\')">✕</button>' +
+            '</div></div>';
+    }).join('');
+    return '<div class="frq-section"><div class="frq-section-title">👫 আমার বন্ধুরা (' + uids.length + ')</div>' + items + '</div>';
+}
+
+// Patch renderProfile to inject friend sections
+(function(){
+    var _origRP = renderProfile;
+    renderProfile = function() {
+        _origRP.apply(this, arguments);
+        setTimeout(function() {
+            var pc = document.getElementById('profileContent');
+            if (!pc || !currentUser) return;
+            // পুরনো block সরিয়ে দাও আগে (duplicate রোধ)
+            var old = document.getElementById('frqSectionsBlock');
+            if (old) old.parentNode.removeChild(old);
+            var frqSections = renderFriendRequestsSection() + renderFriendsListSection();
+            if (frqSections) {
+                var div = document.createElement('div');
+                div.id = 'frqSectionsBlock';
+                div.innerHTML = frqSections;
+                var myPostsTitle = pc.querySelector('.my-posts-title');
+                if (myPostsTitle) {
+                    pc.insertBefore(div, myPostsTitle);
+                } else {
+                    pc.appendChild(div);
+                }
+            }
+        }, 100);
+    };
+})();
+
+// Patch completeLogin to init friend system
+(function(){
+    var _origCL = completeLogin;
+    completeLogin = function(userData) {
+        _origCL.apply(this, arguments);
+        setTimeout(initFriendSystem, 1200);
+        setTimeout(initMsgSystem, 1400);
+    };
+})();
+
+// Patch bnSwitch for messages tab
+(function(){
+    var _origBS = bnSwitch;
+    bnSwitch = function(tab, el) {
+        _origBS.apply(this, arguments);
+        if (tab === 'messages') loadMsgUserList();
+    };
+})();
+
+// ══════════════════════════════════════════════════════
+// MESSAGING SYSTEM
+// ══════════════════════════════════════════════════════
+var _msgActiveUid = null;
+var _msgChatRef = null;
+var _allMsgUsers = [];
+
+function getChatId(a, b) { return a < b ? a + '_' + b : b + '_' + a; }
+
+function initMsgSystem() {
+    if (!db || !currentUser) return;
+    // listen for any new messages badge
+    db.ref('messages').on('value', function(snap) {
+        if (!snap.exists()) return;
+        var hasNew = false;
+        snap.forEach(function(chatSnap) {
+            if (chatSnap.key.indexOf(currentUser.uid) === -1) return;
+            chatSnap.forEach(function(m) {
+                var msg = m.val();
+                if (msg.senderUid !== currentUser.uid) hasNew = true;
+            });
+        });
+        var b = document.getElementById('msgNavBadge');
+        if (b) b.style.display = hasNew ? 'block' : 'none';
+    });
+}
+
+function loadMsgUserList() {
+    if (!db || !currentUser) {
+        document.getElementById('msgUserList').innerHTML = '<div class="msg-empty">লগইন করুন মেসেজ পাঠাতে</div>';
+        return;
+    }
+    document.getElementById('msgUserList').innerHTML = '<div class="msg-empty">লোড হচ্ছে...</div>';
+    // _frqFriends Firebase থেকে লোড না হলে আগে লোড করো
+    var doLoad = function() {
+        db.ref('users').once('value', function(snap) {
+            _allMsgUsers = [];
+            if (snap.exists()) {
+                snap.forEach(function(c) {
+                    if (c.key !== currentUser.uid && _frqFriends[c.key]) {
+                        _allMsgUsers.push(Object.assign({ uid: c.key }, c.val()));
+                    }
+                });
+            }
+            if (!_allMsgUsers.length) {
+                document.getElementById('msgUserList').innerHTML = '<div class="msg-empty" style="padding:40px 20px;text-align:center;"><div style="font-size:40px;margin-bottom:12px;">👥</div><div>' + (currentLanguage==='bn' ? 'বন্ধু বানান, তারপর মেসেজ করুন!' : 'Add friends to start messaging!') + '</div></div>';
+                return;
+            }
+            renderMsgUserList(_allMsgUsers);
+        });
+    };
+    // যদি friends লোড না হয়ে থাকে, আগে Firebase থেকে নাও
+    if (Object.keys(_frqFriends).length === 0) {
+        db.ref('friends/' + currentUser.uid).once('value', function(snap) {
+            _frqFriends = snap.exists() ? snap.val() : {};
+            doLoad();
+        });
+    } else {
+        doLoad();
+    }
+}
+
+function renderMsgUserList(users) {
+    var el = document.getElementById('msgUserList');
+    if (!users.length) { el.innerHTML = '<div class="msg-empty">কোনো ব্যবহারকারী নেই</div>'; return; }
+    el.innerHTML = '';
+    users.forEach(function(u) {
+        var avInner = u.avatar ? '<img src="' + u.avatar + '">' : (u.name || u.username || '?').charAt(0).toUpperCase();
+        var item = document.createElement('div');
+        item.className = 'msg-user-item';
+        item.innerHTML = '<div class="msg-uav">' + avInner + '</div><div><div class="msg-uname">' + (u.name || u.username || 'ব্যবহারকারী') + '</div><div class="msg-upreview" id="msgPrev_' + u.uid + '">মেসেজ পাঠান...</div></div>';
+        item.onclick = (function(usr){ return function(){ openMsgChatByUid(usr.uid); }; })(u);
+        el.appendChild(item);
+        // load last msg preview
+        db.ref('messages/' + getChatId(currentUser.uid, u.uid)).limitToLast(1).once('value', function(s) {
+            var pEl = document.getElementById('msgPrev_' + u.uid);
+            if (s.exists() && pEl) {
+                s.forEach(function(m) {
+                    var msg = m.val();
+                    pEl.textContent = (msg.senderUid === currentUser.uid ? 'আপনি: ' : '') + (msg.text || '');
+                });
+            }
+        });
+    });
+}
+
+function filterMsgUsers(q) {
+    q = (q || '').toLowerCase();
+    var filtered = q ? _allMsgUsers.filter(function(u){ return (u.name || u.username || '').toLowerCase().indexOf(q) !== -1; }) : _allMsgUsers;
+    renderMsgUserList(filtered);
+}
+
+function openMsgChatByUid(uid) {
+    if (!currentUser) { showNotification(currentLanguage==='bn'?'লগইন করুন!':'Please login!'); return; }
+    // শুধু বন্ধুরাই মেসেজ করতে পারবে
+    if (!_frqFriends[uid]) {
+        showNotification(currentLanguage==='bn'?'❌ শুধু বন্ধুরাই মেসেজ করতে পারবে!':'❌ Only friends can message!');
+        return;
+    }
+    var u = allUsers[uid] || { uid: uid, name: 'ব্যবহারকারী' };
+    // switch to messages tab first
+    document.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
+    var msgBtn = document.getElementById('bnMessages');
+    if (msgBtn) msgBtn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
+    document.getElementById('messages').classList.add('active');
+    openMsgChat(uid, u);
+}
+
+function openMsgChat(uid, userObj) {
+    _msgActiveUid = uid;
+    var u = userObj || allUsers[uid] || {};
+    var avInner = u.avatar || u.photoURL ? '<img src="' + (u.avatar || u.photoURL) + '" style="width:100%;height:100%;object-fit:cover;">' : (u.name || u.displayName || '?').charAt(0).toUpperCase();
+    document.getElementById('msgChatAv').innerHTML = avInner;
+    document.getElementById('msgChatName').textContent = u.name || u.displayName || u.username || 'ব্যবহারকারী';
+    document.getElementById('msgListView').style.display = 'none';
+    document.getElementById('msgChatView').style.display = 'flex';
+    document.getElementById('msgChatView').style.flexDirection = 'column';
+
+    if (_msgChatRef) { _msgChatRef.off(); _msgChatRef = null; }
+    var bubblesEl = document.getElementById('msgBubbles');
+    bubblesEl.innerHTML = '';
+    var chatId = getChatId(currentUser.uid, uid);
+    _msgChatRef = db.ref('messages/' + chatId);
+    _msgChatRef.on('value', function(snap) {
+        bubblesEl.innerHTML = '';
+        if (!snap.exists()) { bubblesEl.innerHTML = '<div class="msg-empty">💬 প্রথম মেসেজ পাঠান!</div>'; return; }
+        var lastDate = '';
+        snap.forEach(function(m) {
+            var msg = m.val();
+            var isSent = msg.senderUid === currentUser.uid;
+            var d = new Date(msg.ts || Date.now());
+            var dateStr = d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long' });
+            if (dateStr !== lastDate) {
+                var sep = document.createElement('div');
+                sep.className = 'msg-date-sep';
+                sep.textContent = dateStr;
+                bubblesEl.appendChild(sep);
+                lastDate = dateStr;
+            }
+            var bubble = document.createElement('div');
+            bubble.className = 'msg-bubble ' + (isSent ? 'sent' : 'recv');
+            var timeStr = d.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit', hour12: true });
+            bubble.innerHTML = escMsg(msg.text || '') + '<div class="msg-btime">' + timeStr + '</div>';
+            bubblesEl.appendChild(bubble);
+        });
+        bubblesEl.scrollTop = bubblesEl.scrollHeight;
+    });
+}
+
+function closeMsgChat() {
+    if (_msgChatRef) { _msgChatRef.off(); _msgChatRef = null; }
+    _msgActiveUid = null;
+    document.getElementById('msgChatView').style.display = 'none';
+    document.getElementById('msgListView').style.display = 'block';
+}
+
+function doSendMsg() {
+    var inp = document.getElementById('msgTextInput');
+    var text = (inp.value || '').trim();
+    if (!text || !_msgActiveUid || !currentUser || !db) return;
+    // শুধু বন্ধুরাই মেসেজ করতে পারবে
+    if (!_frqFriends[_msgActiveUid]) {
+        showNotification(currentLanguage==='bn'?'❌ শুধু বন্ধুরাই মেসেজ করতে পারবে!':'❌ Only friends can message!');
+        return;
+    }
+    inp.value = '';
+    db.ref('messages/' + getChatId(currentUser.uid, _msgActiveUid)).push({
+        text: text, senderUid: currentUser.uid,
+        senderName: currentUser.name || 'আপনি', ts: Date.now()
+    });
+}
+
+function escMsg(str) {
+    return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 </script>
 </body>
 </html>
