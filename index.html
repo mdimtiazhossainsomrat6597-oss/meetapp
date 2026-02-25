@@ -3852,5 +3852,460 @@ function escMsg(str) {
     return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 </script>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 🔔 MeetApp অ্যালার্ম সিস্টেম                          -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<style>
+#meetAlarmOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  animation: alarmFadeIn 0.3s ease;
+}
+#meetAlarmOverlay.show { display: flex; }
+@keyframes alarmFadeIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+@keyframes alarmPulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(108,99,255,0.7), 0 8px 40px rgba(108,99,255,0.4)}
+  50%{box-shadow:0 0 0 20px rgba(108,99,255,0), 0 8px 40px rgba(108,99,255,0.6)}
+}
+@keyframes alarmRing {
+  0%,100%{transform:rotate(0deg)}
+  10%{transform:rotate(-15deg)}
+  20%{transform:rotate(15deg)}
+  30%{transform:rotate(-12deg)}
+  40%{transform:rotate(12deg)}
+  50%{transform:rotate(-8deg)}
+  60%{transform:rotate(8deg)}
+  70%{transform:rotate(-4deg)}
+  80%{transform:rotate(4deg)}
+  90%{transform:rotate(0deg)}
+}
+#meetAlarmBox {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border: 2px solid rgba(108,99,255,0.6);
+  border-radius: 24px;
+  padding: 36px 32px 28px;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+  animation: alarmPulse 1s infinite;
+  position: relative;
+}
+#meetAlarmIcon {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 12px;
+  animation: alarmRing 0.8s infinite;
+  transform-origin: top center;
+}
+#meetAlarmTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  font-family: 'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;
+}
+#meetAlarmBody {
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 24px;
+  line-height: 1.5;
+  font-family: 'SolaimanLipi','Noto Sans Bengali',sans-serif;
+}
+#meetAlarmTimer {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 700;
+}
+#meetAlarmProgress {
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+#meetAlarmProgressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #6c63ff, #a78bfa);
+  border-radius: 4px;
+  width: 100%;
+  transition: width linear;
+}
+#meetAlarmDismiss {
+  background: linear-gradient(135deg, #6c63ff, #a78bfa);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+}
+#meetAlarmDismiss:hover { opacity: 0.9; }
+
+/* Admin অ্যালার্ম প্যানেল */
+#adminAlarmPanel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 88888;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+}
+#adminAlarmPanel.show { display: flex; }
+#adminAlarmBox {
+  background: var(--bg-card, #1e1e2e);
+  border: 1.5px solid rgba(108,99,255,0.4);
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 320px;
+  width: 90%;
+  font-family: 'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;
+}
+#adminAlarmBox h3 { color: var(--text-primary,#fff); margin:0 0 16px; font-size:16px; }
+#adminAlarmBox input, #adminAlarmBox textarea {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px; color: #fff;
+  padding: 10px 12px; font-size: 14px;
+  font-family: inherit; margin-bottom: 10px;
+  outline: none;
+}
+#adminAlarmBox textarea { height: 70px; resize: none; }
+.alarm-btn-row { display:flex; gap:10px; margin-top:6px; }
+.alarm-send-btn {
+  flex:1; background: linear-gradient(135deg,#6c63ff,#a78bfa);
+  color:#fff; border:none; border-radius:10px;
+  padding:11px; font-size:14px; font-weight:700;
+  cursor:pointer; font-family:inherit;
+}
+.alarm-cancel-btn {
+  flex:1; background: rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.15);
+  border-radius:10px; padding:11px; font-size:14px;
+  cursor:pointer; font-family:inherit;
+}
+</style>
+
+<!-- অ্যালার্ম Overlay -->
+<div id="meetAlarmOverlay">
+  <div id="meetAlarmBox">
+    <span id="meetAlarmTimer">5</span>
+    <span id="meetAlarmIcon">🔔</span>
+    <div id="meetAlarmTitle">MeetApp</div>
+    <div id="meetAlarmBody">নতুন আপডেট!</div>
+    <div id="meetAlarmProgress"><div id="meetAlarmProgressBar"></div></div>
+    <button id="meetAlarmDismiss" onclick="dismissAlarm()">✓ ঠিক আছে</button>
+  </div>
+</div>
+
+<!-- Admin অ্যালার্ম প্যানেল -->
+<div id="adminAlarmPanel">
+  <div id="adminAlarmBox">
+    <h3>📢 সবাইকে অ্যালার্ম পাঠান</h3>
+    <input id="adminAlarmTitle" placeholder="শিরোনাম লিখুন..." maxlength="60">
+    <textarea id="adminAlarmBody" placeholder="বার্তা লিখুন..."></textarea>
+    <div class="alarm-btn-row">
+      <button class="alarm-cancel-btn" onclick="closeAdminAlarmPanel()">বাতিল</button>
+      <button class="alarm-send-btn" onclick="sendAdminAlarm()">📢 পাঠান</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// 🔔 MeetApp অ্যালার্ম সিস্টেম
+// ═══════════════════════════════════════════════════════
+var _alarmTimer = null;
+var _alarmDismissed = false;
+var _shownAlarmIds = new Set(JSON.parse(localStorage.getItem('shownAlarms')||'[]'));
+var _alarmInitDone = false;
+
+// অ্যালার্ম সাউন্ড — ৫ সেকেন্ড বাজবে
+function playAlarmSound(durationSec) {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var endTime = ctx.currentTime + durationSec;
+    var interval = 0.6; // প্রতি ০.৬ সেকেন্ডে একটা ring
+    for (var t = 0; t < durationSec; t += interval) {
+      (function(start) {
+        var osc1 = ctx.createOscillator();
+        var osc2 = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc1.type = 'sine'; osc1.frequency.value = 880;
+        osc2.type = 'sine'; osc2.frequency.value = 1100;
+        gain.gain.setValueAtTime(0, ctx.currentTime + start);
+        gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + start + 0.02);
+        gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + start + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + 0.5);
+        osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
+        osc1.start(ctx.currentTime + start); osc1.stop(ctx.currentTime + start + 0.5);
+        osc2.start(ctx.currentTime + start + 0.05); osc2.stop(ctx.currentTime + start + 0.55);
+      })(t);
+    }
+    setTimeout(function(){ try{ctx.close();}catch(e){} }, durationSec * 1000 + 500);
+  } catch(e) { console.warn('Alarm sound error:', e); }
+}
+
+// অ্যালার্ম দেখানো
+function showAlarm(icon, title, body) {
+  _alarmDismissed = false;
+  document.getElementById('meetAlarmIcon').textContent = icon || '🔔';
+  document.getElementById('meetAlarmTitle').textContent = title || 'MeetApp';
+  document.getElementById('meetAlarmBody').textContent = body || '';
+  document.getElementById('meetAlarmTimer').textContent = '5';
+  document.getElementById('meetAlarmProgressBar').style.transition = 'none';
+  document.getElementById('meetAlarmProgressBar').style.width = '100%';
+  document.getElementById('meetAlarmOverlay').classList.add('show');
+
+  playAlarmSound(5);
+
+  // Progress bar
+  setTimeout(function() {
+    document.getElementById('meetAlarmProgressBar').style.transition = 'width 5s linear';
+    document.getElementById('meetAlarmProgressBar').style.width = '0%';
+  }, 50);
+
+  // Countdown
+  var count = 5;
+  if (_alarmTimer) clearInterval(_alarmTimer);
+  _alarmTimer = setInterval(function() {
+    count--;
+    var el = document.getElementById('meetAlarmTimer');
+    if (el) el.textContent = count;
+    if (count <= 0) {
+      clearInterval(_alarmTimer);
+      dismissAlarm();
+    }
+  }, 1000);
+}
+
+function dismissAlarm() {
+  _alarmDismissed = true;
+  if (_alarmTimer) { clearInterval(_alarmTimer); _alarmTimer = null; }
+  document.getElementById('meetAlarmOverlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════
+// Firebase থেকে অ্যালার্ম শোনা
+// ═══════════════════════════════════════════════════════
+function initAlarmSystem() {
+  if (_alarmInitDone || !db || !currentUser) return;
+  _alarmInitDone = true;
+
+  // ১. সবার জন্য অ্যালার্ম (পোস্ট, ছবি, ভিডিও, Admin)
+  db.ref('meetAlarms').on('child_added', function(snap) {
+    var alarm = snap.val();
+    var id = snap.key;
+    if (!alarm || _shownAlarmIds.has(id)) return;
+    // নতুন কিনা চেক (৩০ সেকেন্ড)
+    if (Date.now() - (alarm.ts || 0) > 30000) return;
+    // নিজের পাঠানো alarm skip
+    if (alarm.senderUid && alarm.senderUid === currentUser.uid) return;
+
+    _shownAlarmIds.add(id);
+    // সর্বোচ্চ ১০০টা ID রাখুন
+    var arr = Array.from(_shownAlarmIds).slice(-100);
+    localStorage.setItem('shownAlarms', JSON.stringify(arr));
+
+    showAlarm(alarm.icon || '🔔', alarm.title, alarm.body);
+  });
+
+  // ২. শুধু এই ইউজারের জন্য অ্যালার্ম (ম্যাসেজ, Friend Request)
+  db.ref('userAlarms/' + currentUser.uid).on('child_added', function(snap) {
+    var alarm = snap.val();
+    var id = snap.key;
+    if (!alarm || _shownAlarmIds.has(id)) return;
+    if (Date.now() - (alarm.ts || 0) > 30000) return;
+
+    _shownAlarmIds.add(id);
+    var arr = Array.from(_shownAlarmIds).slice(-100);
+    localStorage.setItem('shownAlarms', JSON.stringify(arr));
+
+    showAlarm(alarm.icon || '💌', alarm.title, alarm.body);
+    // দেখার পর মুছে দিন
+    snap.ref.remove();
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// Upload functions এ alarm trigger যোগ করা
+// ═══════════════════════════════════════════════════════
+function triggerPostAlarm(type, authorName, text) {
+  if (!db) return;
+  var icons = { text:'📝', photo:'📷', video:'🎥' };
+  var titles = { text: authorName+' নতুন পোস্ট করেছেন!', photo: authorName+' নতুন ছবি পোস্ট করেছেন!', video: authorName+' নতুন ভিডিও পোস্ট করেছেন!' };
+  db.ref('meetAlarms').push({
+    icon: icons[type] || '🔔',
+    title: titles[type] || 'নতুন পোস্ট!',
+    body: (text || '').substring(0, 80),
+    ts: Date.now(),
+    senderUid: currentUser ? currentUser.uid : ''
+  });
+}
+
+function triggerMessageAlarm(receiverUid, senderName, text) {
+  if (!db || !receiverUid) return;
+  db.ref('userAlarms/' + receiverUid).push({
+    icon: '💌',
+    title: senderName + ' ম্যাসেজ পাঠিয়েছেন',
+    body: (text || '').substring(0, 80),
+    ts: Date.now()
+  });
+}
+
+function triggerFriendRequestAlarm(receiverUid, senderName) {
+  if (!db || !receiverUid) return;
+  db.ref('userAlarms/' + receiverUid).push({
+    icon: '👋',
+    title: senderName + ' Friend Request পাঠিয়েছেন',
+    body: 'Accept করতে অ্যাপ খুলুন',
+    ts: Date.now()
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// Admin অ্যালার্ম প্যানেল
+// ═══════════════════════════════════════════════════════
+function openAdminAlarmPanel() {
+  if (!isAdmin()) { showNotification('❌ শুধু Admin পারবেন!'); return; }
+  document.getElementById('adminAlarmTitle').value = '';
+  document.getElementById('adminAlarmBody').value = '';
+  document.getElementById('adminAlarmPanel').classList.add('show');
+}
+
+function closeAdminAlarmPanel() {
+  document.getElementById('adminAlarmPanel').classList.remove('show');
+}
+
+function sendAdminAlarm() {
+  var title = document.getElementById('adminAlarmTitle').value.trim();
+  var body = document.getElementById('adminAlarmBody').value.trim();
+  if (!title) { showNotification('❌ শিরোনাম লিখুন!'); return; }
+  if (!db) { showNotification('❌ Database নেই!'); return; }
+  db.ref('meetAlarms').push({
+    icon: '📢',
+    title: title,
+    body: body,
+    ts: Date.now(),
+    senderUid: currentUser ? currentUser.uid : '',
+    byAdmin: true
+  });
+  closeAdminAlarmPanel();
+  showNotification('✅ অ্যালার্ম পাঠানো হয়েছে!');
+}
+
+// ═══════════════════════════════════════════════════════
+// Upload ও Message ও Friend Request এ alarm hook করা
+// ═══════════════════════════════════════════════════════
+(function() {
+  // — টেক্সট পোস্ট —
+  var _origText = uploadWrittenPost;
+  uploadWrittenPost = function() {
+    var content = (document.getElementById('writtenPostContent')||{}).value||'';
+    var name = currentUser ? currentUser.name : 'কেউ';
+    _origText.apply(this, arguments);
+    setTimeout(function(){ triggerPostAlarm('text', name, content); }, 2000);
+  };
+
+  // — ছবি পোস্ট —
+  var _origPhoto = uploadPhoto;
+  uploadPhoto = function() {
+    var caption = (document.getElementById('photoCaption')||{}).value||'';
+    var name = currentUser ? currentUser.name : 'কেউ';
+    _origPhoto.apply(this, arguments);
+    setTimeout(function(){ triggerPostAlarm('photo', name, caption); }, 2000);
+  };
+
+  // — ভিডিও পোস্ট —
+  var _origVideo = uploadVideo;
+  uploadVideo = function() {
+    var caption = (document.getElementById('videoCaption')||{}).value||'';
+    var name = currentUser ? currentUser.name : 'কেউ';
+    _origVideo.apply(this, arguments);
+    setTimeout(function(){ triggerPostAlarm('video', name, caption); }, 2000);
+  };
+
+  // — ম্যাসেজ —
+  var _origSendMsg = sendMsg;
+  sendMsg = function() {
+    var inp = document.getElementById('msgInput');
+    var text = inp ? inp.value.trim() : '';
+    var receiverUid = _msgActiveUid;
+    var senderName = currentUser ? currentUser.name : 'কেউ';
+    _origSendMsg.apply(this, arguments);
+    if (receiverUid && text) {
+      setTimeout(function(){ triggerMessageAlarm(receiverUid, senderName, text); }, 500);
+    }
+  };
+
+  // — Friend Request —
+  var _origSendFrq = sendFriendRequest;
+  sendFriendRequest = function(uid) {
+    var senderName = currentUser ? currentUser.name : 'কেউ';
+    _origSendFrq.apply(this, arguments);
+    setTimeout(function(){ triggerFriendRequestAlarm(uid, senderName); }, 500);
+  };
+})();
+
+// ═══════════════════════════════════════════════════════
+// লগইনের পর alarm system চালু করা
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    if (typeof currentUser !== 'undefined' && currentUser) {
+      initAlarmSystem();
+    }
+    // Admin profile-এ বাটন যোগ করা
+    var origRenderProfile = renderProfile;
+    renderProfile = function() {
+      origRenderProfile.apply(this, arguments);
+      if (isAdmin && isAdmin()) {
+        var adminBtns = document.querySelectorAll('.admin-extra-alarm');
+        if (!adminBtns.length) {
+          var profileContent = document.getElementById('profileContent');
+          if (profileContent) {
+            var existingAlarmBtn = profileContent.querySelector('[data-alarm-btn]');
+            if (!existingAlarmBtn) {
+              var btn = document.createElement('button');
+              btn.setAttribute('data-alarm-btn', '1');
+              btn.className = 'admin-extra-alarm';
+              btn.onclick = openAdminAlarmPanel;
+              btn.style.cssText = 'margin-top:6px;width:100%;padding:8px;background:linear-gradient(135deg,rgba(255,107,107,0.15),rgba(255,107,107,0.08));border:1.5px solid rgba(255,107,107,0.4);border-radius:10px;color:#ff6b6b;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;';
+              btn.textContent = '📢 সবাইকে অ্যালার্ম পাঠান';
+              var notifBtn = profileContent.querySelector('[onclick="sendAdminNotification()"]');
+              if (notifBtn && notifBtn.parentNode) {
+                notifBtn.parentNode.insertBefore(btn, notifBtn.nextSibling);
+              }
+            }
+          }
+        }
+      }
+    };
+  }, 3000);
+
+  // currentUser login detect করুন
+  var _alarmCheckInterval = setInterval(function() {
+    if (typeof currentUser !== 'undefined' && currentUser && !_alarmInitDone) {
+      initAlarmSystem();
+      clearInterval(_alarmCheckInterval);
+    }
+  }, 1000);
+});
+</script>
 </body>
 </html>
