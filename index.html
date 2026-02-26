@@ -1523,7 +1523,7 @@ if (typeof twemoji === 'undefined') {
                         <div class="msg-cav" id="msgChatAv"></div>
                         <div>
                             <div class="msg-cname" id="msgChatName"></div>
-                            <div style="font-size:11px;color:#2ed573;font-weight:600;">অ্যাক্টিভ</div>
+                            <div id="msgChatStatus" style="font-size:11px;color:var(--text-muted-light);font-weight:600;">MeetApp সদস্য</div>
                         </div>
                     </div>
                     <div class="msg-bubbles" id="msgBubbles"></div>
@@ -1611,7 +1611,7 @@ if (typeof twemoji === 'undefined') {
 <div class="text-story-editor" id="textStoryEditor">
     <div class="text-story-editor-top">
         <button class="text-story-back-btn" onclick="closeTextStoryEditor()">←</button>
-        <button class="text-story-post-btn" id="textStoryPostBtn" onclick="submitTextStoryEditor()" disabled id="textStoryPostBtn">শেয়ার করুন</button>
+        <button class="text-story-post-btn" id="textStoryPostBtn" onclick="submitTextStoryEditor()" disabled>শেয়ার করুন</button>
     </div>
     <div class="text-story-preview" onclick="focusTextStoryInput()">
         <div class="text-story-canvas" id="textStoryCanvas">
@@ -1798,13 +1798,18 @@ function setOnlinePresence(){
 
 function listenOnlineUsers(){
     if(!db) return;
+    window._onlineUsers = {};
     db.ref('presence').on('value', snap => {
         let count = 0;
+        window._onlineUsers = {};
         if(snap.exists()){
             snap.forEach(c => {
                 const d = c.val();
                 // Count as online if lastSeen within 2 minutes
-                if(d.online && (Date.now() - (d.lastSeen||0)) < 120000) count++;
+                if(d.online && (Date.now() - (d.lastSeen||0)) < 120000) {
+                    count++;
+                    window._onlineUsers[c.key] = true;
+                }
             });
         }
         const badge = document.getElementById('onlineBadge');
@@ -2872,13 +2877,17 @@ function format12hr(dateStr){ if(!dateStr) return ''; const d=new Date(dateStr);
 
 function initFirebaseListeners(){
     if(!db){isLoadingPosts=false;isLoadingEvents=false;displayPosts();displayEvents();initStoryBar();return;}
-    db.ref('photos').on('value',snap=>{photos=snap.val()?Object.values(snap.val()):[];isLoadingPosts=false;displayPosts();renderProfile();displayBookmarks();});
-    db.ref('videos').on('value',snap=>{videos=snap.val()?Object.values(snap.val()):[];isLoadingPosts=false;displayPosts();renderProfile();displayBookmarks();});
-    db.ref('textPosts').on('value',snap=>{textPosts=snap.val()?Object.values(snap.val()):[];isLoadingPosts=false;displayPosts();renderProfile();displayBookmarks();});
+    // debounce to prevent multiple rapid re-renders
+    var _dpTimer=null, _rpTimer=null;
+    function debouncedDisplayPosts(){ clearTimeout(_dpTimer); _dpTimer=setTimeout(function(){isLoadingPosts=false;displayPosts();displayBookmarks();},120); }
+    function debouncedRenderProfile(){ clearTimeout(_rpTimer); _rpTimer=setTimeout(function(){renderProfile();},150); }
+    db.ref('photos').on('value',snap=>{photos=snap.val()?Object.values(snap.val()):[];debouncedDisplayPosts();debouncedRenderProfile();});
+    db.ref('videos').on('value',snap=>{videos=snap.val()?Object.values(snap.val()):[];debouncedDisplayPosts();debouncedRenderProfile();});
+    db.ref('textPosts').on('value',snap=>{textPosts=snap.val()?Object.values(snap.val()):[];debouncedDisplayPosts();debouncedRenderProfile();});
     db.ref('events').on('value',snap=>{events=snap.val()?Object.values(snap.val()):[];isLoadingEvents=false;initEventSlider();displayEvents();checkAndDraftExpiredEvents();});
     db.ref('users').on('value',snap=>{
         if(snap.exists()){ allUsers={}; snap.forEach(c=>{ const ud=c.val(); if(ud.username==='imtiaz'){ ud.verified=true; ud.avatarLocked=false; } allUsers[ud.uid]=ud; }); if(currentUser&&allUsers[currentUser.uid]){ const fresh=allUsers[currentUser.uid]; currentUser.following=fresh.following||{}; currentUser.followers=fresh.followers||{}; localStorage.setItem('meetapp_user',JSON.stringify(currentUser)); } }
-        renderProfile(); displayPosts(); updateFooterAvatar();
+        debouncedRenderProfile(); debouncedDisplayPosts(); updateFooterAvatar();
         initStoryBar();
         // CHANGE 1: Update online badge visibility after users load
         updateUserBar();
@@ -2891,8 +2900,6 @@ function initFirebaseListeners(){
 
 function listenForMyNotifications(){
     if(!db||!currentUser) return;
-    let firstLoad=true;
-    db.ref('userNotifications/'+currentUser.uid).on('value',snap=>{if(firstLoad){firstLoad=false;return;}});
     db.ref('userNotifications/'+currentUser.uid).on('child_added',snap=>{
         const n=snap.val(); if(!n||!n.msg) return;
         const createdAt=n.time?new Date(n.time).getTime():0;
@@ -3790,9 +3797,19 @@ function openMsgChat(uid, userObj) {
     var avInner = u.avatar || u.photoURL ? '<img src="' + (u.avatar || u.photoURL) + '" style="width:100%;height:100%;object-fit:cover;">' : (u.name || u.displayName || '?').charAt(0).toUpperCase();
     document.getElementById('msgChatAv').innerHTML = avInner;
     document.getElementById('msgChatName').textContent = u.name || u.displayName || u.username || 'ব্যবহারকারী';
+    // dynamic status based on online presence
+    var statusEl = document.getElementById('msgChatStatus');
+    if (statusEl) {
+        var isOnline = window._onlineUsers && window._onlineUsers[uid];
+        statusEl.textContent = isOnline ? '🟢 অ্যাক্টিভ' : 'MeetApp সদস্য';
+        statusEl.style.color = isOnline ? '#2ed573' : 'var(--text-muted-light)';
+    }
     document.getElementById('msgListView').style.display = 'none';
     document.getElementById('msgChatView').style.display = 'flex';
     document.getElementById('msgChatView').style.flexDirection = 'column';
+    // clear message badge when chat is opened
+    var badge = document.getElementById('msgNavBadge');
+    if (badge) badge.style.display = 'none';
 
     if (_msgChatRef) { _msgChatRef.off(); _msgChatRef = null; }
     var bubblesEl = document.getElementById('msgBubbles');
@@ -4061,6 +4078,34 @@ function playAlarmSound(durationSec) {
   } catch(e) { console.warn('Alarm sound error:', e); }
 }
 
+// ═══════════════════════════════════════════════════════
+// Capacitor Local Notification (Sound সহ Native)
+// ═══════════════════════════════════════════════════════
+function sendNativeNotification(icon, title, body) {
+  try {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      var LocalNotifications = window.Capacitor.Plugins.LocalNotifications;
+      LocalNotifications.requestPermissions().then(function(result) {
+        if (result.display === 'granted') {
+          LocalNotifications.schedule({
+            notifications: [
+              {
+                title: (icon || '🔔') + ' ' + (title || 'MeetApp'),
+                body: body || '',
+                id: Math.floor(Math.random() * 100000),
+                sound: 'default',
+                smallIcon: 'ic_launcher',
+                iconColor: '#6c63ff',
+                extra: { data: 'meetapp_alarm' }
+              }
+            ]
+          });
+        }
+      });
+    }
+  } catch(e) { console.warn('Native notification error:', e); }
+}
+
 // অ্যালার্ম দেখানো
 function showAlarm(icon, title, body) {
   _alarmDismissed = false;
@@ -4071,6 +4116,9 @@ function showAlarm(icon, title, body) {
   document.getElementById('meetAlarmProgressBar').style.transition = 'none';
   document.getElementById('meetAlarmProgressBar').style.width = '100%';
   document.getElementById('meetAlarmOverlay').classList.add('show');
+
+  // Native sound notification পাঠান
+  sendNativeNotification(icon, title, body);
 
   playAlarmSound(5);
 
@@ -4241,9 +4289,9 @@ function sendAdminAlarm() {
   };
 
   // — ম্যাসেজ —
-  var _origSendMsg = sendMsg;
-  sendMsg = function() {
-    var inp = document.getElementById('msgInput');
+  var _origSendMsg = doSendMsg;
+  doSendMsg = function() {
+    var inp = document.getElementById('msgTextInput');
     var text = inp ? inp.value.trim() : '';
     var receiverUid = _msgActiveUid;
     var senderName = currentUser ? currentUser.name : 'কেউ';
