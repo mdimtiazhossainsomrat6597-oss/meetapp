@@ -4106,29 +4106,63 @@ function loadMsgUserList() {
     }
 }
 
+// Blue verified badge SVG for admins (Twitter/X style star shape)
+function adminBlueBadgeSvg(size) {
+    size = size || 15;
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;flex-shrink:0;display:inline-block;" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5BC8F5"/><stop offset="100%" stop-color="#1A8FE3"/></linearGradient></defs><path d="M12 2l2.4 3.2 3.8-1.4-.4 4 3.8 1.6-2.8 3 2.8 3-3.8 1.6.4 4-3.8-1.4L12 22l-2.4-3.2-3.8 1.4.4-4-3.8-1.6 2.8-3-2.8-3 3.8-1.6-.4-4 3.8 1.4z" fill="url(#blueGrad)"/><path d="M9 12.5l2 2 4-4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
+}
+
 function renderMsgUserList(users) {
     var el = document.getElementById('msgUserList');
     users = users.filter(function(u){ return canSeeUser(u.uid); });
     if (!users.length) { el.innerHTML = '<div class="msg-empty">কোনো ব্যবহারকারী নেই</div>'; return; }
     el.innerHTML = '';
-    users.forEach(function(u) {
+
+    // admins আগে, তারপর বন্ধুরা
+    var admins = users.filter(function(u){ return u.username === 'imtiaz' || u.adminVerified === true; });
+    var friends = users.filter(function(u){ return u.username !== 'imtiaz' && !u.adminVerified; });
+
+    // ── Admin section header ──
+    if (admins.length) {
+        var header = document.createElement('div');
+        header.style.cssText = 'font-size:11px;font-weight:700;color:rgba(24,119,242,0.8);text-transform:uppercase;letter-spacing:1px;padding:8px 4px 4px;display:flex;align-items:center;gap:5px;';
+        header.innerHTML = adminBlueBadgeSvg(13) + ' MeetApp';
+        el.appendChild(header);
+    }
+
+    function appendUser(u, isAdmin) {
         var avInner = u.avatar ? '<img src="' + u.avatar + '">' : (u.name || u.username || '?').charAt(0).toUpperCase();
+        var badgeHtml = isAdmin ? (' ' + adminBlueBadgeSvg(15)) : '';
         var item = document.createElement('div');
         item.className = 'msg-user-item';
-        item.innerHTML = '<div class="msg-uav">' + avInner + '</div><div><div class="msg-uname">' + (u.name || u.username || 'ব্যবহারকারী') + '</div><div class="msg-upreview" id="msgPrev_' + u.uid + '">মেসেজ পাঠান...</div></div>';
+        if (isAdmin) item.style.cssText = 'border-left:3px solid #1877F2;background:rgba(24,119,242,0.04);';
+        item.innerHTML = '<div class="msg-uav">' + avInner + '</div><div style="flex:1;min-width:0;"><div class="msg-uname" style="display:flex;align-items:center;gap:3px;">' + (u.name || u.username || 'ব্যবহারকারী') + badgeHtml + '</div><div class="msg-upreview" id="msgPrev_' + u.uid + '">' + (isAdmin ? '📩 মেসেজ করুন...' : 'মেসেজ পাঠান...') + '</div></div>';
         item.onclick = (function(usr){ return function(){ openMsgChatByUid(usr.uid); }; })(u);
         el.appendChild(item);
-        // load last msg preview
-        db.ref('messages/' + getChatId(currentUser.uid, u.uid)).limitToLast(1).once('value', function(s) {
-            var pEl = document.getElementById('msgPrev_' + u.uid);
-            if (s.exists() && pEl) {
-                s.forEach(function(m) {
-                    var msg = m.val();
-                    pEl.textContent = (msg.senderUid === currentUser.uid ? 'আপনি: ' : '') + (msg.text || '');
-                });
-            }
-        });
-    });
+        if (db) {
+            db.ref('messages/' + getChatId(currentUser.uid, u.uid)).limitToLast(1).once('value', function(s) {
+                var pEl = document.getElementById('msgPrev_' + u.uid);
+                if (s.exists() && pEl) {
+                    s.forEach(function(m) {
+                        var msg = m.val();
+                        pEl.textContent = (msg.senderUid === currentUser.uid ? 'আপনি: ' : '') + (msg.text || '');
+                    });
+                }
+            });
+        }
+    }
+
+    admins.forEach(function(u){ appendUser(u, true); });
+
+    // ── Friends section header ──
+    if (friends.length) {
+        var fHeader = document.createElement('div');
+        fHeader.style.cssText = 'font-size:11px;font-weight:700;color:var(--text-muted-light);text-transform:uppercase;letter-spacing:1px;padding:10px 4px 4px;';
+        fHeader.textContent = '👥 বন্ধুরা';
+        el.appendChild(fHeader);
+    }
+
+    friends.forEach(function(u){ appendUser(u, false); });
 }
 
 function filterMsgUsers(q) {
