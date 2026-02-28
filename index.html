@@ -5141,16 +5141,17 @@ window.addEventListener('load', function() {
     var rw,rh;
     if(_ratio==='circle'||_ratio==='1'){ rh=Math.min(W,H)*0.85; rw=rh; }
     else { rw=W*0.9; rh=rw/parseFloat(_ratio); if(rh>H*0.9){rh=H*0.9;rw=rh*parseFloat(_ratio);} }
-    // Dim outside
+    // Dim outside only — even-odd fill rule দিয়ে শুধু বাইরের অংশ dark হবে,
+    // ছবি মুছবে না (destination-out এর বদলে)
     ctx.save();
     ctx.fillStyle='rgba(0,0,0,0.5)';
-    ctx.fillRect(0,0,W,H);
     if(_ratio==='circle'){
-      ctx.globalCompositeOperation='destination-out';
+      // Outer rect + inner circle (counterclockwise) = even-odd hole
       ctx.beginPath();
-      ctx.arc(cx,cy,rw/2,0,Math.PI*2);
-      ctx.fill();
-      ctx.globalCompositeOperation='source-over';
+      ctx.rect(0,0,W,H);
+      ctx.arc(cx,cy,rw/2,0,Math.PI*2,true);
+      ctx.fill('evenodd');
+      // Circle border
       ctx.strokeStyle='rgba(255,255,255,0.85)';
       ctx.lineWidth=2;
       ctx.setLineDash([6,3]);
@@ -5159,9 +5160,17 @@ window.addEventListener('load', function() {
       ctx.stroke();
       ctx.setLineDash([]);
     } else {
-      ctx.globalCompositeOperation='destination-out';
-      ctx.fillRect(cx-rw/2, cy-rh/2, rw, rh);
-      ctx.globalCompositeOperation='source-over';
+      // Outer rect + inner rect (counterclockwise) = even-odd hole
+      ctx.beginPath();
+      ctx.rect(0,0,W,H);
+      // counterclockwise rect for even-odd hole
+      ctx.moveTo(cx-rw/2, cy-rh/2);
+      ctx.lineTo(cx-rw/2, cy+rh/2);
+      ctx.lineTo(cx+rw/2, cy+rh/2);
+      ctx.lineTo(cx+rw/2, cy-rh/2);
+      ctx.closePath();
+      ctx.fill('evenodd');
+      // Rect border
       ctx.strokeStyle='rgba(255,255,255,0.85)';
       ctx.lineWidth=2;
       ctx.setLineDash([]);
@@ -5241,7 +5250,7 @@ window.addEventListener('load', function() {
   };
 
   window.cropDone=function(){
-    // Render final cropped image
+    // Render final cropped image WITHOUT overlay
     var W=_canvas.width, H=_canvas.height;
     var outCanvas=document.createElement('canvas');
     var cx=W/2, cy=H/2;
@@ -5252,15 +5261,51 @@ window.addEventListener('load', function() {
     outCanvas.width=Math.round(rw);
     outCanvas.height=Math.round(rh);
     var octx=outCanvas.getContext('2d');
+    
+    // Create a temporary canvas to render ONLY the image (without overlay)
+    var tempCanvas = document.createElement('canvas');
+    tempCanvas.width = W;
+    tempCanvas.height = H;
+    var tempCtx = tempCanvas.getContext('2d');
+    
+    // Re-render the image with transforms but WITHOUT the overlay
+    tempCtx.clearRect(0,0,W,H);
+    tempCtx.save();
+    // Apply filters (same as _render)
+    var b = _bright;
+    var c = _contrast;
+    var s = _sat;
+    var brightness = 100+b;
+    var contrast = 100+c;
+    var saturate = 100+s;
+    tempCtx.filter = 'brightness('+brightness+'%) contrast('+contrast+'%) saturate('+saturate+'%)';
+    // Draw image with transforms
+    tempCtx.translate(W/2+_ox, H/2+_oy);
+    tempCtx.rotate(_rot*Math.PI/180);
+    if(_flipH) tempCtx.scale(-1,1);
+    if(_flipV) tempCtx.scale(1,-1);
+    var aspect = _img.naturalWidth/_img.naturalHeight;
+    var baseW, baseH;
+    if(aspect>W/H){ baseW=W*_zoom; baseH=baseW/aspect; }
+    else { baseH=H*_zoom; baseW=baseH*aspect; }
+    tempCtx.drawImage(_img,-baseW/2,-baseH/2,baseW,baseH);
+    tempCtx.restore();
+    
     // For circle mode, clip
     if(_ratio==='circle'){
       octx.beginPath();
       octx.arc(rw/2,rh/2,rw/2,0,Math.PI*2);
       octx.clip();
     }
-    // Draw the main canvas cropped area
-    octx.drawImage(_canvas, cx-rw/2, cy-rh/2, rw, rh, 0, 0, rw, rh);
-    var dataUrl = outCanvas.toDataURL('image/jpeg',0.92);
+    
+    // Now draw the cropped area from temp canvas (which has no overlay)
+    octx.drawImage(tempCanvas, cx-rw/2, cy-rh/2, rw, rh, 0, 0, rw, rh);
+    
+    // Circle mode তে PNG ব্যবহার করুন (transparency সংরক্ষণের জন্য)
+    // অন্য mode এ JPEG ব্যবহার করুন (ছোট ফাইল সাইজের জন্য)
+    var dataUrl = (_ratio === 'circle')
+      ? outCanvas.toDataURL('image/png')
+      : outCanvas.toDataURL('image/jpeg', 0.92);
     document.getElementById('imgCropOverlay').classList.remove('show');
     if(_callback) _callback(dataUrl);
   };
