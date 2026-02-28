@@ -1092,7 +1092,34 @@ if (typeof twemoji === 'undefined') {
         .verified-badge .fb-badge-svg{vertical-align:middle!important;display:block!important;}
         .verified-badge .fb-badge-svg{filter:none;transition:transform 0.2s ease;}
         .verified-badge:hover .fb-badge-svg{transform:scale(1.1);}
-    </style>
+    
+        /* ═══ IMAGE CROP / EDIT MODAL ═══ */
+        #imgCropOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9900;display:none;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:0;}
+        #imgCropOverlay.show{display:flex;}
+        .crop-modal{width:100%;max-width:480px;background:var(--bg-card-solid);border-radius:0 0 var(--r-lg) var(--r-lg);overflow:hidden;display:flex;flex-direction:column;}
+        .crop-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--grad-header);border-bottom:1px solid var(--border-light);}
+        .crop-header-title{font-size:16px;font-weight:800;color:var(--text-primary);display:flex;align-items:center;gap:8px;}
+        .crop-close-btn{width:32px;height:32px;border:none;background:rgba(255,255,255,0.1);border-radius:50%;color:var(--text-primary);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+        .crop-canvas-wrap{position:relative;width:100%;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;user-select:none;}
+        .crop-canvas-wrap canvas{display:block;max-width:100%;}
+        .crop-overlay-ring{position:absolute;inset:0;pointer-events:none;}
+        .crop-tools{padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--bg-card-solid);}
+        .crop-tool-row{display:flex;align-items:center;gap:10px;}
+        .crop-tool-label{font-size:11px;font-weight:700;color:var(--text-muted-light);min-width:72px;text-transform:uppercase;letter-spacing:0.5px;}
+        .crop-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:linear-gradient(to right, var(--p1) var(--val,50%), var(--border-light) var(--val,50%));outline:none;cursor:pointer;}
+        .crop-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--p1);border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);cursor:pointer;}
+        .crop-val{font-size:11px;font-weight:700;color:var(--p1);min-width:34px;text-align:right;}
+        .crop-ratio-row{display:flex;gap:6px;flex-wrap:wrap;}
+        .crop-ratio-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid var(--border-light);background:transparent;color:var(--text-muted-light);cursor:pointer;font-family:inherit;transition:all 0.2s;}
+        .crop-ratio-btn.active{background:var(--p1);border-color:var(--p1);color:white;}
+        .crop-rot-row{display:flex;gap:8px;}
+        .crop-rot-btn{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;border:1.5px solid var(--border-light);background:var(--bg-page);color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all 0.2s;flex:1;text-align:center;}
+        .crop-rot-btn:hover{border-color:var(--p1);color:var(--p1);}
+        .crop-flip-row{display:flex;gap:8px;}
+        .crop-action-row{display:flex;gap:10px;padding:12px 14px 16px;}
+        .crop-cancel-btn{flex:1;padding:12px;border-radius:22px;border:1.5px solid var(--border-light);background:transparent;color:var(--text-muted-light);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+        .crop-done-btn{flex:2;padding:12px;border-radius:22px;border:none;background:var(--grad-btn);color:white;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(108,92,231,0.4);}
+</style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1445,6 +1472,7 @@ if (typeof twemoji === 'undefined') {
                 <!-- golden bottom shimmer line -->
                 <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(218,165,32,0.5),rgba(255,215,0,0.8),rgba(218,165,32,0.5),transparent);"></div>
             </div>
+            <div id="homeHeroSection">
             <div class="header-controls">
                 <div class="language-toggle">
                     <button class="lang-btn" id="langEnBtn" onclick="changeLanguage('en')">English</button>
@@ -1459,6 +1487,7 @@ if (typeof twemoji === 'undefined') {
                     style="width:100%;padding:10px 40px 10px 16px;border-radius:22px;border:none;background:rgba(255,255,255,0.18);color:white;font-size:14px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;outline:none;backdrop-filter:blur(10px);">
                 <span style="position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;">🔍</span>
             </div>
+            </div><!-- end homeHeroSection -->
         </div>
         <div id="headerSearchDrop" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(420px,96vw);background:var(--bg-card-solid);border-radius:0 0 16px 16px;box-shadow:0 16px 40px rgba(28,21,53,0.32);z-index:99999;max-height:340px;overflow-y:auto;border:1px solid var(--border-light);border-top:none;padding-top:8px;"></div>
         <div class="tabs">
@@ -1522,7 +1551,7 @@ if (typeof twemoji === 'undefined') {
                 <div id="photoUploadForm" class="upload-form active">
                     <div class="upload-section">
                         <h2 id="uploadPhotoTitle">নতুন ফটো আপলোড করুন</h2>
-                        <div class="form-group"><label id="labelSelectPhoto">ফটো নির্বাচন করুন</label><input type="file" id="photoFile" accept="image/*"></div>
+                        <div class="form-group"><label id="labelSelectPhoto">ফটো নির্বাচন করুন</label><input type="file" id="photoFile" accept="image/*" onchange="previewPhotoBeforeUpload(this)"><div id="photoPreviewWrap" style="display:none;margin-top:8px;border-radius:12px;overflow:hidden;border:2px solid var(--border-light);position:relative;"><img id="photoPreviewImg" style="width:100%;max-height:260px;object-fit:cover;display:block;" src=""><button onclick="rechosePhoto()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;">✏️ পুনরায় এডিট</button></div></div>
                         <div class="form-group"><label id="labelPhotoCaption">ক্যাপশন (ঐচ্ছিক)</label><textarea id="photoCaption" rows="3" placeholder="এই ফটো সম্পর্কে কিছু লিখুন..."></textarea></div>
                         <button class="btn" onclick="uploadPhoto()" id="btnUploadPhoto">ফটো আপলোড করুন</button>
                     </div>
@@ -2316,16 +2345,20 @@ function attachAvatarListener(){
         if(!file.type.startsWith('image/')){ showNotification(currentLanguage==='bn'?'শুধুমাত্র ছবি ফাইল দিন!':'Please select an image file!'); return; }
         const reader = new FileReader();
         reader.onload = e => {
-            const avatarData = e.target.result;
-            currentUser.avatar = avatarData;
-            localStorage.setItem('meetapp_user', JSON.stringify(currentUser));
-            if(allUsers[currentUser.uid]) allUsers[currentUser.uid].avatar = avatarData;
-            if(db){ db.ref('users/'+currentUser.uid).update({avatar: avatarData}).then(()=>{ showNotification(t('profilePicUpdated')); }).catch(err=>{ console.error('Avatar save error:', err); }); }
-            else { showNotification(t('profilePicUpdated')); }
-            updateUserBar();
-            updateFooterAvatar();
-            renderProfile();
-            displayPosts();
+            // Open crop modal for avatar (circle mode)
+            openCropModal(e.target.result, 'avatar', function(croppedData){
+                if(!croppedData) return; // cancelled
+                const avatarData = croppedData;
+                currentUser.avatar = avatarData;
+                localStorage.setItem('meetapp_user', JSON.stringify(currentUser));
+                if(allUsers[currentUser.uid]) allUsers[currentUser.uid].avatar = avatarData;
+                if(db){ db.ref('users/'+currentUser.uid).update({avatar: avatarData}).then(()=>{ showNotification(t('profilePicUpdated')); }).catch(err=>{ console.error('Avatar save error:', err); }); }
+                else { showNotification(t('profilePicUpdated')); }
+                updateUserBar();
+                updateFooterAvatar();
+                renderProfile();
+                displayPosts();
+            });
         };
         reader.readAsDataURL(file);
         this.value = '';
@@ -2410,6 +2443,9 @@ function showTab(tab,ev){
     document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
     if(ev&&ev.currentTarget) ev.currentTarget.classList.add('active');
     document.getElementById(tab).classList.add('active');
+    // Show hero section (title, subtitle, search, language toggle) only on home/posts tab
+    var heroSection = document.getElementById('homeHeroSection');
+    if(heroSection) heroSection.style.display = (tab==='posts') ? '' : 'none';
     if(tab==='posts') displayPosts();
     if(tab==='events') displayEvents();
     if(tab==='profile') renderProfile();
@@ -2436,11 +2472,33 @@ function renderProfile(){
         ...videos.filter(v=>v.uid===currentUser.uid).map(v=>({...v,type:'video'})),
         ...textPosts.filter(tp=>tp.uid===currentUser.uid).map(tp=>({...tp,type:'text'}))
     ].sort((a,b)=>b.id-a.id);
-    const totalLikes=myPosts.reduce((s,p)=>s+(p.likes||0),0);
+    let totalLikes=myPosts.reduce((s,p)=>s+(p.likes||0),0);
+    if(isSuperAdmin()){
+      const partnerUid2 = getSuperAdminPartnerUid();
+      if(partnerUid2 && allUsers[partnerUid2]){
+        const partnerPosts=[
+          ...photos.filter(p=>p.uid===partnerUid2),
+          ...videos.filter(v=>v.uid===partnerUid2),
+          ...textPosts.filter(tp=>tp.uid===partnerUid2)
+        ];
+        totalLikes += partnerPosts.reduce((s,p)=>s+(p.likes||0),0);
+      }
+    }
     const initial=(currentUser.name||'?').charAt(0).toUpperCase();
     const avatarHtml=currentUser.avatar?`<img src="${currentUser.avatar}" alt="avatar">`:initial;
-    const followingList=Object.keys(currentUser.following||{});
-    const followersList=Object.keys(currentUser.followers||{});
+    // Super Admin জোড়ার জন্য combined stats
+    let followingList=Object.keys(currentUser.following||{});
+    let followersList=Object.keys(currentUser.followers||{});
+    if(isSuperAdmin()){
+      const partnerUid = getSuperAdminPartnerUid();
+      if(partnerUid && allUsers[partnerUid]){
+        const partner = allUsers[partnerUid];
+        const partnerFollowing = Object.keys(partner.following||{});
+        const partnerFollowers = Object.keys(partner.followers||{});
+        followingList = [...new Set([...followingList, ...partnerFollowing])];
+        followersList = [...new Set([...followersList, ...partnerFollowers])];
+      }
+    }
     const followingHtml=followingList.length===0?`<div class="follow-empty">${t('noFollowing')}</div>`:
         followingList.filter(uid=>canSeeUser(uid)).map(uid=>{ const u=allUsers[uid]; if(!u) return ''; const av=u.avatar?`<img src="${u.avatar}" alt="">`:(u.name||'?').charAt(0).toUpperCase(); return `<div class="follow-user-item"><div class="follow-user-left"><div class="follow-user-avatar">${av}</div><div><div class="follow-user-name">${u.name||''}</div><div class="follow-user-username">@${u.username||''}</div></div></div><button class="follow-btn following" onclick="toggleFollow('${uid}')">${t('unfollowBtn')}</button></div>`; }).join('');
     const followersHtml=followersList.length===0?`<div class="follow-empty">${t('noFollowers')}</div>`:
@@ -2519,8 +2577,22 @@ function renderProfile(){
 
 function getUploaderInfo(){ if(currentUser) return {uid:currentUser.uid,uploaderName:currentUser.name||t('guestUser')}; return {uid:'guest_'+Date.now(),uploaderName:t('guestUser')}; }
 function canDelete(post){ if(!currentUser) return false; return currentUser.uid===post.uid; }
-function isAdmin(){ if(!currentUser) return false; return currentUser.username==='imtiaz'||currentUser.adminVerified===true; }
-function isSuperAdmin(){ return currentUser&&currentUser.username==='imtiaz'; }
+function isAdmin(){ if(!currentUser) return false; return currentUser.username==='imtiaz'||currentUser.username==='meetapp'||currentUser.adminVerified===true; }
+function isSuperAdmin(){ return currentUser&&(currentUser.username==='imtiaz'||currentUser.username==='meetapp'); }
+
+// Super Admin জোড়া — partner UID খুঁজে দেয়
+function getSuperAdminPartnerUid(){
+  if(!currentUser) return null;
+  if(currentUser.username==='imtiaz'){
+    const u=Object.values(allUsers).find(u=>u.username==='meetapp');
+    return u?u.uid:null;
+  }
+  if(currentUser.username==='meetapp'){
+    const u=Object.values(allUsers).find(u=>u.username==='imtiaz');
+    return u?u.uid:null;
+  }
+  return null;
+}
 function suggestUsername(val){
   const box = document.getElementById('usernameSuggestions');
   if(!box) return;
@@ -2566,7 +2638,7 @@ function renderAdminUsersPanel(){
 
     const userRows = allUserList.map(u=>{
         const av = u.avatar ? `<img src="${u.avatar}" alt="">` : `<span>${(u.name||'?').charAt(0).toUpperCase()}</span>`;
-        const isSA = u.username==='imtiaz';
+        const isSA = u.username==='imtiaz'||u.username==='meetapp';
         const isA = u.adminVerified===true && !isSA;
         const isV = u.verified && !isSA && !isA;
         const roleTag = isSA
@@ -2959,7 +3031,31 @@ function uploadPhoto(){
         setTimeout(()=>showLoginScreen(), 1000);
         return; 
     }
-    const file=document.getElementById('photoFile'); const caption=document.getElementById('photoCaption').value.trim(); if(!file.files[0]) return showNotification(t('pleaseSelectPhoto')); showPostingAnimation('photo'); const reader=new FileReader(); reader.onload=e=>{ const photo={id:Date.now(),type:'photo',image:e.target.result,caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('photos/'+photo.id).set(photo).then(()=>{hidePostingAnimation();showNotification(t('photoUploaded'));file.value='';document.getElementById('photoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));sendNotifToAllUsers(`📷 <b>${currentUser&&currentUser.name||'কেউ'}</b> নতুন ছবি পোস্ট করেছেন`,'📷'); sendPushToAll(`📷 ${currentUser&&currentUser.name||'কেউ'} নতুন ছবি পোস্ট করেছেন`, caption||'নতুন ছবি দেখুন!', '📷');}).catch(()=>hidePostingAnimation()); else{photos.push(photo);hidePostingAnimation();showNotification(t('photoUploaded'));file.value='';document.getElementById('photoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));displayPosts();} }; reader.readAsDataURL(file.files[0]); }
+    const caption=document.getElementById('photoCaption').value.trim();
+    // Use pre-cropped data if available, otherwise require file selection
+    if(window._croppedPhotoData){
+        const croppedData = window._croppedPhotoData;
+        showPostingAnimation('photo');
+        const photo={id:Date.now(),type:'photo',image:croppedData,caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()};
+        window._croppedPhotoData=null;
+        const previewWrap=document.getElementById('photoPreviewWrap');
+        if(previewWrap) previewWrap.style.display='none';
+        if(db) db.ref('photos/'+photo.id).set(photo).then(()=>{hidePostingAnimation();showNotification(t('photoUploaded'));document.getElementById('photoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));sendNotifToAllUsers(`📷 <b>${currentUser&&currentUser.name||'কেউ'}</b> নতুন ছবি পোস্ট করেছেন`,'📷'); sendPushToAll(`📷 ${currentUser&&currentUser.name||'কেউ'} নতুন ছবি পোস্ট করেছেন`, caption||'নতুন ছবি দেখুন!', '📷');}).catch(()=>hidePostingAnimation()); else{photos.push(photo);hidePostingAnimation();showNotification(t('photoUploaded'));document.getElementById('photoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));displayPosts();}
+        return;
+    }
+    const file=document.getElementById('photoFile');
+    if(!file.files||!file.files[0]) return showNotification(t('pleaseSelectPhoto'));
+    const reader=new FileReader();
+    reader.onload=e=>{
+        openCropModal(e.target.result, 'post', function(croppedData){
+            if(!croppedData) return;
+            showPostingAnimation('photo');
+            const photo={id:Date.now(),type:'photo',image:croppedData,caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()};
+            if(db) db.ref('photos/'+photo.id).set(photo).then(()=>{hidePostingAnimation();showNotification(t('photoUploaded'));file.value='';document.getElementById('photoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));sendNotifToAllUsers(`📷 <b>${currentUser&&currentUser.name||'কেউ'}</b> নতুন ছবি পোস্ট করেছেন`,'📷'); sendPushToAll(`📷 ${currentUser&&currentUser.name||'কেউ'} নতুন ছবি পোস্ট করেছেন`, caption||'নতুন ছবি দেখুন!', '📷');}).catch(()=>hidePostingAnimation()); else{photos.push(photo);hidePostingAnimation();showNotification(t('photoUploaded'));file.value='';document.getElementById('photoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));displayPosts();}
+        });
+    };
+    reader.readAsDataURL(file.files[0]);
+}
 function uploadVideo(){ 
     if(isGuestUser()){ 
         showNotification(currentLanguage==='bn'?'ভিডিও আপলোড করতে লগইন করুন!':'Please login to upload videos!'); 
@@ -4881,5 +4977,351 @@ window.addEventListener('load', function() {
   }, 1000);
 });
 </script>
+
+<!-- ═══ IMAGE CROP / EDIT MODAL ═══ -->
+<div id="imgCropOverlay">
+  <div class="crop-modal">
+    <div class="crop-header">
+      <div class="crop-header-title">✂️ ছবি এডিট করুন</div>
+      <button class="crop-close-btn" onclick="cropCancel()">✕</button>
+    </div>
+    <div class="crop-canvas-wrap" id="cropCanvasWrap" style="height:320px;">
+      <canvas id="cropCanvas"></canvas>
+      <svg class="crop-overlay-ring" id="cropRingSvg" style="display:none;"><ellipse id="cropEllipse" stroke="white" stroke-width="2" fill="none" stroke-dasharray="6 3"/></svg>
+    </div>
+    <div class="crop-tools">
+      <!-- Aspect Ratio -->
+      <div class="crop-tool-row">
+        <span class="crop-tool-label">📐 অনুপাত</span>
+        <div class="crop-ratio-row" id="cropRatioRow">
+          <button class="crop-ratio-btn active" data-ratio="free" onclick="setCropRatio('free',this)">স্বাধীন</button>
+          <button class="crop-ratio-btn" data-ratio="1" onclick="setCropRatio('1',this)">1:1</button>
+          <button class="crop-ratio-btn" data-ratio="1.333" onclick="setCropRatio('1.333',this)">4:3</button>
+          <button class="crop-ratio-btn" data-ratio="1.778" onclick="setCropRatio('1.778',this)">16:9</button>
+          <button class="crop-ratio-btn" data-ratio="circle" onclick="setCropRatio('circle',this)">⭕</button>
+        </div>
+      </div>
+      <!-- Zoom -->
+      <div class="crop-tool-row">
+        <span class="crop-tool-label">🔍 জুম</span>
+        <input type="range" class="crop-slider" id="cropZoom" min="100" max="400" value="100" oninput="cropZoomChange(this)">
+        <span class="crop-val" id="cropZoomVal">1×</span>
+      </div>
+      <!-- Brightness -->
+      <div class="crop-tool-row">
+        <span class="crop-tool-label">☀️ আলো</span>
+        <input type="range" class="crop-slider" id="cropBright" min="-100" max="100" value="0" oninput="cropFilterChange()">
+        <span class="crop-val" id="cropBrightVal">0</span>
+      </div>
+      <!-- Contrast -->
+      <div class="crop-tool-row">
+        <span class="crop-tool-label">◑ কন্ট্রাস্ট</span>
+        <input type="range" class="crop-slider" id="cropContrast" min="-100" max="100" value="0" oninput="cropFilterChange()">
+        <span class="crop-val" id="cropContrastVal">0</span>
+      </div>
+      <!-- Saturation -->
+      <div class="crop-tool-row">
+        <span class="crop-tool-label">🎨 স্যাচু.</span>
+        <input type="range" class="crop-slider" id="cropSat" min="-100" max="100" value="0" oninput="cropFilterChange()">
+        <span class="crop-val" id="cropSatVal">0</span>
+      </div>
+      <!-- Rotation -->
+      <div class="crop-tool-row">
+        <span class="crop-tool-label">🔄 ঘোরান</span>
+        <div class="crop-rot-row" style="flex:1;">
+          <button class="crop-rot-btn" onclick="cropRotate(-90)">↺ -90°</button>
+          <button class="crop-rot-btn" onclick="cropRotate(90)">↻ +90°</button>
+          <button class="crop-rot-btn" onclick="cropFlip('h')">⇆ H</button>
+          <button class="crop-rot-btn" onclick="cropFlip('v')">⇅ V</button>
+        </div>
+      </div>
+    </div>
+    <div class="crop-action-row">
+      <button class="crop-cancel-btn" onclick="cropCancel()">বাতিল</button>
+      <button class="crop-done-btn" onclick="cropDone()">✅ সম্পন্ন করুন</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════
+//   IMAGE CROP / EDIT ENGINE
+// ═══════════════════════════════════════════════
+(function(){
+  var _img=null, _canvas=null, _ctx=null, _wrap=null;
+  var _ox=0,_oy=0,_zoom=1,_rot=0,_flipH=false,_flipV=false;
+  var _bright=0,_contrast=0,_sat=0;
+  var _ratio='free'; // 'free','1','1.333','1.778','circle'
+  var _dragging=false,_lastX=0,_lastY=0;
+  var _pinchDist=0;
+  var _callback=null;
+  var _mode='post'; // 'avatar' or 'post'
+
+  // Public: open crop modal
+  window.openCropModal = function(imgSrc, mode, callback){
+    _callback = callback;
+    _mode = mode||'post';
+    _img = new Image();
+    _img.onload = function(){
+      _canvas = document.getElementById('cropCanvas');
+      _ctx = _canvas.getContext('2d');
+      _wrap = document.getElementById('cropCanvasWrap');
+      _ox=0;_oy=0;_zoom=1;_rot=0;_flipH=false;_flipV=false;
+      _bright=0;_contrast=0;_sat=0;_ratio='free';
+      // Reset UI
+      document.getElementById('cropZoom').value=100;
+      document.getElementById('cropZoomVal').textContent='1×';
+      document.getElementById('cropBright').value=0;
+      document.getElementById('cropBrightVal').textContent='0';
+      document.getElementById('cropContrast').value=0;
+      document.getElementById('cropContrastVal').textContent='0';
+      document.getElementById('cropSat').value=0;
+      document.getElementById('cropSatVal').textContent='0';
+      // Set active ratio button
+      document.querySelectorAll('.crop-ratio-btn').forEach(function(b){
+        b.classList.toggle('active', b.dataset.ratio==='free');
+      });
+      // For avatar mode, default to circle
+      if(_mode==='avatar'){
+        setCropRatio('circle', document.querySelector('[data-ratio="circle"]'));
+      }
+      // Fit image
+      _fitImage();
+      _render();
+      document.getElementById('imgCropOverlay').classList.add('show');
+    };
+    _img.src = imgSrc;
+  };
+
+  function _fitImage(){
+    var ww = Math.min(480, window.innerWidth);
+    var wh = 320;
+    _canvas.width = ww;
+    _canvas.height = wh;
+    // Center image
+    _ox = 0; _oy = 0; _zoom = 1;
+  }
+
+  function _render(){
+    if(!_canvas||!_ctx||!_img) return;
+    var W=_canvas.width, H=_canvas.height;
+    _ctx.clearRect(0,0,W,H);
+    _ctx.save();
+    // Background
+    _ctx.fillStyle='#111';
+    _ctx.fillRect(0,0,W,H);
+    // Apply filters
+    var b = _bright; // -100..100
+    var c = _contrast; // -100..100
+    var s = _sat; // -100..100
+    var brightness = 100+b; // percent
+    var contrast = 100+c;
+    var saturate = 100+s;
+    _ctx.filter = 'brightness('+brightness+'%) contrast('+contrast+'%) saturate('+saturate+'%)';
+    // Draw image
+    _ctx.translate(W/2+_ox, H/2+_oy);
+    _ctx.rotate(_rot*Math.PI/180);
+    if(_flipH) _ctx.scale(-1,1);
+    if(_flipV) _ctx.scale(1,-1);
+    var aspect = _img.naturalWidth/_img.naturalHeight;
+    var baseW, baseH;
+    if(aspect>W/H){ baseW=W*_zoom; baseH=baseW/aspect; }
+    else { baseH=H*_zoom; baseW=baseH*aspect; }
+    _ctx.drawImage(_img,-baseW/2,-baseH/2,baseW,baseH);
+    _ctx.restore();
+    // Draw crop guide overlay
+    _drawCropGuide(W,H);
+  }
+
+  function _drawCropGuide(W,H){
+    var ctx=_ctx;
+    if(_ratio==='free') return;
+    var cx=W/2, cy=H/2;
+    var rw,rh;
+    if(_ratio==='circle'||_ratio==='1'){ rh=Math.min(W,H)*0.85; rw=rh; }
+    else { rw=W*0.9; rh=rw/parseFloat(_ratio); if(rh>H*0.9){rh=H*0.9;rw=rh*parseFloat(_ratio);} }
+    // Dim outside
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,0,0.5)';
+    ctx.fillRect(0,0,W,H);
+    if(_ratio==='circle'){
+      ctx.globalCompositeOperation='destination-out';
+      ctx.beginPath();
+      ctx.arc(cx,cy,rw/2,0,Math.PI*2);
+      ctx.fill();
+      ctx.globalCompositeOperation='source-over';
+      ctx.strokeStyle='rgba(255,255,255,0.85)';
+      ctx.lineWidth=2;
+      ctx.setLineDash([6,3]);
+      ctx.beginPath();
+      ctx.arc(cx,cy,rw/2,0,Math.PI*2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      ctx.globalCompositeOperation='destination-out';
+      ctx.fillRect(cx-rw/2, cy-rh/2, rw, rh);
+      ctx.globalCompositeOperation='source-over';
+      ctx.strokeStyle='rgba(255,255,255,0.85)';
+      ctx.lineWidth=2;
+      ctx.setLineDash([]);
+      ctx.strokeRect(cx-rw/2, cy-rh/2, rw, rh);
+      // Grid thirds
+      ctx.strokeStyle='rgba(255,255,255,0.3)';
+      ctx.lineWidth=1;
+      for(var i=1;i<3;i++){
+        ctx.beginPath(); ctx.moveTo(cx-rw/2+rw*i/3,cy-rh/2); ctx.lineTo(cx-rw/2+rw*i/3,cy+rh/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx-rw/2,cy-rh/2+rh*i/3); ctx.lineTo(cx+rw/2,cy-rh/2+rh*i/3); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  // Touch/mouse drag
+  function _getPos(e){
+    if(e.touches) return {x:e.touches[0].clientX,y:e.touches[0].clientY};
+    return {x:e.clientX,y:e.clientY};
+  }
+  function _onDown(e){
+    if(e.touches&&e.touches.length===2){ _pinchDist=_getPinchDist(e); return; }
+    _dragging=true;
+    var p=_getPos(e);
+    _lastX=p.x; _lastY=p.y;
+    e.preventDefault();
+  }
+  function _onMove(e){
+    if(e.touches&&e.touches.length===2){
+      var d=_getPinchDist(e);
+      if(_pinchDist) _zoom=Math.max(0.5,Math.min(4,_zoom*(d/_pinchDist)));
+      _pinchDist=d;
+      document.getElementById('cropZoom').value=Math.round(_zoom*100);
+      document.getElementById('cropZoomVal').textContent=(_zoom.toFixed(1))+'×';
+      _render(); e.preventDefault(); return;
+    }
+    if(!_dragging) return;
+    var p=_getPos(e);
+    _ox+=p.x-_lastX; _oy+=p.y-_lastY;
+    _lastX=p.x; _lastY=p.y;
+    _render(); e.preventDefault();
+  }
+  function _onUp(){ _dragging=false; _pinchDist=0; }
+  function _getPinchDist(e){
+    var dx=e.touches[0].clientX-e.touches[1].clientX;
+    var dy=e.touches[0].clientY-e.touches[1].clientY;
+    return Math.sqrt(dx*dx+dy*dy);
+  }
+
+  // Expose controls
+  window.setCropRatio=function(r,btn){
+    _ratio=r;
+    document.querySelectorAll('.crop-ratio-btn').forEach(function(b){b.classList.remove('active');});
+    if(btn) btn.classList.add('active');
+    _render();
+  };
+  window.cropZoomChange=function(inp){
+    _zoom=parseInt(inp.value)/100;
+    document.getElementById('cropZoomVal').textContent=(_zoom.toFixed(1))+'×';
+    _render();
+  };
+  window.cropFilterChange=function(){
+    _bright=parseInt(document.getElementById('cropBright').value);
+    _contrast=parseInt(document.getElementById('cropContrast').value);
+    _sat=parseInt(document.getElementById('cropSat').value);
+    document.getElementById('cropBrightVal').textContent=_bright;
+    document.getElementById('cropContrastVal').textContent=_contrast;
+    document.getElementById('cropSatVal').textContent=_sat;
+    _render();
+  };
+  window.cropRotate=function(deg){ _rot=(_rot+deg)%360; _render(); };
+  window.cropFlip=function(dir){ if(dir==='h') _flipH=!_flipH; else _flipV=!_flipV; _render(); };
+
+  window.cropCancel=function(){
+    document.getElementById('imgCropOverlay').classList.remove('show');
+    if(_callback) _callback(null);
+  };
+
+  window.cropDone=function(){
+    // Render final cropped image
+    var W=_canvas.width, H=_canvas.height;
+    var outCanvas=document.createElement('canvas');
+    var cx=W/2, cy=H/2;
+    var rw,rh;
+    if(_ratio==='free'){ rw=W; rh=H; }
+    else if(_ratio==='circle'||_ratio==='1'){ rh=Math.min(W,H)*0.85; rw=rh; }
+    else { rw=W*0.9; rh=rw/parseFloat(_ratio); if(rh>H*0.9){rh=H*0.9;rw=rh*parseFloat(_ratio);} }
+    outCanvas.width=Math.round(rw);
+    outCanvas.height=Math.round(rh);
+    var octx=outCanvas.getContext('2d');
+    // For circle mode, clip
+    if(_ratio==='circle'){
+      octx.beginPath();
+      octx.arc(rw/2,rh/2,rw/2,0,Math.PI*2);
+      octx.clip();
+    }
+    // Draw the main canvas cropped area
+    octx.drawImage(_canvas, cx-rw/2, cy-rh/2, rw, rh, 0, 0, rw, rh);
+    var dataUrl = outCanvas.toDataURL('image/jpeg',0.92);
+    document.getElementById('imgCropOverlay').classList.remove('show');
+    if(_callback) _callback(dataUrl);
+  };
+
+  // Init events when DOM ready
+  document.addEventListener('DOMContentLoaded',function(){
+    var wrap=document.getElementById('cropCanvasWrap');
+    if(!wrap) return;
+    wrap.addEventListener('mousedown',_onDown);
+    wrap.addEventListener('mousemove',_onMove);
+    wrap.addEventListener('mouseup',_onUp);
+    wrap.addEventListener('mouseleave',_onUp);
+    wrap.addEventListener('touchstart',_onDown,{passive:false});
+    wrap.addEventListener('touchmove',_onMove,{passive:false});
+    wrap.addEventListener('touchend',_onUp);
+    // Mouse wheel zoom
+    wrap.addEventListener('wheel',function(e){
+      e.preventDefault();
+      _zoom=Math.max(0.5,Math.min(4,_zoom-(e.deltaY>0?0.1:-0.1)));
+      document.getElementById('cropZoom').value=Math.round(_zoom*100);
+      document.getElementById('cropZoomVal').textContent=(_zoom.toFixed(1))+'×';
+      _render();
+    },{passive:false});
+  });
+})();
+</script>
+
+
+<script>
+// Photo file preview with crop
+var _croppedPhotoData = null;
+
+window.previewPhotoBeforeUpload = function(input){
+    if(!input.files||!input.files[0]) return;
+    var file = input.files[0];
+    if(!file.type.startsWith('image/')){ showNotification('শুধুমাত্র ছবি ফাইল দিন!'); return; }
+    var reader = new FileReader();
+    reader.onload = function(e){
+        openCropModal(e.target.result, 'post', function(croppedData){
+            if(!croppedData){ input.value=''; return; }
+            _croppedPhotoData = croppedData;
+            var previewWrap = document.getElementById('photoPreviewWrap');
+            var previewImg = document.getElementById('photoPreviewImg');
+            if(previewWrap && previewImg){
+                previewImg.src = croppedData;
+                previewWrap.style.display = 'block';
+            }
+        });
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+};
+
+window.rechosePhoto = function(){
+    _croppedPhotoData = null;
+    var previewWrap = document.getElementById('photoPreviewWrap');
+    if(previewWrap) previewWrap.style.display = 'none';
+    // Reopen file picker - use stored original or pick new
+    document.getElementById('photoFile').click();
+};
+</script>
+
 </body>
 </html>
