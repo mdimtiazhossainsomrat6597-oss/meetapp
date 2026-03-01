@@ -780,39 +780,40 @@ if (typeof twemoji === 'undefined') {
         @keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
         @keyframes splashPulse{0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.15);opacity:1}}
         @keyframes spin{to{transform:rotate(360deg)}}
-        #loginScreen{position:fixed;inset:0;background:var(--grad-header);z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+        #loginScreen{position:fixed;inset:0;background:var(--grad-header);z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;overflow-y:auto;}
         #loginScreen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 20% 20%,rgba(108,92,231,0.45) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 80%,rgba(253,121,168,0.3) 0%,transparent 55%);pointer-events:none;animation:auroPulse 8s ease-in-out infinite;}
         @keyframes auroPulse{0%,100%{opacity:1}50%{opacity:0.7}}
-        .login-box{background:rgba(255,255,255,0.06);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.13);border-radius:var(--r-xl);padding:38px 28px 32px;width:100%;max-width:400px;position:relative;z-index:1;box-shadow:0 30px 70px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.15);animation:loginIn 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+        .login-box{background:rgba(255,255,255,0.06);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.13);border-radius:var(--r-xl);padding:22px 18px 20px;width:100%;max-width:380px;position:relative;z-index:1;box-shadow:0 20px 50px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.15);animation:loginIn 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+        @media(max-height:660px){.login-box{padding:14px 16px 14px;}}
         @keyframes loginIn{from{transform:translateY(50px) scale(0.93);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-        .login-logo{text-align:center;margin-bottom:22px;}
-        .login-logo h1{font-size:42px;background:var(--grad-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;letter-spacing:-0.5px;}
-        .login-logo p{font-size:13px;color:rgba(240,236,251,0.55);font-weight:300;}
-        .login-lang-toggle{display:flex;gap:6px;justify-content:center;margin-bottom:18px;}
+        .login-logo{text-align:center;margin-bottom:14px;}
+        .login-logo h1{font-size:32px;background:var(--grad-brand);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;letter-spacing:-0.5px;}
+        .login-logo p{font-size:12px;color:rgba(240,236,251,0.55);font-weight:300;}
+        .login-lang-toggle{display:flex;gap:6px;justify-content:center;margin-bottom:12px;}
         .login-lang-btn{padding:6px 18px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(240,236,251,0.65);cursor:pointer;font-weight:600;font-size:13px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
         .login-lang-btn.active{background:linear-gradient(135deg,rgba(108,92,231,0.65),rgba(253,121,168,0.5));border-color:rgba(255,255,255,0.4);color:white;box-shadow:0 0 18px rgba(108,92,231,0.5);}
-        .login-tabs{display:flex;gap:0;margin-bottom:24px;background:rgba(0,0,0,0.2);border-radius:var(--r-md);padding:4px;}
-        .login-tab{flex:1;padding:11px;text-align:center;cursor:pointer;border-radius:var(--r-sm);font-size:14px;font-weight:600;color:rgba(255,255,255,0.45);border:none;background:transparent;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
+        .login-tabs{display:flex;gap:0;margin-bottom:16px;background:rgba(0,0,0,0.2);border-radius:var(--r-md);padding:4px;}
+        .login-tab{flex:1;padding:9px;text-align:center;cursor:pointer;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:rgba(255,255,255,0.45);border:none;background:transparent;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
         .login-tab.active{background:rgba(255,255,255,0.12);color:white;box-shadow:0 2px 10px rgba(0,0,0,0.25);}
         .login-panel{display:none;}
         .login-panel.active{display:block;animation:fadeIn 0.3s;}
         @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        .login-field{margin-bottom:14px;}
-        .login-field label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,236,251,0.5);margin-bottom:7px;}
-        .login-input{width:100%;padding:13px 16px;border:1.5px solid rgba(255,255,255,0.13);border-radius:var(--r-md);background:rgba(255,255,255,0.07);color:white;font-size:15px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
+        .login-field{margin-bottom:10px;}
+        .login-field label{display:block;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,236,251,0.5);margin-bottom:5px;}
+        .login-input{width:100%;padding:10px 14px;border:1.5px solid rgba(255,255,255,0.13);border-radius:var(--r-md);background:rgba(255,255,255,0.07);color:white;font-size:14px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
         .pw-wrapper{position:relative;}
         .pw-wrapper .login-input{padding-right:48px;}
         .pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:18px;padding:4px;line-height:1;transition:color 0.2s;}
         .pw-toggle:hover{color:rgba(255,255,255,0.85);}
         .login-input:focus{outline:none;border-color:rgba(108,92,231,0.7);background:rgba(108,92,231,0.1);box-shadow:0 0 0 4px rgba(108,92,231,0.15);}
         .login-input::placeholder{color:rgba(255,255,255,0.28);}
-        .login-action-btn{width:100%;padding:14px;margin-top:6px;background:var(--grad-brand);border:none;border-radius:var(--r-md);color:white;font-size:15px;font-weight:700;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;cursor:pointer;box-shadow:var(--shadow-btn);transition:all 0.3s;letter-spacing:0.3px;}
+        .login-action-btn{width:100%;padding:11px;margin-top:4px;background:var(--grad-brand);border:none;border-radius:var(--r-md);color:white;font-size:14px;font-weight:700;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;cursor:pointer;box-shadow:var(--shadow-btn);transition:all 0.3s;letter-spacing:0.3px;}
         .login-action-btn:active{transform:scale(0.97);opacity:0.9;}
         .login-error{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.35);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;color:#ff9999;font-size:13px;display:none;}
         .login-error.show{display:block;animation:fadeIn 0.3s;}
         .login-success{background:rgba(0,206,201,0.12);border:1px solid rgba(0,206,201,0.35);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;color:#00cec9;font-size:13px;display:none;}
         .login-success.show{display:block;animation:fadeIn 0.3s;}
-        .login-divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+        .login-divider{display:flex;align-items:center;gap:10px;margin:10px 0;}
         .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.1);}
         .login-divider span{font-size:11px;color:rgba(240,236,251,0.3);white-space:nowrap;}
         .skip-btn{display:block;text-align:center;margin-top:18px;font-size:12px;color:rgba(240,236,251,0.32);background:none;border:none;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;text-decoration:underline;text-underline-offset:3px;}
@@ -1236,7 +1237,7 @@ if (typeof twemoji === 'undefined') {
         <div class="login-panel active" id="panelLogin">
             <div class="login-field">
                 <label id="llEmailLabel">ইউজারনেম</label>
-                <input class="login-input" type="text" id="loginUsername" placeholder="ইউজারনেম লিখুন">
+                <input class="login-input" type="text" id="loginUsername" placeholder="ইউজারনেম লিখুন" autocapitalize="none" autocorrect="off" autocomplete="username" spellcheck="false" inputmode="email">
             </div>
             <div class="login-field">
                 <label id="llPassLabel">পাসওয়ার্ড</label>
@@ -1254,7 +1255,7 @@ if (typeof twemoji === 'undefined') {
             </div>
             <div class="login-field">
                 <label id="llUserLabel">ইউজারনেম (ইংরেজিতে)</label>
-                <input class="login-input" type="text" id="regUsername" placeholder="যেমন: rafi123" oninput="suggestUsername(this.value)" autocomplete="off"><div id="usernameSuggestions" style="display:none;margin-top:6px;"></div>
+                <input class="login-input" type="text" id="regUsername" placeholder="যেমন: rafi123" oninput="suggestUsernameFromName(this.value)" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="email"><div id="usernameSuggestions" style="display:none;margin-top:6px;"></div>
                 <div style="font-size:10px;color:rgba(240,236,251,0.4);margin-top:4px;" id="llUsernameHint">⚠️ ইউজারনেমের প্রথম অক্ষর অবশ্যই ছোট হাতের (lowercase) হতে হবে</div>
             </div>
             <!-- ══ CHANGE 3: Phone number field ══ -->
@@ -2593,19 +2594,67 @@ function getSuperAdminPartnerUid(){
   }
   return null;
 }
-function suggestUsername(val){
-  const box = document.getElementById('usernameSuggestions');
-  if(!box) return;
+// Helper: full name থেকে username candidates বানাও
+function _buildNameCandidates(name){
+  var parts = (name||'').trim().toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(Boolean);
+  if(!parts.length) return [];
+  var candidates = [];
+  var first = parts[0], last = parts.length>1?parts[parts.length-1]:'';
+  // ফুল জোড়া
+  if(last) candidates.push(first+'_'+last, first+last, first+'.'+last);
+  candidates.push(first);
+  if(last) candidates.push(last, last+'_'+first);
+  // সংখ্যা যোগ
+  var base = last ? first+'_'+last : first;
+  [1,2,123,'_bd','_01','99','007'].forEach(function(n){ candidates.push(base+n); });
+  return candidates;
+}
+
+function suggestUsernameFromName(val){
   val = (val||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  var box = document.getElementById('usernameSuggestions');
+  if(!box) return;
   if(val.length < 2){ box.style.display='none'; return; }
-  const taken = new Set(Object.values(allUsers).map(u=>(u.username||'').toLowerCase()));
+  var taken = new Set(Object.values(allUsers).map(function(u){ return (u.username||'').toLowerCase(); }));
   if(!taken.has(val)){ box.style.display='none'; return; }
-  const tries = [val+'1', val+'2', val+'_x', val+'01', val+'_bd', 'the_'+val];
-  const available = tries.filter(s=>!taken.has(s)).slice(0,3);
+
+  // ফুল নাম থেকে সাজেশন বানাও
+  var fullName = (document.getElementById('regName')?document.getElementById('regName').value:'') || val;
+  var nameCandidates = _buildNameCandidates(fullName);
+  var extraCandidates = [val+'1', val+'2', val+'_x', val+'01', val+'_bd', 'the_'+val, val+'123'];
+  var allCandidates = nameCandidates.concat(extraCandidates);
+  // deduplicate
+  var seen = new Set(); allCandidates = allCandidates.filter(function(s){ if(!s||seen.has(s)){return false;} seen.add(s); return true; });
+  var available = allCandidates.filter(function(s){ return !taken.has(s) && /^[a-z0-9_]+$/.test(s) && s!==val; }).slice(0,4);
+
   if(!available.length){ box.style.display='none'; return; }
   box.style.display='block';
-  box.innerHTML = '<div style="font-size:11px;color:rgba(240,236,251,0.5);margin-bottom:4px;">⚠️ এই নামটি নেওয়া হয়েছে। পরামর্শ:</div>'
-    + available.map(s=>`<span onclick="document.getElementById('regUsername').value='${s}';document.getElementById('usernameSuggestions').style.display='none';" style="display:inline-block;margin:2px 4px;padding:4px 10px;background:rgba(108,92,231,0.15);border:1px solid rgba(108,92,231,0.4);border-radius:20px;color:#b8b0ff;font-size:12px;cursor:pointer;font-family:inherit;">${s}</span>`).join('');
+  box.innerHTML = '<div style="font-size:11px;color:rgba(240,236,251,0.5);margin-bottom:5px;">⚠️ এই নামটি নেওয়া হয়েছে। পরামর্শ:</div>'
+    + available.map(function(s){ return '<span onclick="document.getElementById(\'regUsername\').value=\''+s+'\';document.getElementById(\'usernameSuggestions\').style.display=\'none\';" style="display:inline-block;margin:2px 4px;padding:4px 10px;background:rgba(108,92,231,0.15);border:1px solid rgba(108,92,231,0.4);border-radius:20px;color:#b8b0ff;font-size:12px;cursor:pointer;font-family:inherit;">'+s+'</span>'; }).join('');
+}
+
+function suggestUsername(val){ suggestUsernameFromName(val); } // backward compat
+
+function suggestUsernamePrivate(val){
+  val = (val||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  var box = document.getElementById('pvUsernameSuggestions');
+  if(!box) return;
+  if(val.length < 2){ box.style.display='none'; return; }
+  var taken = new Set(Object.values(allUsers).map(function(u){ return (u.username||'').toLowerCase(); }));
+  if(!taken.has(val)){ box.style.display='none'; return; }
+
+  var fullName = (document.getElementById('pvRegName')?document.getElementById('pvRegName').value:'') || val;
+  var nameCandidates = _buildNameCandidates(fullName);
+  var extraCandidates = [val+'1', val+'2', val+'_x', val+'01', val+'_bd', 'the_'+val];
+  var allCandidates = nameCandidates.concat(extraCandidates);
+  var seen = new Set(); allCandidates = allCandidates.filter(function(s){ if(!s||seen.has(s)){return false;} seen.add(s); return true; });
+  var available = allCandidates.filter(function(s){ return !taken.has(s) && /^[a-z0-9_]+$/.test(s) && s!==val; }).slice(0,4);
+
+  if(!available.length){ box.style.display='none'; return; }
+  var bgs = 'background:var(--bg-page);border:1px solid rgba(102,126,234,0.4);border-radius:20px;color:var(--accent-violet);';
+  box.style.display='block';
+  box.innerHTML = '<div style="font-size:11px;color:var(--text-muted-light);margin-bottom:5px;">⚠️ এই নামটি নেওয়া হয়েছে। পরামর্শ:</div>'
+    + available.map(function(s){ return '<span onclick="document.getElementById(\'pvRegUser\').value=\''+s+'\';document.getElementById(\'pvUsernameSuggestions\').style.display=\'none\';" style="display:inline-block;margin:2px 4px;padding:4px 10px;'+bgs+'font-size:12px;cursor:pointer;font-family:inherit;">'+s+'</span>'; }).join('');
 }
 function canEdit(post){ return currentUser&&post.uid===currentUser.uid; }
 
@@ -2757,7 +2806,7 @@ function openPrivateLoginPanel(){
     <div style="color:var(--text-muted-light);font-size:13px;margin-bottom:18px;text-align:center;">শুধুমাত্র Admin-অনুমোদিত বিষয়বস্তু দেখতে পাবেন</div>
     <div style="margin-bottom:10px;">
       <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:5px;">ইউজারনেম</label>
-      <input id="pvUsername" type="text" placeholder="ইউজারনেম লিখুন" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;">
+      <input id="pvUsername" type="text" placeholder="ইউজারনেম লিখুন" autocapitalize="none" autocorrect="off" autocomplete="username" spellcheck="false" inputmode="email" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;">
     </div>
     <div style="margin-bottom:16px;">
       <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:5px;">পাসওয়ার্ড</label>
@@ -2780,7 +2829,7 @@ function showPrivateRegister(){
     <div style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:4px;text-align:center;">🔒 প্রাইভেট আইডি তৈরি</div>
     <div style="color:var(--text-muted-light);font-size:12px;margin-bottom:16px;text-align:center;">Admin অনুমোদনের পর আপনার কন্টেন্ট দেখা যাবে</div>
     <div style="margin-bottom:10px;"><label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:5px;">পূর্ণ নাম</label><input id="pvRegName" type="text" placeholder="নাম লিখুন" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;"></div>
-    <div style="margin-bottom:10px;"><label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:5px;">ইউজারনেম</label><input id="pvRegUser" type="text" placeholder="যেমন: private_rafi" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;"></div>
+    <div style="margin-bottom:10px;"><label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:5px;">ইউজারনেম</label><input id="pvRegUser" type="text" placeholder="যেমন: private_rafi" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="email" oninput="suggestUsernamePrivate(this.value)" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;"><div id="pvUsernameSuggestions" style="display:none;margin-top:6px;"></div></div>
     <div style="margin-bottom:10px;"><label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:5px;">মোবাইল নম্বর</label><input id="pvRegPhone" type="tel" placeholder="01XXXXXXXXX" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;"></div>
     <div style="margin-bottom:16px;"><label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:5px;">পাসওয়ার্ড</label><input id="pvRegPass" type="password" placeholder="কমপক্ষে ৪ অক্ষর" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;"></div>
     <div id="pvRegError" style="color:#ff6b6b;font-size:13px;margin-bottom:10px;text-align:center;display:none;"></div>
