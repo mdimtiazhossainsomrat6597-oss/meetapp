@@ -3283,7 +3283,9 @@ function displayPosts(){
   
   // Guest user restriction: only show first 2 posts
   const isGuest = isGuestUser();
-  const displayPosts = isGuest ? all.slice(0, 2) : all;
+  // Firebase pagination mode: প্রথমে শুধু ৮টা দেখাও, বাকিগুলো scroll এ আসবে
+  const initialBatch = isGuest ? all.slice(0, 2) : (db ? all.slice(0, 8) : all);
+  const displayPosts = initialBatch;
   
   if(all.length===0){gallery.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><h3>${t('noPostsYet')}</h3><p>${t('beFirstToPost')}</p></div>`;return;}
   
@@ -3306,10 +3308,10 @@ function displayPosts(){
   }
   
   gallery.innerHTML = postsHtml;
-  // Infinite scroll শুরু করো
+  // Firebase cursor-based pagination শুরু করো
   _postsPage = 1;
   _allPostsForScroll = isGuest ? [] : all;
-  setTimeout(initInfiniteScroll, 100);
+  setTimeout(function(){ isGuest ? initInfiniteScroll() : initFbPagination(); }, 100);
 }
 
 function isBookmarked(id){ return bookmarks.includes(String(id)); }
@@ -3320,10 +3322,176 @@ var _postsPerPage = 8;
 var _allPostsForScroll = [];
 var _scrollLoading = false;
 
+// ══════════════════════════════════════════════════════
+// 🔄 TRUE FIREBASE CURSOR-BASED PAGINATION
+// Facebook/YouTube স্টাইল — প্রতিবার Firebase থেকে নতুন ব্যাচ আসবে
+// ══════════════════════════════════════════════════════
+var _fbPagination = {
+    photos:    { lastKey: null, done: false },
+    videos:    { lastKey: null, done: false },
+    textPosts: { lastKey: null, done: false },
+    batchSize: 6,  // প্রতিটা collection থেকে ৬টা করে = মোট ~৮-১২টা
+    loading: false,
+    initialized: false,
+    observer: null,
+};
+
+function initFbPagination() {
+    if (!db || isGuestUser()) {
+        // Guest বা no-db: পুরনো local pagination চলবে
+        initInfiniteScroll();
+        return;
+    }
+    _fbPagination.photos    = { lastKey: null, done: false };
+    _fbPagination.videos    = { lastKey: null, done: false };
+    _fbPagination.textPosts = { lastKey: null, done: false };
+    _fbPagination.loading   = false;
+    _fbPagination.initialized = true;
+
+    var gallery = document.getElementById('postsGallery');
+    if (!gallery) return;
+
+    // Sentinel তৈরি
+    var old = document.getElementById('scrollSentinel');
+    if (old) old.remove();
+    var sentinel = document.createElement('div');
+    sentinel.id = 'scrollSentinel';
+    sentinel.style.cssText = 'height:2px;width:100%;margin-top:8px;';
+    gallery.after(sentinel);
+
+    if (_fbPagination.observer) _fbPagination.observer.disconnect();
+    _fbPagination.observer = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting && !_fbPagination.loading) {
+            fetchNextBatch();
+        }
+    }, { rootMargin: '300px' });
+    _fbPagination.observer.observe(sentinel);
+}
+
+function fetchNextBatch() {
+    if (_fbPagination.loading) return;
+    // সব collection শেষ হলে আর load করার দরকার নেই
+    if (_fbPagination.photos.done && _fbPagination.videos.done && _fbPagination.textPosts.done) {
+        var sentinel = document.getElementById('scrollSentinel');
+        if (sentinel) sentinel.remove();
+        return;
+    }
+
+    _fbPagination.loading = true;
+    showScrollLoader(true);
+
+    var batch = _fbPagination.batchSize;
+    var promises = [];
+    var results = { photos: [], videos: [], textPosts: [] };
+
+    // Photos fetch
+    if (!_fbPagination.photos.done) {
+        var pQuery = db.ref('photos').orderByKey().limitToLast(batch);
+        if (_fbPagination.photos.lastKey) pQuery = db.ref('photos').orderByKey().endBefore(_fbPagination.photos.lastKey).limitToLast(batch);
+        promises.push(pQuery.once('value').then(function(snap) {
+            if (!snap.exists() || snap.numChildren() === 0) { _fbPagination.photos.done = true; return; }
+            var items = [];
+            snap.forEach(function(c) { items.unshift({...c.val(), type:'photo'}); }); // reverse order (newest first)
+            if (items.length < batch) _fbPagination.photos.done = true;
+            _fbPagination.photos.lastKey = items[items.length - 1] ? String(items[items.length - 1].id) : null;
+            results.photos = items;
+        }));
+    }
+
+    // Videos fetch
+    if (!_fbPagination.videos.done) {
+        var vQuery = db.ref('videos').orderByKey().limitToLast(batch);
+        if (_fbPagination.videos.lastKey) vQuery = db.ref('videos').orderByKey().endBefore(_fbPagination.videos.lastKey).limitToLast(batch);
+        promises.push(vQuery.once('value').then(function(snap) {
+            if (!snap.exists() || snap.numChildren() === 0) { _fbPagination.videos.done = true; return; }
+            var items = [];
+            snap.forEach(function(c) { items.unshift({...c.val(), type:'video'}); });
+            if (items.length < batch) _fbPagination.videos.done = true;
+            _fbPagination.videos.lastKey = items[items.length - 1] ? String(items[items.length - 1].id) : null;
+            results.videos = items;
+        }));
+    }
+
+    // TextPosts fetch
+    if (!_fbPagination.textPosts.done) {
+        var tQuery = db.ref('textPosts').orderByKey().limitToLast(batch);
+        if (_fbPagination.textPosts.lastKey) tQuery = db.ref('textPosts').orderByKey().endBefore(_fbPagination.textPosts.lastKey).limitToLast(batch);
+        promises.push(tQuery.once('value').then(function(snap) {
+            if (!snap.exists() || snap.numChildren() === 0) { _fbPagination.textPosts.done = true; return; }
+            var items = [];
+            snap.forEach(function(c) { items.unshift({...c.val(), type:'text'}); });
+            if (items.length < batch) _fbPagination.textPosts.done = true;
+            _fbPagination.textPosts.lastKey = items[items.length - 1] ? String(items[items.length - 1].id) : null;
+            results.textPosts = items;
+        }));
+    }
+
+    Promise.all(promises).then(function() {
+        showScrollLoader(false);
+        _fbPagination.loading = false;
+
+        // তিনটা collection মিশিয়ে timestamp অনুযায়ী sort করো
+        var merged = [...results.photos, ...results.videos, ...results.textPosts]
+            .filter(function(p) { return canSeeUser(p.uid) && !isBlockedUser(p.uid); })
+            .sort(function(a, b) { return (b.id || 0) - (a.id || 0); });
+
+        if (!merged.length) return;
+
+        // Firebase local cache আপডেট করো (নতুন পোস্ট যোগ হলে)
+        merged.forEach(function(p) {
+            if (p.type === 'photo' && !photos.find(function(x){return x.id===p.id;})) photos.push(p);
+            else if (p.type === 'video' && !videos.find(function(x){return x.id===p.id;})) videos.push(p);
+            else if (p.type === 'text' && !textPosts.find(function(x){return x.id===p.id;})) textPosts.push(p);
+        });
+
+        var gallery = document.getElementById('postsGallery');
+        if (!gallery) return;
+
+        var html = merged.map(function(post) {
+            return post.type==='photo' ? createPhotoCard(post) :
+                   post.type==='video' ? createVideoCard(post) :
+                   createTextCard(post);
+        }).join('');
+
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        while(div.firstChild) gallery.appendChild(div.firstChild);
+
+        setTimeout(function() { applyTwemoji(gallery); }, 100);
+
+        // সব শেষ হলে "আর পোস্ট নেই" দেখাও
+        if (_fbPagination.photos.done && _fbPagination.videos.done && _fbPagination.textPosts.done) {
+            var endDiv = document.createElement('div');
+            endDiv.style.cssText = 'text-align:center;padding:20px;color:var(--text-muted-light);font-size:13px;';
+            endDiv.textContent = currentLanguage==='bn' ? '✅ সব পোস্ট দেখা হয়ে গেছে!' : '✅ You\'re all caught up!';
+            gallery.appendChild(endDiv);
+            var s = document.getElementById('scrollSentinel');
+            if (s) s.remove();
+        }
+    }).catch(function(err) {
+        console.error('Pagination error:', err);
+        _fbPagination.loading = false;
+        showScrollLoader(false);
+    });
+}
+
+function showScrollLoader(show) {
+    var old = document.getElementById('infScrollLoader');
+    if (old) old.remove();
+    if (!show) return;
+    var gallery = document.getElementById('postsGallery');
+    if (!gallery) return;
+    var div = document.createElement('div');
+    div.id = 'infScrollLoader';
+    div.style.cssText = 'text-align:center;padding:20px;width:100%;';
+    div.innerHTML = '<div style="display:inline-flex;align-items:center;gap:8px;color:var(--text-muted-light);font-size:13px;"><div style="width:20px;height:20px;border:2.5px solid rgba(108,92,231,0.3);border-top-color:var(--p1);border-radius:50%;animation:spin 0.7s linear infinite;"></div>' + (currentLanguage==='bn'?'লোড হচ্ছে...':'Loading...') + '</div>';
+    gallery.appendChild(div);
+}
+
+// Legacy local infinite scroll (guest / offline mode এর জন্য)
 function initInfiniteScroll() {
     var gallery = document.getElementById('postsGallery');
     if (!gallery) return;
-    // Sentinel element
     var old = document.getElementById('scrollSentinel');
     if (old) old.remove();
     var sentinel = document.createElement('div');
@@ -3346,14 +3514,9 @@ function loadMorePosts() {
     _postsPage++;
     var gallery = document.getElementById('postsGallery');
     if (!gallery) { _scrollLoading = false; return; }
-    var loadDiv = document.createElement('div');
-    loadDiv.id = 'infScrollLoader';
-    loadDiv.style.cssText = 'text-align:center;padding:16px;color:var(--text-muted-light);font-size:13px;';
-    loadDiv.innerHTML = '<div style="display:inline-block;width:22px;height:22px;border:3px solid rgba(108,92,231,0.3);border-top-color:var(--p1);border-radius:50%;animation:spin 0.8s linear infinite;"></div>';
-    gallery.appendChild(loadDiv);
+    showScrollLoader(true);
     setTimeout(function() {
-        var old2 = document.getElementById('infScrollLoader');
-        if (old2) old2.remove();
+        showScrollLoader(false);
         var html = nextBatch.map(function(post) {
             return post.type==='photo' ? createPhotoCard(post) : post.type==='video' ? createVideoCard(post) : createTextCard(post);
         }).join('');
@@ -3535,26 +3698,136 @@ function initEventSlider(){
 
 function format12hr(dateStr){ if(!dateStr) return ''; const d=new Date(dateStr); if(isNaN(d)) return dateStr; let h=d.getHours(),m=d.getMinutes(); const ampm=h>=12?'PM':'AM'; h=h%12||12; return `${d.toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'})} ${h}:${m.toString().padStart(2,'0')} ${ampm}`; }
 
+// ══════════════════════════════════════════════════════
+// 📦 OFFLINE CACHE SYSTEM (localStorage)
+// ══════════════════════════════════════════════════════
+var _offlineCacheKey = {
+    photos:    'meetapp_cache_photos',
+    videos:    'meetapp_cache_videos',
+    textPosts: 'meetapp_cache_textposts',
+    users:     'meetapp_cache_users',
+    events:    'meetapp_cache_events',
+    stories:   'meetapp_cache_stories',
+};
+var _cacheMaxSize = 300 * 1024; // 300KB per key (base64 heavy পোস্ট বাদে)
+
+function saveCache(key, data){
+    try {
+        var str = JSON.stringify(data);
+        // ছবি/ভিডিও base64 cache করলে localStorage ভরে যাবে — শুধু metadata রাখি
+        if(key === _offlineCacheKey.photos || key === _offlineCacheKey.videos){
+            var lite = data.map(function(p){
+                var copy = Object.assign({}, p);
+                // base64 data সরিয়ে দাও, শুধু caption/meta রাখো
+                if(copy.image && copy.image.startsWith('data:')) copy.image = '';
+                if(copy.video && copy.video.startsWith('data:')) copy.video = '';
+                return copy;
+            });
+            str = JSON.stringify(lite);
+        }
+        if(str.length < _cacheMaxSize * 3) {
+            localStorage.setItem(key, str);
+        }
+    } catch(e){ /* storage full, skip */ }
+}
+
+function loadCache(key){
+    try {
+        var str = localStorage.getItem(key);
+        return str ? JSON.parse(str) : null;
+    } catch(e){ return null; }
+}
+
+function loadOfflineData(){
+    var cached_photos    = loadCache(_offlineCacheKey.photos)    || [];
+    var cached_videos    = loadCache(_offlineCacheKey.videos)    || [];
+    var cached_textPosts = loadCache(_offlineCacheKey.textPosts) || [];
+    var cached_events    = loadCache(_offlineCacheKey.events)    || [];
+    var cached_users     = loadCache(_offlineCacheKey.users)     || {};
+    var cached_stories   = loadCache(_offlineCacheKey.stories)   || [];
+
+    var hasAnyData = cached_photos.length || cached_videos.length || cached_textPosts.length;
+
+    if(hasAnyData){
+        photos    = cached_photos;
+        videos    = cached_videos;
+        textPosts = cached_textPosts;
+        events    = cached_events;
+        allUsers  = cached_users;
+        stories   = cached_stories.filter(function(s){ return s.expiresAt > Date.now(); });
+        isLoadingPosts  = false;
+        isLoadingEvents = false;
+        displayPosts();
+        displayEvents();
+        initStoryBar();
+        renderProfile();
+        showNotification('📦 অফলাইন মোড — আগের ডেটা দেখানো হচ্ছে');
+        return true;
+    }
+    return false;
+}
+
 function initFirebaseListeners(){
-    if(!db){isLoadingPosts=false;isLoadingEvents=false;displayPosts();displayEvents();initStoryBar();return;}
+    if(!db){
+        isLoadingPosts=false;
+        isLoadingEvents=false;
+        // নেট না থাকলে cache থেকে দেখাও
+        var loaded = loadOfflineData();
+        if(!loaded){ displayPosts(); displayEvents(); initStoryBar(); }
+        return;
+    }
+
+    // নেট আছে কিনা চেক করো — না থাকলে আগে cache দেখাও
+    var _isOnline = true;
+    db.ref('.info/connected').on('value', function(snap){
+        _isOnline = snap.val() === true;
+        if(!_isOnline) loadOfflineData();
+    });
+
     // debounce to prevent multiple rapid re-renders
     var _dpTimer=null, _rpTimer=null;
     function debouncedDisplayPosts(){ clearTimeout(_dpTimer); _dpTimer=setTimeout(function(){isLoadingPosts=false;displayPosts();displayBookmarks();},120); }
     function debouncedRenderProfile(){ clearTimeout(_rpTimer); _rpTimer=setTimeout(function(){renderProfile();},150); }
-    db.ref('photos').on('value',snap=>{photos=snap.val()?Object.values(snap.val()):[];debouncedDisplayPosts();debouncedRenderProfile();});
-    db.ref('videos').on('value',snap=>{videos=snap.val()?Object.values(snap.val()):[];debouncedDisplayPosts();debouncedRenderProfile();});
-    db.ref('textPosts').on('value',snap=>{textPosts=snap.val()?Object.values(snap.val()):[];debouncedDisplayPosts();debouncedRenderProfile();});
-    db.ref('events').on('value',snap=>{events=snap.val()?Object.values(snap.val()):[];isLoadingEvents=false;initEventSlider();displayEvents();checkAndDraftExpiredEvents();});
+
+    db.ref('photos').on('value',snap=>{
+        photos=snap.val()?Object.values(snap.val()):[];
+        saveCache(_offlineCacheKey.photos, photos); // cache সেভ
+        debouncedDisplayPosts();debouncedRenderProfile();
+    });
+    db.ref('videos').on('value',snap=>{
+        videos=snap.val()?Object.values(snap.val()):[];
+        saveCache(_offlineCacheKey.videos, videos);
+        debouncedDisplayPosts();debouncedRenderProfile();
+    });
+    db.ref('textPosts').on('value',snap=>{
+        textPosts=snap.val()?Object.values(snap.val()):[];
+        saveCache(_offlineCacheKey.textPosts, textPosts);
+        debouncedDisplayPosts();debouncedRenderProfile();
+    });
+    db.ref('events').on('value',snap=>{
+        events=snap.val()?Object.values(snap.val()):[];
+        saveCache(_offlineCacheKey.events, events);
+        isLoadingEvents=false;initEventSlider();displayEvents();checkAndDraftExpiredEvents();
+    });
     db.ref('users').on('value',snap=>{
-        if(snap.exists()){ allUsers={}; snap.forEach(c=>{ const ud=c.val(); if(ud.username==='imtiaz'){ ud.verified=true; ud.avatarLocked=false; } allUsers[ud.uid]=ud; }); if(currentUser&&allUsers[currentUser.uid]){ const fresh=allUsers[currentUser.uid]; currentUser.following=fresh.following||{}; currentUser.followers=fresh.followers||{}; localStorage.setItem('meetapp_user',JSON.stringify(currentUser)); } }
+        if(snap.exists()){
+            allUsers={};
+            snap.forEach(c=>{ const ud=c.val(); if(ud.username==='imtiaz'){ ud.verified=true; ud.avatarLocked=false; } allUsers[ud.uid]=ud; });
+            saveCache(_offlineCacheKey.users, allUsers); // cache সেভ
+            if(currentUser&&allUsers[currentUser.uid]){ const fresh=allUsers[currentUser.uid]; currentUser.following=fresh.following||{}; currentUser.followers=fresh.followers||{}; localStorage.setItem('meetapp_user',JSON.stringify(currentUser)); }
+        }
         debouncedRenderProfile(); debouncedDisplayPosts(); updateFooterAvatar();
         initStoryBar();
-        // CHANGE 1: Update online badge visibility after users load
         updateUserBar();
     });
-    db.ref('stories').on('value',snap=>{ stories=[]; const now=Date.now(); if(snap.exists()) snap.forEach(c=>{ const s=c.val(); if(s.expiresAt>now) stories.push(s); else db.ref('stories/'+s.id).remove(); }); initStoryBar(); });
+    db.ref('stories').on('value',snap=>{
+        stories=[];
+        const now=Date.now();
+        if(snap.exists()) snap.forEach(c=>{ const s=c.val(); if(s.expiresAt>now) stories.push(s); else db.ref('stories/'+s.id).remove(); });
+        saveCache(_offlineCacheKey.stories, stories);
+        initStoryBar();
+    });
     listenForMyNotifications();
-    // CHANGE 1: Listen for online users
     listenOnlineUsers();
 }
 
@@ -3573,7 +3846,7 @@ function listenForMyNotifications(){
 
 function updateFooterAvatar(){ const el=document.getElementById('footerCreatorAvatar'); if(!el) return; const adminUid=Object.keys(allUsers).find(uid=>allUsers[uid].username==='imtiaz'); if(adminUid&&allUsers[adminUid].avatar){ el.innerHTML=`<img src="${allUsers[adminUid].avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; } else if(currentUser&&currentUser.avatar){ el.innerHTML=`<img src="${currentUser.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; } else { el.innerHTML='IM'; } }
 
-window.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('DOMContentLoaded',()=>{\
     attachAvatarListener();
     applyDarkMode();
     // ── Apply cached theme instantly (before Firebase responds) ──
@@ -3583,6 +3856,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     renderNotifList();
     updateSearchPlaceholder();
     changeLoginLanguage(currentLanguage);
+
+    // ── Cache থেকে ইউজার ডেটা instant load ──
+    var cachedUsers = loadCache(_offlineCacheKey.users);
+    if(cachedUsers) allUsers = cachedUsers;
     const splash = document.getElementById('splashScreen');
     applySplashIcon();
     var _splashHidden = false;
@@ -3598,8 +3875,8 @@ window.addEventListener('DOMContentLoaded',()=>{
         }, 500);
     }
 
-    // ── Timeout fallback: সর্বোচ্চ ৬ সেকেন্ড পর জোর করে splash বন্ধ ──
-    setTimeout(()=>{ hideSplash(); }, 6000);
+    // ── Timeout fallback: সর্বোচ্চ ৩ সেকেন্ড পর জোর করে splash বন্ধ ──
+    setTimeout(()=>{ hideSplash(); }, 3000);
 
     if(currentUser){
         document.getElementById('loginScreen').style.display='none';
