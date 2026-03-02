@@ -3846,7 +3846,7 @@ function listenForMyNotifications(){
 
 function updateFooterAvatar(){ const el=document.getElementById('footerCreatorAvatar'); if(!el) return; const adminUid=Object.keys(allUsers).find(uid=>allUsers[uid].username==='imtiaz'); if(adminUid&&allUsers[adminUid].avatar){ el.innerHTML=`<img src="${allUsers[adminUid].avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; } else if(currentUser&&currentUser.avatar){ el.innerHTML=`<img src="${currentUser.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; } else { el.innerHTML='IM'; } }
 
-window.addEventListener('DOMContentLoaded',()=>{\
+window.addEventListener('DOMContentLoaded',()=>{
     attachAvatarListener();
     applyDarkMode();
     // ── Apply cached theme instantly (before Firebase responds) ──
