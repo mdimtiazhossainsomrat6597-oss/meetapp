@@ -523,7 +523,43 @@ if (typeof twemoji === 'undefined') {
         .story-nav{position:absolute;top:0;bottom:0;width:40%;cursor:pointer;}
         .story-nav-left{left:0;}.story-nav-right{right:0;}
         input[type="file"].story-file{display:none;}
-        /* Story Create Modal */
+        /* ══ Pull to Refresh ══ */
+#pullRefreshIndicator{position:fixed;top:0;left:0;right:0;z-index:5000;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:var(--grad-brand);color:white;font-size:13px;font-weight:700;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transform:translateY(-100%);transition:transform 0.3s;box-shadow:0 4px 16px rgba(108,92,231,0.4);}
+#pullRefreshIndicator.visible{transform:translateY(0);}
+#pullRefreshIndicator.refreshing .ptr-spin{animation:spin 0.8s linear infinite;}
+.ptr-spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;}
+
+/* ══ Group Chat Styles ══ */
+.group-chat-overlay{display:none;position:fixed;inset:0;z-index:6500;background:rgba(22,18,42,0.85);backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;}
+.group-chat-overlay.show{display:flex;animation:fadeIn 0.22s;}
+.group-chat-sheet{background:var(--bg-card-solid);border-radius:28px 28px 0 0;width:100%;max-width:480px;max-height:85vh;display:flex;flex-direction:column;border:1px solid var(--border-card);}
+.group-chat-header{padding:18px 20px 14px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:10px;}
+.group-chat-body{flex:1;overflow-y:auto;padding:14px 16px;}
+.gc-member-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border-light);border-radius:12px;margin-bottom:8px;cursor:pointer;}
+.gc-member-item:active{background:rgba(108,92,231,0.06);}
+.gc-av{width:38px;height:38px;border-radius:50%;background:var(--grad-btn);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;overflow:hidden;flex-shrink:0;}
+.gc-av img{width:100%;height:100%;object-fit:cover;}
+.gc-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border-light);margin-left:auto;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.gc-check.checked{background:var(--p1);border-color:var(--p1);color:white;}
+
+/* ══ Message Reactions ══ */
+.msg-reaction-bar{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.msg-react-badge{background:rgba(108,92,231,0.12);border:1px solid rgba(108,92,231,0.2);border-radius:12px;padding:2px 7px;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.msg-react-badge:active{transform:scale(0.9);}
+.msg-react-picker{display:none;position:absolute;background:var(--bg-card-solid);border:1px solid var(--border-light);border-radius:40px;padding:8px 12px;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,0.18);z-index:1000;bottom:calc(100% + 8px);left:0;}
+.msg-react-picker.show{display:flex;}
+.msg-react-em{font-size:22px;cursor:pointer;transition:transform 0.15s;}
+.msg-react-em:active{transform:scale(1.3);}
+
+/* ══ Report/Block Styles ══ */
+.report-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(22,18,42,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;}
+.report-overlay.show{display:flex;animation:fadeIn 0.22s;}
+.report-box{background:var(--bg-card-solid);border-radius:22px;padding:24px 20px;max-width:340px;width:100%;border:1px solid var(--border-card);}
+.report-option{padding:12px 14px;border:1.5px solid var(--border-light);border-radius:12px;margin-bottom:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-secondary);transition:all 0.2s;}
+.report-option:active{background:rgba(255,107,107,0.08);border-color:rgba(255,107,107,0.4);color:#ff6b6b;}
+
+/* ══ Profile View Count Badge ══ */
+.profile-view-count{display:inline-flex;align-items:center;gap:4px;background:rgba(108,92,231,0.1);border:1px solid rgba(108,92,231,0.2);border-radius:12px;padding:4px 10px;font-size:11px;color:var(--p1);font-weight:700;margin-top:4px;}
         .story-create-overlay{display:none;position:fixed;inset:0;background:rgba(22,18,42,0.82);z-index:5000;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px);}
         .story-create-overlay.show{display:flex;animation:fadeIn 0.22s;}
         .story-create-sheet{background:var(--bg-card-solid);border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;border:1px solid var(--border-card);box-shadow:0 -20px 60px rgba(22,18,42,0.5);animation:slideUp 0.3s ease;}
@@ -1290,6 +1326,40 @@ if (typeof twemoji === 'undefined') {
     </div>
 </div>
 
+<!-- Pull to Refresh Indicator -->
+<div id="pullRefreshIndicator">
+  <div class="ptr-spin"></div>
+  <span>রিফ্রেশ হচ্ছে...</span>
+</div>
+
+<!-- Report Overlay -->
+<div class="report-overlay" id="reportOverlay" onclick="closeReportIfOutside(event)">
+  <div class="report-box" id="reportBox">
+    <div style="font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:16px;">⚠️ রিপোর্ট করুন</div>
+    <div id="reportOptionsContainer"></div>
+    <button onclick="closeReport()" style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border-light);background:transparent;color:var(--text-muted-light);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;">বাতিল</button>
+  </div>
+</div>
+
+<!-- Group Chat Overlay -->
+<div class="group-chat-overlay" id="groupChatOverlay" onclick="closeGroupCreateIfOutside(event)">
+  <div class="group-chat-sheet" id="groupChatSheet">
+    <div class="group-chat-header">
+      <button onclick="closeGroupCreate()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--p1);padding:0;">←</button>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:800;color:var(--text-primary);">👥 গ্রুপ তৈরি করুন</div>
+        <div style="font-size:11px;color:var(--text-muted-light);">সর্বোচ্চ ১০ জন সদস্য</div>
+      </div>
+      <button onclick="confirmCreateGroup()" id="createGroupBtn" style="background:var(--grad-brand);color:white;border:none;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">তৈরি করুন</button>
+    </div>
+    <div style="padding:12px 16px 8px;border-bottom:1px solid var(--border-light);">
+      <input id="groupNameInput" placeholder="গ্রুপের নাম দিন..." style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border-light);border-radius:12px;font-size:14px;background:var(--bg-page);color:var(--text-primary);font-family:inherit;outline:none;">
+    </div>
+    <div class="group-chat-body" id="groupMemberList"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-light);font-size:12px;color:var(--p1);font-weight:700;" id="groupSelCount">০ জন নির্বাচিত</div>
+  </div>
+</div>
+
 <div id="mainApp" style="display:none">
     <div class="notification" id="notification"></div>
     <!-- ══ THEMED BANNERS ══ -->
@@ -1590,7 +1660,10 @@ if (typeof twemoji === 'undefined') {
             <div id="messages" class="tab-content">
                 <div id="msgListView">
                     <div class="msg-header-bar">
-                        <div class="msg-page-title">💬 মেসেজ</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                          <div class="msg-page-title">💬 মেসেজ</div>
+                          <button onclick="openGroupCreate()" style="background:rgba(108,92,231,0.1);border:1px solid rgba(108,92,231,0.25);color:var(--p1);padding:7px 12px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;">👥 গ্রুপ</button>
+                        </div>
                         <input type="text" id="msgSearchInput" class="msg-search-input" placeholder="🔍 নাম খুঁজুন..." oninput="filterMsgUsers(this.value)">
                     </div>
                     <div id="msgUserList" class="msg-user-list"><div class="msg-empty">লোড হচ্ছে...</div></div>
@@ -1599,15 +1672,22 @@ if (typeof twemoji === 'undefined') {
                     <div class="msg-chat-top">
                         <button class="msg-back" onclick="closeMsgChat()">←</button>
                         <div class="msg-cav" id="msgChatAv"></div>
-                        <div>
+                        <div style="flex:1;">
                             <div class="msg-cname" id="msgChatName"></div>
                             <div id="msgChatStatus" style="font-size:11px;color:var(--text-muted-light);font-weight:600;">MeetApp সদস্য</div>
                         </div>
                     </div>
                     <div class="msg-bubbles" id="msgBubbles"></div>
                     <div class="msg-input-row">
+                        <button id="voiceRecordBtn" onclick="toggleVoiceRecord()" title="ভয়েস মেসেজ" style="background:none;border:none;font-size:22px;cursor:pointer;padding:6px;flex-shrink:0;color:var(--text-muted-light);transition:color 0.2s;">🎤</button>
                         <input type="text" id="msgTextInput" class="msg-input" placeholder="মেসেজ লিখুন..." onkeydown="if(event.key==='Enter')doSendMsg()">
                         <button class="msg-send" onclick="doSendMsg()">➤</button>
+                    </div>
+                    <div id="voiceRecordingBar" style="display:none;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,0,0,0.06);border-top:1px solid rgba(255,0,0,0.15);">
+                        <div style="width:10px;height:10px;border-radius:50%;background:#ff4757;animation:auroPulse 1s infinite;flex-shrink:0;"></div>
+                        <span style="font-size:13px;color:#ff4757;font-weight:700;flex:1;" id="voiceRecordTimer">রেকর্ড হচ্ছে... ০:০০</span>
+                        <button onclick="cancelVoiceRecord()" style="background:transparent;border:none;color:var(--text-muted-light);font-size:13px;cursor:pointer;font-family:inherit;">বাতিল</button>
+                        <button onclick="sendVoiceRecord()" style="background:var(--grad-brand);border:none;color:white;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">পাঠান</button>
                     </div>
                 </div>
             </div>
@@ -1729,8 +1809,15 @@ const firebaseConfig = {
     appId:"1:585105127605:web:cc948af7e01cef8c39e6fc"
 };
 let db;
-try { firebase.initializeApp(firebaseConfig); db=firebase.database(); }
-catch(e) { console.error('Firebase init error:',e); db=null; }
+try {
+    firebase.initializeApp(firebaseConfig);
+    db=firebase.database();
+    // Offline persistence চালু করো (ইন্টারনেট না থাকলেও আগের ডেটা দেখা যাবে)
+    db.enablePersistence({ synchronizeTabs: true }).catch(err=>{
+        if(err.code==='failed-precondition') console.warn('Offline persistence: multiple tabs open');
+        else if(err.code==='unimplemented') console.warn('Offline persistence not supported');
+    });
+} catch(e) { console.error('Firebase init error:',e); db=null; }
 
 // Firebase থেকে Splash Icon load এবং sync করা
 function initSplashIconSync() {
@@ -2558,6 +2645,7 @@ function renderProfile(){
                 <div class="stat-item"><div class="stat-num">${followingList.length}</div><div class="stat-label">${t('followingLabel')}</div></div>
                 <div class="stat-item"><div class="stat-num">${followersList.length}</div><div class="stat-label">${t('followersLabel')}</div></div>
                 <div class="stat-item"><div class="stat-num">${totalLikes}</div><div class="stat-label">${t('like')}</div></div>
+                <div class="stat-item" id="profileViewStat"><div class="stat-num" id="profileViewNum">...</div><div class="stat-label">👁️ ${currentLanguage==='bn'?'ভিউ':'Views'}</div></div>
             </div>
         </div>
     </div>
@@ -2573,7 +2661,22 @@ function renderProfile(){
     <div class="my-posts-title">📌 ${currentLanguage==='bn'?'আমার পোস্টসমূহ':'My Posts'} (${myPosts.length})</div>
     <div class="photo-grid">
         ${myPosts.length===0?`<div class="empty-state" style="grid-column:1/-1"><p>${t('beFirstToPost')}</p></div>`:myPosts.map(p=>p.type==='photo'?createPhotoCard(p):p.type==='video'?createVideoCard(p):createTextCard(p)).join('')}
+    </div>
+    <div style="margin-top:20px;">
+      <div class="my-posts-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>🔖 ${currentLanguage==='bn'?'সংরক্ষিত পোস্ট':'Saved Posts'} (${bookmarks.length})</span>
+      </div>
+      <div id="bookmarkGrid" class="photo-grid"></div>
     </div>`;
+    // Profile view count load করো async
+    if(db && currentUser){
+      getProfileViewCount(currentUser.uid, function(count){
+        var el=document.getElementById('profileViewNum');
+        if(el) el.textContent=count>999?(count/1000).toFixed(1)+'k':count;
+      });
+    }
+    // Bookmarks render করো
+    setTimeout(displayBookmarks, 80);
 }
 
 function getUploaderInfo(){ if(currentUser) return {uid:currentUser.uid,uploaderName:currentUser.name||t('guestUser')}; return {uid:'guest_'+Date.now(),uploaderName:t('guestUser')}; }
@@ -3124,7 +3227,8 @@ function addReaction(id,type,emoji){ if(!currentUser){ showNotification(currentL
 function showReactionPicker(id){ const picker=document.getElementById('reactionPicker-'+id); if(!picker) return; const isOpen=picker.classList.contains('show'); document.querySelectorAll('.reaction-picker.show').forEach(p=>p.classList.remove('show')); if(!isOpen){ picker.classList.add('show'); setTimeout(()=>applyTwemoji(picker),50); } }
 function getUserReaction(item){ if(!currentUser||!item.reactedBy) return null; return item.reactedBy[currentUser.uid]||null; }
 
-function addComment(id,type){ if(!currentUser){ showNotification(currentLanguage==='bn'?'মন্তব্য করতে লগইন করুন!':'Login to comment!'); return; } const prefix=type==='video'?'v':type==='text'?'t':''; const inputId=`${prefix}commentText-${id}`; const textInput=document.getElementById(inputId); if(!textInput) return; const text=textInput.value.trim(); if(!text) return showNotification(currentLanguage==='bn'?'মন্তব্য লিখুন!':'Write a comment!'); const author=currentUser.name||t('guestUser'); const avatar=currentUser.avatar||''; let arr=type==='video'?videos:type==='photo'?photos:textPosts; let item=arr.find(x=>x.id===id); if(!item) return; if(!item.comments) item.comments=[]; const comment={author,text,date:new Date().toLocaleString(),avatar,uid:currentUser.uid}; item.comments.push(comment); textInput.value=''; const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}/comments`).set(item.comments); else displayPosts(); if(item.uid&&item.uid!==currentUser.uid) sendUserNotification(item.uid,`💬 <b>${author}</b> ${currentLanguage==='bn'?'আপনার পোস্টে মন্তব্য করেছেন':'commented on your post'}: "${text.slice(0,40)}"`, '💬',id,type); const mentionMatches=text.match(/@([a-zA-Z0-9_]+)/g); if(mentionMatches){ const notifiedUids=new Set(); mentionMatches.forEach(mention=>{ const uname=mention.slice(1).toLowerCase(); const mentionedUser=Object.values(allUsers).find(u=>(u.username||'').toLowerCase()===uname); if(mentionedUser&&mentionedUser.uid!==currentUser.uid&&!notifiedUids.has(mentionedUser.uid)){ notifiedUids.add(mentionedUser.uid); sendUserNotification(mentionedUser.uid,`🔔 <b>${author}</b> ${currentLanguage==='bn'?'আপনাকে মেনশন করেছেন':'mentioned you'}: "${text.slice(0,50)}"`, '🔔',id,type); } }); } }
+function addComment(id,type,replyTo){ if(!currentUser){ showNotification(currentLanguage==='bn'?'মন্তব্য করতে লগইন করুন!':'Login to comment!'); return; } const prefix=type==='video'?'v':type==='text'?'t':''; const inputId=replyTo!=null?`reply-input-${id}-${replyTo}`:`${prefix}commentText-${id}`; const textInput=document.getElementById(inputId); if(!textInput) return; const text=textInput.value.trim(); if(!text) return showNotification(currentLanguage==='bn'?'মন্তব্য লিখুন!':'Write a comment!'); const author=currentUser.name||t('guestUser'); const avatar=currentUser.avatar||''; let arr=type==='video'?videos:type==='photo'?photos:textPosts; let item=arr.find(x=>x.id===id); if(!item) return; if(!item.comments) item.comments=[]; const comment={author,text,date:new Date().toLocaleString(),avatar,uid:currentUser.uid,ts:Date.now(),replies:[]}; if(replyTo!=null){ if(!item.comments[replyTo]) return; if(!item.comments[replyTo].replies) item.comments[replyTo].replies=[]; item.comments[replyTo].replies.push({author,text,date:new Date().toLocaleString(),avatar,uid:currentUser.uid,ts:Date.now()}); const rb=document.getElementById(`replyBox-${id}-${replyTo}`); if(rb) rb.style.display='none'; } else { item.comments.push(comment); } textInput.value=''; const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}/comments`).set(item.comments); else displayPosts(); if(item.uid&&item.uid!==currentUser.uid) sendUserNotification(item.uid,`💬 <b>${author}</b> ${currentLanguage==='bn'?'আপনার পোস্টে মন্তব্য করেছেন':'commented on your post'}: "${text.slice(0,40)}"`, '💬',id,type); const mentionMatches=text.match(/@([a-zA-Z0-9_]+)/g); if(mentionMatches){ const notifiedUids=new Set(); mentionMatches.forEach(mention=>{ const uname=mention.slice(1).toLowerCase(); const mentionedUser=Object.values(allUsers).find(u=>(u.username||'').toLowerCase()===uname); if(mentionedUser&&mentionedUser.uid!==currentUser.uid&&!notifiedUids.has(mentionedUser.uid)){ notifiedUids.add(mentionedUser.uid); sendUserNotification(mentionedUser.uid,`🔔 <b>${author}</b> ${currentLanguage==='bn'?'আপনাকে মেনশন করেছেন':'mentioned you'}: "${text.slice(0,50)}"`, '🔔',id,type); } }); } }
+function toggleReplyBox(id, idx) { var box=document.getElementById('replyBox-'+id+'-'+idx); if(!box) return; var isVisible=box.style.display!=='none'; document.querySelectorAll('[id^="replyBox-'+id+'"]').forEach(function(b){b.style.display='none';}); if(!isVisible){box.style.display='block';var inp=box.querySelector('input');if(inp)inp.focus();} }
 
 function toggleLike(id,type){ if(!currentUser){ showNotification(currentLanguage==='bn'?'লাইক করতে লগইন করুন!':'Login to like!'); return; } const arr=type==='video'?videos:type==='photo'?photos:textPosts; const item=arr.find(x=>x.id===id); if(!item) return; if(!item.likedBy) item.likedBy={}; const uid=currentUser.uid; if(item.likedBy[uid]){ delete item.likedBy[uid]; item.likes=Math.max(0,(item.likes||1)-1); } else { item.likedBy[uid]=true; item.likes=(item.likes||0)+1; if(item.uid&&item.uid!==uid) sendUserNotification(item.uid,`👍 <b>${currentUser.name}</b> ${currentLanguage==='bn'?'আপনার পোস্টে লাইক করেছেন':'liked your post'}`,'👍',id,type); } const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}`).set(item); else displayPosts(); }
 
@@ -3134,7 +3238,7 @@ function startReactHold(id,type){ reactHoldTimer=setTimeout(()=>{ document.query
 function cancelReactHold(){ if(reactHoldTimer){clearTimeout(reactHoldTimer);reactHoldTimer=null;} }
 function reactionsDisplay(item){ const userReaction=getUserReaction(item); const entries=Object.entries(item.reactions||{}).filter(([,c])=>c>0); if(!entries.length) return ''; return `<div class="reactions-display">${entries.map(([e,c])=>`<span class="reaction-count ${userReaction===e?'mine':''}">${e} ${c}</span>`).join('')}</div>`; }
 
-function commentSection(item,type){ const prefix=type==='video'?'v':type==='text'?'t':''; const comments=(item.comments||[]).map(c=>{ const text=(c.text||'').replace(/@(\w+)/g,'<span style="color:var(--accent-violet);font-weight:600;">@$1</span>').replace(/#(\w+)/g,'<span style="color:#1877F2;font-weight:600;">#$1</span>'); const av=c.avatar?`<img src="${c.avatar}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(102,126,234,0.3);" alt="">`:`<div style="width:28px;height:28px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0;">${(c.author||'?').charAt(0).toUpperCase()}</div>`; return `<div class="comment"><div style="display:flex;align-items:flex-start;gap:8px;">${av}<div style="flex:1;"><div class="comment-author">${c.author||''}</div><div class="comment-text">${text}</div><div style="font-size:10px;color:var(--text-muted-light);margin-top:2px;">${c.date||''}</div></div></div></div>`; }).join(''); const placeholder=currentUser?(currentLanguage==='bn'?'মন্তব্য লিখুন... (@নাম #ট্যাগ)':'Comment... (@name #tag)'):(currentLanguage==='bn'?'লগইন করুন':'Login to comment'); return `<div class="comments-section"><strong>${t('comments')} (${(item.comments||[]).length})</strong><div id="commentsList-${item.id}">${comments}</div><div class="comment-form"><input type="text" class="comment-input" id="${prefix}commentText-${item.id}" placeholder="${placeholder}" ${!currentUser?'disabled':''} onkeydown="if(event.key==='Enter')addComment(${item.id},'${type}')"><button class="comment-btn" onclick="addComment(${item.id},'${type}')">${t('send')}</button></div></div>`; }
+function commentSection(item,type){ const prefix=type==='video'?'v':type==='text'?'t':''; const comments=(item.comments||[]).map(function(c,idx){ const ctext=(c.text||'').replace(/@(\w+)/g,'<span style="color:var(--accent-violet);font-weight:600;">@$1</span>').replace(/#(\w+)/g,'<span style="color:#1877F2;font-weight:600;">#$1</span>'); const av=c.avatar?`<img src="${c.avatar}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(102,126,234,0.3);" alt="">`:`<div style="width:28px;height:28px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0;">${(c.author||'?').charAt(0).toUpperCase()}</div>`; const repliesHtml=(c.replies||[]).map(function(r){const rav=r.avatar?`<img src="${r.avatar}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;" alt="">`:`<div style="width:22px;height:22px;border-radius:50%;background:var(--aurora-btn);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0;">${(r.author||'?').charAt(0)}</div>`;const rtext=(r.text||'').replace(/@(\w+)/g,'<span style="color:var(--accent-violet);font-weight:600;">@$1</span>');return `<div style="display:flex;align-items:flex-start;gap:7px;margin-top:6px;padding-left:4px;border-left:2px solid rgba(108,92,231,0.2);">${rav}<div><div style="font-size:11px;font-weight:700;color:var(--text-primary);">${r.author||''}</div><div style="font-size:12px;color:var(--text-secondary);">${rtext}</div><div style="font-size:9px;color:var(--text-muted-light);">${r.date||''}</div></div></div>`;}).join(''); const replyBox=currentUser?`<div id="replyBox-${item.id}-${idx}" style="display:none;margin-top:6px;"><div style="display:flex;gap:6px;"><input id="reply-input-${item.id}-${idx}" type="text" placeholder="${currentLanguage==='bn'?'উত্তর দিন...':'Reply...'}" onkeydown="if(event.key==='Enter')addComment(${item.id},'${type}',${idx})" style="flex:1;padding:7px 12px;border:1.5px solid var(--border-light);border-radius:20px;font-size:12px;background:var(--bg-page);color:var(--text-primary);outline:none;font-family:inherit;"><button onclick="addComment(${item.id},'${type}',${idx})" style="background:var(--grad-brand);border:none;color:white;padding:7px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">${currentLanguage==='bn'?'পাঠান':'Send'}</button></div></div>`:''; return `<div class="comment"><div style="display:flex;align-items:flex-start;gap:8px;">${av}<div style="flex:1;"><div class="comment-author">${c.author||''}</div><div class="comment-text">${ctext}</div><div style="display:flex;align-items:center;gap:8px;margin-top:3px;"><div style="font-size:10px;color:var(--text-muted-light);">${c.date||''}</div>${currentUser?`<button onclick="toggleReplyBox(${item.id},${idx})" style="background:none;border:none;font-size:11px;color:var(--p1);font-weight:700;cursor:pointer;padding:0;font-family:inherit;">↩ উত্তর</button>`:''}</div>${repliesHtml}${replyBox}</div></div></div>`; }).join(''); const placeholder=currentUser?(currentLanguage==='bn'?'মন্তব্য লিখুন... (@নাম #ট্যাগ)':'Comment... (@name #tag)'):(currentLanguage==='bn'?'লগইন করুন':'Login to comment'); return `<div class="comments-section"><strong>${t('comments')} (${(item.comments||[]).length})</strong><div id="commentsList-${item.id}">${comments}</div><div class="comment-form"><input type="text" class="comment-input" id="${prefix}commentText-${item.id}" placeholder="${placeholder}" ${!currentUser?'disabled':''} onkeydown="if(event.key==='Enter')addComment(${item.id},'${type}')"><button class="comment-btn" onclick="addComment(${item.id},'${type}')">${t('send')}</button></div></div>`; }
 
 function postActionBtns(item,type){ let html=''; if(canEdit(item)) html+=`<button class="post-action-btn edit" onclick="toggleEditForm(${item.id},'${type}')">${t('editPost')}</button>`; if(isAdmin()){ if(currentUser.uid===item.uid){ html+=`<button class="post-action-btn del" onclick="deletePost(${item.id},'${type}')">${t('deletePost')}</button>`; } else { html+=`<button class="post-action-btn del" onclick="tryAdminDelete(${item.id},'${type}')" title="Admin Delete">${currentLanguage==='bn'?'🔑 ডিলিট':'🔑 Delete'}</button>`; } } else if(canDelete(item)){ html+=`<button class="post-action-btn del" onclick="deletePost(${item.id},'${type}')">${t('deletePost')}</button>`; } return html?`<div class="post-actions">${html}</div>`:''; }
 function editForm(item,type){ return `<div class="edit-post-form" id="editForm-${item.id}"><textarea id="editCaption-${item.id}" placeholder="..."></textarea><div class="edit-btns"><button class="save-edit-btn" onclick="saveEdit(${item.id},'${type}')">${t('save')}</button><button class="cancel-edit-btn" onclick="toggleEditForm(${item.id},'${type}')">${t('saveCancel')}</button></div></div>`; }
@@ -3195,10 +3299,66 @@ function displayPosts(){
   }
   
   gallery.innerHTML = postsHtml;
+  // Infinite scroll শুরু করো
+  _postsPage = 1;
+  _allPostsForScroll = isGuest ? [] : all;
+  setTimeout(initInfiniteScroll, 100);
 }
 
 function isBookmarked(id){ return bookmarks.includes(String(id)); }
-function createPhotoCard(photo){ const bm=isBookmarked(photo.id); return `<div class="photo-card" data-id="${photo.id}">${postHeaderHtml(photo)}${postActionBtns(photo,'photo')}<div class="media-container"><img src="${photo.image}" alt="Photo"><div class="expand-overlay" onclick="openModal(${photo.id},'photo')"><div class="expand-icon">⛶</div></div></div>${editForm(photo,'photo')}<div class="photo-info">${photo.caption?`<p class="photo-caption">${photo.caption}</p>`:''}${reactionsDisplay(photo)}${reactionBar(photo,'photo')}${commentSection(photo,'photo')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${photo.id},'photo')">${bm?'🔖':'🏷️'}</button></div></div>`; }
+
+// ── Infinite Scroll ──
+var _postsPage = 1;
+var _postsPerPage = 8;
+var _allPostsForScroll = [];
+var _scrollLoading = false;
+
+function initInfiniteScroll() {
+    var gallery = document.getElementById('postsGallery');
+    if (!gallery) return;
+    // Sentinel element
+    var old = document.getElementById('scrollSentinel');
+    if (old) old.remove();
+    var sentinel = document.createElement('div');
+    sentinel.id = 'scrollSentinel';
+    sentinel.style.cssText = 'height:10px;width:100%;';
+    gallery.after(sentinel);
+    var obs = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting && !_scrollLoading) {
+            loadMorePosts();
+        }
+    }, { rootMargin: '200px' });
+    obs.observe(sentinel);
+}
+
+function loadMorePosts() {
+    if (_scrollLoading) return;
+    var nextBatch = _allPostsForScroll.slice(_postsPage * _postsPerPage, (_postsPage + 1) * _postsPerPage);
+    if (!nextBatch.length) return;
+    _scrollLoading = true;
+    _postsPage++;
+    var gallery = document.getElementById('postsGallery');
+    if (!gallery) { _scrollLoading = false; return; }
+    var loadDiv = document.createElement('div');
+    loadDiv.id = 'infScrollLoader';
+    loadDiv.style.cssText = 'text-align:center;padding:16px;color:var(--text-muted-light);font-size:13px;';
+    loadDiv.innerHTML = '<div style="display:inline-block;width:22px;height:22px;border:3px solid rgba(108,92,231,0.3);border-top-color:var(--p1);border-radius:50%;animation:spin 0.8s linear infinite;"></div>';
+    gallery.appendChild(loadDiv);
+    setTimeout(function() {
+        var old2 = document.getElementById('infScrollLoader');
+        if (old2) old2.remove();
+        var html = nextBatch.map(function(post) {
+            return post.type==='photo' ? createPhotoCard(post) : post.type==='video' ? createVideoCard(post) : createTextCard(post);
+        }).join('');
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        while(div.firstChild) gallery.appendChild(div.firstChild);
+        setTimeout(function(){ applyTwemoji(gallery); }, 100);
+        _scrollLoading = false;
+    }, 400);
+}
+
+function createPhotoCard(photo){ const bm=isBookmarked(photo.id); return `<div class="photo-card" data-id="${photo.id}">${postHeaderHtml(photo)}${postActionBtns(photo,'photo')}<div class="media-container"><img loading="lazy" src="${photo.image}" alt="Photo"><div class="expand-overlay" onclick="openModal(${photo.id},'photo')"><div class="expand-icon">⛶</div></div></div>${editForm(photo,'photo')}<div class="photo-info">${photo.caption?`<p class="photo-caption">${photo.caption}</p>`:''}${reactionsDisplay(photo)}${reactionBar(photo,'photo')}${commentSection(photo,'photo')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${photo.id},'photo')">${bm?'🔖':'🏷️'}</button></div></div>`; }
 function createVideoCard(video){ const bm=isBookmarked(video.id); return `<div class="video-card" data-id="${video.id}">${postHeaderHtml(video)}${postActionBtns(video,'video')}<div class="media-container"><video controls><source src="${video.video}" type="video/mp4"></video></div>${editForm(video,'video')}<div class="photo-info">${video.caption?`<p class="photo-caption">${video.caption}</p>`:''}${reactionsDisplay(video)}${reactionBar(video,'video')}${commentSection(video,'video')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${video.id},'video')">${bm?'🔖':'🏷️'}</button></div></div>`; }
 function createTextCard(tp){ const bm=isBookmarked(tp.id); return `<div class="text-card" data-id="${tp.id}">${postHeaderHtml(tp)}${postActionBtns(tp,'text')}<div class="text-post-content">${tp.content}</div>${editForm(tp,'text')}<div class="photo-info">${reactionsDisplay(tp)}${reactionBar(tp,'text')}${commentSection(tp,'text')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${tp.id},'text')">${bm?'🔖':'🏷️'}</button></div></div>`; }
 
@@ -5384,8 +5544,455 @@ window.addEventListener('load', function() {
 
 
 <script>
-// Photo file preview with crop
-var _croppedPhotoData = null;
+// ══════════════════════════════════════════════════════
+// 🔄 PULL TO REFRESH
+// ══════════════════════════════════════════════════════
+(function(){
+  var startY=0, pulling=false, MIN_PULL=70;
+  var indicator=null;
+  function getIndicator(){ return document.getElementById('pullRefreshIndicator'); }
+  document.addEventListener('touchstart',function(e){
+    if(window.scrollY===0) { startY=e.touches[0].clientY; pulling=true; }
+    else pulling=false;
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!pulling) return;
+    var dy=e.touches[0].clientY-startY;
+    if(dy>20){ var ind=getIndicator(); if(ind) ind.classList.add('visible'); }
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!pulling) return;
+    pulling=false;
+    var dy=(e.changedTouches[0]?e.changedTouches[0].clientY:0)-startY;
+    var ind=getIndicator();
+    if(dy>MIN_PULL){
+      if(ind){ind.classList.add('refreshing');ind.querySelector('span').textContent='রিফ্রেশ হচ্ছে...';}
+      // Refresh posts
+      setTimeout(function(){
+        if(typeof initFirebaseListeners==='function') initFirebaseListeners();
+        else if(typeof displayPosts==='function') displayPosts();
+        showNotification('✅ রিফ্রেশ হয়েছে!');
+        if(ind){ind.classList.remove('visible','refreshing');ind.querySelector('span').textContent='রিফ্রেশ হচ্ছে...';}
+      }, 1200);
+    } else {
+      if(ind) ind.classList.remove('visible','refreshing');
+    }
+  },{passive:true});
+})();
+
+// ══════════════════════════════════════════════════════
+// 🎤 VOICE MESSAGE SYSTEM
+// ══════════════════════════════════════════════════════
+var _mediaRecorder=null, _audioChunks=[], _voiceTimerInterval=null, _voiceSeconds=0;
+
+function toggleVoiceRecord(){
+  if(_mediaRecorder && _mediaRecorder.state==='recording'){
+    sendVoiceRecord();
+  } else {
+    startVoiceRecord();
+  }
+}
+
+function startVoiceRecord(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    showNotification(currentLanguage==='bn'?'❌ আপনার ব্রাউজার ভয়েস মেসেজ সাপোর্ট করে না!':'❌ Voice not supported!');
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    _audioChunks=[];
+    _mediaRecorder=new MediaRecorder(stream);
+    _mediaRecorder.ondataavailable=function(e){ if(e.data.size>0) _audioChunks.push(e.data); };
+    _mediaRecorder.start();
+    // UI
+    var bar=document.getElementById('voiceRecordingBar');
+    var btn=document.getElementById('voiceRecordBtn');
+    if(bar) bar.style.display='flex';
+    if(btn){btn.style.color='#ff4757';btn.textContent='⏹';}
+    // Timer
+    _voiceSeconds=0;
+    _voiceTimerInterval=setInterval(function(){
+      _voiceSeconds++;
+      var m=Math.floor(_voiceSeconds/60), s=_voiceSeconds%60;
+      var timerEl=document.getElementById('voiceRecordTimer');
+      if(timerEl) timerEl.textContent='রেকর্ড হচ্ছে... '+m+':'+(s<10?'0':'')+s;
+      if(_voiceSeconds>=120) sendVoiceRecord(); // max 2 min
+    },1000);
+  }).catch(function(err){
+    showNotification(currentLanguage==='bn'?'❌ মাইক্রোফোনের অনুমতি দিন!':'❌ Microphone permission needed!');
+  });
+}
+
+function cancelVoiceRecord(){
+  if(_mediaRecorder){_mediaRecorder.stop();_mediaRecorder.stream.getTracks().forEach(function(t){t.stop();});}
+  clearInterval(_voiceTimerInterval);
+  var bar=document.getElementById('voiceRecordingBar');
+  var btn=document.getElementById('voiceRecordBtn');
+  if(bar) bar.style.display='none';
+  if(btn){btn.style.color='';btn.textContent='🎤';}
+  _audioChunks=[];
+}
+
+function sendVoiceRecord(){
+  if(!_mediaRecorder) return;
+  clearInterval(_voiceTimerInterval);
+  _mediaRecorder.stop();
+  _mediaRecorder.stream.getTracks().forEach(function(t){t.stop();});
+  var bar=document.getElementById('voiceRecordingBar');
+  var btn=document.getElementById('voiceRecordBtn');
+  if(bar) bar.style.display='none';
+  if(btn){btn.style.color='';btn.textContent='🎤';}
+  _mediaRecorder.onstop=function(){
+    var blob=new Blob(_audioChunks,{type:'audio/webm'});
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var audioData=e.target.result;
+      if(!_msgActiveUid||!currentUser||!db) return;
+      db.ref('messages/'+getChatId(currentUser.uid,_msgActiveUid)).push({
+        voiceData:audioData, senderUid:currentUser.uid,
+        senderName:currentUser.name||'', ts:Date.now(), isVoice:true
+      });
+      // Alarm
+      if(allUsers[_msgActiveUid]) triggerMessageAlarm(_msgActiveUid,currentUser.name||'কেউ','🎤 ভয়েস মেসেজ');
+    };
+    reader.readAsDataURL(blob);
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// 💬 MESSAGE REACTIONS
+// ══════════════════════════════════════════════════════
+var _msgReactEmojis=['❤️','😂','😮','👍','😢','🔥'];
+var _msgReactOpenKey=null;
+
+function openMsgReactPicker(msgKey, isOwn){
+  _msgReactOpenKey=msgKey;
+  document.querySelectorAll('.msg-react-picker').forEach(function(p){p.classList.remove('show');});
+  var picker=document.getElementById('msgReactPicker-'+msgKey);
+  if(picker) picker.classList.add('show');
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.msg-react-picker')&&!e.target.closest('.msg-bubble-wrap')) {
+    document.querySelectorAll('.msg-react-picker').forEach(function(p){p.classList.remove('show');});
+  }
+});
+
+function addMsgReaction(msgKey, emoji, chatId){
+  if(!currentUser||!db) return;
+  db.ref('messages/'+chatId+'/'+msgKey+'/reactions/'+currentUser.uid).set(emoji);
+  document.querySelectorAll('.msg-react-picker').forEach(function(p){p.classList.remove('show');});
+}
+
+// ── Patch openMsgChat to render voice + reactions ──
+(function(){
+  var _origOMC = openMsgChat;
+  openMsgChat = function(uid, userObj) {
+    _origOMC.apply(this, arguments);
+    // re-patch the firebase listener to handle voice + reactions
+    var chatId = getChatId(currentUser.uid, uid);
+    if(_msgChatRef) _msgChatRef.off();
+    _msgChatRef = db.ref('messages/'+chatId);
+    var bubblesEl = document.getElementById('msgBubbles');
+    function markRead(snap){ if(!snap.exists()) return; var upd={}; snap.forEach(function(m){var msg=m.val();if(msg.senderUid!==currentUser.uid&&!msg.read) upd[m.key+'/read']=true;}); if(Object.keys(upd).length) db.ref('messages/'+chatId).update(upd); }
+    _msgChatRef.on('value', function(snap){
+      bubblesEl.innerHTML='';
+      if(!snap.exists()){bubblesEl.innerHTML='<div class="msg-empty">💬 প্রথম মেসেজ পাঠান!</div>';return;}
+      markRead(snap);
+      var lastDate='';
+      snap.forEach(function(m){
+        var msg=m.val(); var msgKey=m.key;
+        var isSent=msg.senderUid===currentUser.uid;
+        var d=new Date(msg.ts||Date.now());
+        var dateStr=d.toLocaleDateString('bn-BD',{day:'numeric',month:'long'});
+        if(dateStr!==lastDate){
+          var sep=document.createElement('div');sep.className='msg-date-sep';sep.textContent=dateStr;bubblesEl.appendChild(sep);lastDate=dateStr;
+        }
+        var wrap=document.createElement('div');
+        wrap.className='msg-bubble-wrap '+(isSent?'sent':'recv');
+        wrap.style.cssText='position:relative;display:flex;flex-direction:column;align-items:'+(isSent?'flex-end':'flex-start')+';margin-bottom:4px;';
+        var bubble=document.createElement('div');
+        bubble.className='msg-bubble '+(isSent?'sent':'recv');
+        if(!isSent&&!msg.read) bubble.classList.add('msg-unread');
+        var timeStr=d.toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit',hour12:true});
+        // Voice or text?
+        if(msg.isVoice&&msg.voiceData){
+          bubble.innerHTML='<audio controls style="max-width:180px;height:36px;"><source src="'+msg.voiceData+'" type="audio/webm"></audio><div class="msg-btime">'+timeStr+(isSent?' <span class="msg-tick">'+(msg.read?'✓✓':'✓')+'</span>':'')+'</div>';
+        } else {
+          bubble.innerHTML=escMsg(msg.text||'')+'<div class="msg-btime">'+timeStr+(isSent?' <span class="msg-tick">'+(msg.read?'✓✓':'✓')+'</span>':'')+'</div>';
+        }
+        // Reaction picker (long press / double tap)
+        var picker=document.createElement('div');
+        picker.className='msg-react-picker';
+        picker.id='msgReactPicker-'+msgKey;
+        picker.innerHTML=_msgReactEmojis.map(function(e){return '<span class="msg-react-em" onclick="addMsgReaction(\''+msgKey+'\',\''+e+'\',\''+chatId+'\')">'+e+'</span>';}).join('');
+        bubble.appendChild(picker);
+        // Long press to open reaction picker
+        var pressTimer=null;
+        bubble.addEventListener('touchstart',function(){pressTimer=setTimeout(function(){openMsgReactPicker(msgKey,isSent);},500);},{passive:true});
+        bubble.addEventListener('touchend',function(){clearTimeout(pressTimer);},{passive:true});
+        bubble.addEventListener('contextmenu',function(e){e.preventDefault();openMsgReactPicker(msgKey,isSent);});
+        wrap.appendChild(bubble);
+        // Show reactions
+        if(msg.reactions){
+          var reactBar=document.createElement('div');
+          reactBar.className='msg-reaction-bar';
+          var reactionCounts={};
+          Object.values(msg.reactions).forEach(function(e){reactionCounts[e]=(reactionCounts[e]||0)+1;});
+          Object.entries(reactionCounts).forEach(function(entry){
+            var badge=document.createElement('span');
+            badge.className='msg-react-badge';
+            badge.textContent=entry[0]+' '+entry[1];
+            reactBar.appendChild(badge);
+          });
+          wrap.appendChild(reactBar);
+        }
+        bubblesEl.appendChild(wrap);
+      });
+      bubblesEl.scrollTop=bubblesEl.scrollHeight;
+    });
+  };
+})();
+
+// ══════════════════════════════════════════════════════
+// 👥 GROUP CHAT SYSTEM (max 10 members)
+// ══════════════════════════════════════════════════════
+var _groupSelectedMembers={};
+
+function openGroupCreate(){
+  if(!currentUser){showNotification(currentLanguage==='bn'?'লগইন করুন!':'Login!');return;}
+  _groupSelectedMembers={};
+  document.getElementById('groupNameInput').value='';
+  document.getElementById('groupSelCount').textContent='০ জন নির্বাচিত';
+  // Load friends
+  var list=document.getElementById('groupMemberList');
+  list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-muted-light);">লোড হচ্ছে...</div>';
+  document.getElementById('groupChatOverlay').classList.add('show');
+  db.ref('friends/'+currentUser.uid).once('value',function(snap){
+    var friendUids=snap.exists()?Object.keys(snap.val()):[];
+    if(!friendUids.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-muted-light);">বন্ধু যোগ করুন প্রথমে</div>';return;}
+    list.innerHTML=friendUids.map(function(uid){
+      var u=allUsers[uid]||{uid:uid,name:'ব্যবহারকারী'};
+      var av=u.avatar?'<img src="'+u.avatar+'">':(u.name||'?').charAt(0).toUpperCase();
+      return '<div class="gc-member-item" id="gcItem-'+uid+'" onclick="toggleGroupMember(\''+uid+'\')">'+'<div class="gc-av">'+av+'</div>'+'<div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text-primary);">'+( u.name||'ব্যবহারকারী')+'</div><div style="font-size:11px;color:var(--text-muted-light);">@'+(u.username||'')+'</div></div>'+'<div class="gc-check" id="gcCheck-'+uid+'"></div>'+'</div>';
+    }).join('');
+  });
+}
+
+function toggleGroupMember(uid){
+  if(_groupSelectedMembers[uid]){
+    delete _groupSelectedMembers[uid];
+    var chk=document.getElementById('gcCheck-'+uid);
+    if(chk){chk.classList.remove('checked');chk.textContent='';}
+  } else {
+    if(Object.keys(_groupSelectedMembers).length>=9){
+      showNotification(currentLanguage==='bn'?'❌ সর্বোচ্চ ১০ জন (আপনি সহ)':'❌ Max 10 members including you');return;
+    }
+    _groupSelectedMembers[uid]=true;
+    var chk=document.getElementById('gcCheck-'+uid);
+    if(chk){chk.classList.add('checked');chk.textContent='✓';}
+  }
+  var count=Object.keys(_groupSelectedMembers).length;
+  document.getElementById('groupSelCount').textContent=count+'জন নির্বাচিত (আপনি সহ '+(count+1)+'জন)';
+}
+
+function closeGroupCreate(){document.getElementById('groupChatOverlay').classList.remove('show');}
+function closeGroupCreateIfOutside(e){if(e.target===document.getElementById('groupChatOverlay'))closeGroupCreate();}
+
+function confirmCreateGroup(){
+  var name=(document.getElementById('groupNameInput').value||'').trim();
+  if(!name){showNotification(currentLanguage==='bn'?'❌ গ্রুপের নাম দিন!':'❌ Enter group name!');return;}
+  var members=Object.keys(_groupSelectedMembers);
+  if(!members.length){showNotification(currentLanguage==='bn'?'❌ কমপক্ষে একজন সদস্য বাছুন!':'❌ Select at least 1 member!');return;}
+  if(!db||!currentUser) return;
+  var groupId='group_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  var memberMap={};
+  memberMap[currentUser.uid]=true;
+  members.forEach(function(uid){memberMap[uid]=true;});
+  var groupData={id:groupId,name:name,createdBy:currentUser.uid,createdAt:Date.now(),members:memberMap,avatar:''};
+  db.ref('groupChats/'+groupId).set(groupData).then(function(){
+    closeGroupCreate();
+    showNotification('🎉 গ্রুপ তৈরি হয়েছে: '+name);
+    openGroupChat(groupId,groupData);
+    // Notify members
+    members.forEach(function(uid){
+      triggerMessageAlarm(uid,currentUser.name||'কেউ',name+' গ্রুপে আপনাকে যোগ করা হয়েছে');
+    });
+  });
+}
+
+function openGroupChat(groupId, groupData){
+  // Switch to messages tab
+  document.querySelectorAll('.bn-item').forEach(function(b){b.classList.remove('active');});
+  var msgBtn=document.getElementById('bnMessages');if(msgBtn) msgBtn.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active');});
+  document.getElementById('messages').classList.add('active');
+  // Show chat UI
+  var u=groupData||{name:'গ্রুপ'};
+  document.getElementById('msgChatAv').textContent='👥';
+  document.getElementById('msgChatName').textContent=u.name||'গ্রুপ';
+  var statusEl=document.getElementById('msgChatStatus');
+  if(statusEl){var cnt=Object.keys(u.members||{}).length;statusEl.textContent=cnt+'জন সদস্য';}
+  document.getElementById('msgListView').style.display='none';
+  document.getElementById('msgChatView').style.display='flex';
+  document.getElementById('msgChatView').style.flexDirection='column';
+  _msgActiveUid=null;
+  var _activeGroupId=groupId;
+  // Save in closure for send
+  window._activeGroupId=groupId;
+  if(_msgChatRef){_msgChatRef.off();_msgChatRef=null;}
+  var bubblesEl=document.getElementById('msgBubbles');
+  bubblesEl.innerHTML='';
+  _msgChatRef=db.ref('groupMessages/'+groupId);
+  _msgChatRef.on('value',function(snap){
+    bubblesEl.innerHTML='';
+    if(!snap.exists()){bubblesEl.innerHTML='<div class="msg-empty">👥 গ্রুপ চ্যাট শুরু করুন!</div>';return;}
+    var lastDate='';
+    snap.forEach(function(m){
+      var msg=m.val(); var isSent=msg.senderUid===currentUser.uid;
+      var d=new Date(msg.ts||Date.now());
+      var dateStr=d.toLocaleDateString('bn-BD',{day:'numeric',month:'long'});
+      if(dateStr!==lastDate){var sep=document.createElement('div');sep.className='msg-date-sep';sep.textContent=dateStr;bubblesEl.appendChild(sep);lastDate=dateStr;}
+      var bubble=document.createElement('div');
+      bubble.className='msg-bubble '+(isSent?'sent':'recv');
+      var timeStr=d.toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit',hour12:true});
+      if(!isSent){
+        bubble.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--p1);margin-bottom:3px;">'+(msg.senderName||'')+'</div>'+escMsg(msg.text||'')+'<div class="msg-btime">'+timeStr+'</div>';
+      } else {
+        bubble.innerHTML=escMsg(msg.text||'')+'<div class="msg-btime">'+timeStr+'</div>';
+      }
+      bubblesEl.appendChild(bubble);
+    });
+    bubblesEl.scrollTop=bubblesEl.scrollHeight;
+  });
+  // Patch send button for group
+  var sendBtn=document.querySelector('.msg-send');
+  var inp=document.getElementById('msgTextInput');
+  if(sendBtn) sendBtn.onclick=function(){doSendGroupMsg(groupId);};
+  if(inp) inp.onkeydown=function(e){if(e.key==='Enter') doSendGroupMsg(groupId);};
+}
+
+function doSendGroupMsg(groupId){
+  var inp=document.getElementById('msgTextInput');
+  var text=(inp.value||'').trim();
+  if(!text||!currentUser||!db) return;
+  inp.value='';
+  db.ref('groupMessages/'+groupId).push({
+    text:text,senderUid:currentUser.uid,senderName:currentUser.name||'',ts:Date.now()
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// 👤 PROFILE VIEW COUNT
+// ══════════════════════════════════════════════════════
+function trackProfileView(targetUid){
+  if(!db||!targetUid) return;
+  if(currentUser&&targetUid===currentUser.uid) return; // নিজের প্রোফাইল count না
+  db.ref('profileViews/'+targetUid+'/count').transaction(function(count){ return (count||0)+1; });
+}
+
+function getProfileViewCount(targetUid, callback){
+  if(!db||!targetUid){callback(0);return;}
+  db.ref('profileViews/'+targetUid+'/count').once('value',function(snap){
+    callback(snap.exists()?snap.val():0);
+  });
+}
+
+// Patch viewUserProfile to track views
+(function(){
+  var _orig=viewUserProfile;
+  viewUserProfile=function(uid){
+    _orig.apply(this,arguments);
+    trackProfileView(uid);
+  };
+})();
+
+// ══════════════════════════════════════════════════════
+// 🚨 REPORT / BLOCK USER
+// ══════════════════════════════════════════════════════
+var _reportTargetUid=null, _reportTargetName='';
+var _blockedUsers=JSON.parse(localStorage.getItem('meetapp_blocked')||'[]');
+
+var _reportReasons=[
+  {bn:'স্প্যাম বা বিজ্ঞাপন',en:'Spam or advertising'},
+  {bn:'অশ্লীল বা যৌন বিষয়বস্তু',en:'Nudity or sexual content'},
+  {bn:'হয়রানি বা বুলিং',en:'Harassment or bullying'},
+  {bn:'ভুয়া অ্যাকাউন্ট',en:'Fake account'},
+  {bn:'সহিংসতা বা বিপজ্জনক কন্টেন্ট',en:'Violence or dangerous content'},
+  {bn:'অন্য কারণ',en:'Other reason'},
+];
+
+function openReportModal(uid, name){
+  _reportTargetUid=uid; _reportTargetName=name||'';
+  var container=document.getElementById('reportOptionsContainer');
+  var isBn=currentLanguage==='bn';
+  container.innerHTML=_reportReasons.map(function(r,i){
+    return '<div class="report-option" onclick="submitReport('+i+')">'+( isBn?r.bn:r.en)+'</div>';
+  }).join('');
+  // Block option
+  var isBlocked=_blockedUsers.includes(uid);
+  container.innerHTML+='<div class="report-option" style="color:#ff6b6b;border-color:rgba(255,107,107,0.3);" onclick="toggleBlockUser(\''+uid+'\')">'+( isBlocked?(isBn?'🔓 ব্লক সরান':'🔓 Unblock'):(isBn?'🚫 ব্লক করুন':'🚫 Block user'))+'</div>';
+  document.getElementById('reportOverlay').classList.add('show');
+}
+
+function closeReport(){document.getElementById('reportOverlay').classList.remove('show');_reportTargetUid=null;}
+function closeReportIfOutside(e){if(e.target===document.getElementById('reportOverlay'))closeReport();}
+
+function submitReport(reasonIdx){
+  if(!_reportTargetUid||!currentUser){closeReport();return;}
+  var reason=_reportReasons[reasonIdx];
+  var isBn=currentLanguage==='bn';
+  if(db){
+    db.ref('reports').push({
+      reporterUid:currentUser.uid,reporterName:currentUser.name||'',
+      targetUid:_reportTargetUid,targetName:_reportTargetName,
+      reason:reason.en,reasonBn:reason.bn,ts:Date.now(),status:'pending'
+    });
+  }
+  closeReport();
+  showNotification(isBn?'✅ রিপোর্ট পাঠানো হয়েছে। Admin পর্যালোচনা করবে।':'✅ Report submitted. Admin will review.');
+}
+
+function toggleBlockUser(uid){
+  closeReport();
+  var isBn=currentLanguage==='bn';
+  if(_blockedUsers.includes(uid)){
+    _blockedUsers=_blockedUsers.filter(function(u){return u!==uid;});
+    showNotification(isBn?'🔓 ব্লক সরানো হয়েছে':'🔓 Unblocked');
+  } else {
+    _blockedUsers.push(uid);
+    showNotification(isBn?'🚫 ব্লক করা হয়েছে! তার পোস্ট আর দেখা যাবে না।':'🚫 Blocked! Their posts will be hidden.');
+  }
+  localStorage.setItem('meetapp_blocked',JSON.stringify(_blockedUsers));
+  displayPosts();
+}
+
+function isBlockedUser(uid){ return _blockedUsers.includes(uid); }
+
+// Patch canSeeUser to respect blocks
+(function(){
+  var _origCSU=canSeeUser;
+  canSeeUser=function(uid){
+    if(isBlockedUser(uid)) return false;
+    return _origCSU.apply(this,arguments);
+  };
+})();
+
+// ══════════════════════════════════════════════════════
+// Report button যোগ করা postActionBtns তে
+// ══════════════════════════════════════════════════════
+(function(){
+  var _orig=postActionBtns;
+  postActionBtns=function(item,type){
+    var html=_orig.apply(this,arguments)||'';
+    // নিজের পোস্টে report দেখাবো না
+    if(currentUser&&item.uid===currentUser.uid) return html;
+    var poster=allUsers[item.uid]||{};
+    html+='<button onclick="openReportModal(\''+item.uid+'\',\''+(poster.name||'').replace(/'/g,'')+'\')" style="position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:var(--text-muted-light);font-size:14px;padding:4px;z-index:5;" title="রিপোর্ট">⋮</button>';
+    return html;
+  };
+})();
+
+
 
 window.previewPhotoBeforeUpload = function(input){
     if(!input.files||!input.files[0]) return;
