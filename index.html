@@ -1332,6 +1332,11 @@ if (typeof twemoji === 'undefined') {
   <span>রিফ্রেশ হচ্ছে...</span>
 </div>
 
+<!-- Offline Indicator -->
+<div id="offlineIndicator" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:rgba(30,20,50,0.92);color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;font-family:'DM Sans','SolaimanLipi',sans-serif;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);">
+  <span>📡</span><span>ইন্টারনেট সংযোগ নেই</span>
+</div>
+
 <!-- Report Overlay -->
 <div class="report-overlay" id="reportOverlay" onclick="closeReportIfOutside(event)">
   <div class="report-box" id="reportBox">
@@ -1812,10 +1817,12 @@ let db;
 try {
     firebase.initializeApp(firebaseConfig);
     db=firebase.database();
-    // Offline persistence চালু করো (ইন্টারনেট না থাকলেও আগের ডেটা দেখা যাবে)
-    db.enablePersistence({ synchronizeTabs: true }).catch(err=>{
-        if(err.code==='failed-precondition') console.warn('Offline persistence: multiple tabs open');
-        else if(err.code==='unimplemented') console.warn('Offline persistence not supported');
+    // Realtime DB offline: ডেটা auto-cache হয়, reconnect হলে sync হবে
+    // Connection status track করো
+    db.ref('.info/connected').on('value', function(snap){
+        var isOnline = snap.val() === true;
+        var indicator = document.getElementById('offlineIndicator');
+        if(indicator) indicator.style.display = isOnline ? 'none' : 'flex';
     });
 } catch(e) { console.error('Firebase init error:',e); db=null; }
 
