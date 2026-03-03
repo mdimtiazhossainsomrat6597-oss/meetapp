@@ -1681,6 +1681,10 @@ if (typeof twemoji === 'undefined') {
                             <div class="msg-cname" id="msgChatName"></div>
                             <div id="msgChatStatus" style="font-size:11px;color:var(--text-muted-light);font-weight:600;">MeetApp সদস্য</div>
                         </div>
+                        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+                          <button onclick="if(window._activeChatUid)startAudioCall('call-'+window._activeChatUid)" title="Audio Call" style="background:rgba(76,175,80,0.15);border:1px solid rgba(76,175,80,0.3);color:#4CAF50;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">📞</button>
+                          <button onclick="if(window._activeChatUid)startCall('call-'+window._activeChatUid)" title="Video Call" style="background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);color:#6c63ff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">📹</button>
+                        </div>
                     </div>
                     <div class="msg-bubbles" id="msgBubbles"></div>
                     <div class="msg-input-row">
@@ -4861,6 +4865,7 @@ function openMsgChatByUid(uid) {
 }
 
 function openMsgChat(uid, userObj) {
+    window._activeChatUid = uid; // call বাটনের জন্য
     _msgActiveUid = uid;
     var u = userObj || allUsers[uid] || {};
     var avInner = u.avatar || u.photoURL ? '<img src="' + (u.avatar || u.photoURL) + '" style="width:100%;height:100%;object-fit:cover;">' : (u.name || u.displayName || '?').charAt(0).toUpperCase();
@@ -6303,8 +6308,558 @@ window.rechosePhoto = function(){
     _croppedPhotoData = null;
     var previewWrap = document.getElementById('photoPreviewWrap');
     if(previewWrap) previewWrap.style.display = 'none';
-    // Reopen file picker - use stored original or pick new
     document.getElementById('photoFile').click();
+};
+</script>
+
+<!-- ════════════════════════════════════════════════════════
+     📞 AGORA VIDEO / AUDIO CALL — MeetApp Integration
+     ════════════════════════════════════════════════════════ -->
+<script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+
+<style>
+@keyframes callPulse {
+  0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(108,99,255,0.5); }
+  50%      { transform: scale(1.06); box-shadow: 0 0 0 18px rgba(108,99,255,0); }
+}
+@keyframes callRing {
+  0%,100% { transform: rotate(0deg); }
+  20%     { transform: rotate(-15deg); }
+  40%     { transform: rotate(15deg); }
+  60%     { transform: rotate(-10deg); }
+  80%     { transform: rotate(10deg); }
+}
+.call-avatar-pulse { animation: callPulse 1.8s ease-in-out infinite; }
+.call-ring-icon    { animation: callRing 1.2s ease-in-out infinite; display:inline-block; }
+</style>
+
+<!-- ── Call Screen ── -->
+<div id="callOverlay" style="display:none;position:fixed;inset:0;background:linear-gradient(160deg,#0d0d1a 0%,#1a1a2e 100%);z-index:99999;flex-direction:column;align-items:center;justify-content:space-between;">
+
+  <!-- Top Bar -->
+  <div style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;">
+    <span id="callTypeLabel" style="color:#aaa;font-size:13px;font-weight:600;letter-spacing:1px;"></span>
+    <span id="callUserCount" style="color:#6c63ff;font-weight:bold;font-size:14px;"></span>
+  </div>
+
+  <!-- Main Area: Avatar + Status (audio) OR Video Grid -->
+  <div id="callMainArea" style="flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;padding:0 12px;"></div>
+
+  <!-- Incoming Call Banner -->
+  <div id="incomingCallBanner" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#0d0d1a,#1a1a2e);z-index:100001;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px 50px;">
+    <div style="text-align:center;">
+      <div id="incomingCallerAvatar" style="width:110px;height:110px;border-radius:50%;margin:0 auto 18px;background:linear-gradient(135deg,#6c63ff,#48bfe3);display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:800;color:white;border:3px solid rgba(108,99,255,0.5);" class="call-avatar-pulse"></div>
+      <div id="incomingCallerName" style="color:white;font-size:22px;font-weight:800;margin-bottom:6px;"></div>
+      <div id="incomingCallType" style="color:#aaa;font-size:14px;margin-bottom:4px;"></div>
+      <div style="color:#6c63ff;font-size:13px;"><span class="call-ring-icon">🔔</span> রিং হচ্ছে...</div>
+    </div>
+    <div style="display:flex;gap:40px;justify-content:center;">
+      <div style="text-align:center;">
+        <button onclick="rejectIncomingCall()" style="width:68px;height:68px;border-radius:50%;background:#f44336;border:none;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(244,67,54,0.4);">📵</button>
+        <div style="color:#aaa;font-size:12px;margin-top:8px;">কাটুন</div>
+      </div>
+      <div style="text-align:center;">
+        <button onclick="acceptIncomingCall()" style="width:68px;height:68px;border-radius:50%;background:#4CAF50;border:none;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(76,175,80,0.4);">📞</button>
+        <div style="color:#aaa;font-size:12px;margin-top:8px;">ধরুন</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div style="width:100%;padding:20px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);">
+    <div style="text-align:center;">
+      <button onclick="callToggleMic()" id="callMicBtn" style="width:56px;height:56px;border-radius:50%;background:#2a2a3e;color:white;border:1px solid #444;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;">🎤</button>
+      <div style="color:#aaa;font-size:11px;margin-top:5px;" id="callMicLbl">Mic</div>
+    </div>
+    <div style="text-align:center;">
+      <button onclick="callToggleVideo()" id="callVideoBtn" style="width:56px;height:56px;border-radius:50%;background:#2a2a3e;color:white;border:1px solid #444;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;">📹</button>
+      <div style="color:#aaa;font-size:11px;margin-top:5px;" id="callVideoLbl">Video</div>
+    </div>
+    <div style="text-align:center;">
+      <button onclick="callSwitchCamera()" style="width:56px;height:56px;border-radius:50%;background:#2a2a3e;color:white;border:1px solid #444;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;">🔄</button>
+      <div style="color:#aaa;font-size:11px;margin-top:5px;">Camera</div>
+    </div>
+    <div style="text-align:center;">
+      <button onclick="endCall()" style="width:56px;height:56px;border-radius:50%;background:#f44336;color:white;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 16px rgba(244,67,54,0.4);">📴</button>
+      <div style="color:#aaa;font-size:11px;margin-top:5px;">শেষ করুন</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var AGORA_APP_ID = "c400242f952d4273a8dcfe989b300a6b";
+
+var _agoraClient = null;
+var _localAudioTrack = null;
+var _localVideoTrack = null;
+var _callMuted = false;
+var _callVideoOff = false;
+var _currentCallChannel = null;
+var _incomingCallData = null;
+var _callTimerInterval = null;
+var _callSeconds = 0;
+var _callTargetUser = null; // যাকে call করা হচ্ছে তার data
+
+// ── Call duration timer ──
+function _startCallTimer() {
+  _callSeconds = 0;
+  clearInterval(_callTimerInterval);
+  _callTimerInterval = setInterval(function() {
+    _callSeconds++;
+    var m = Math.floor(_callSeconds/60), s = _callSeconds%60;
+    var el = document.getElementById('callStatusText');
+    if (el) el.textContent = '🟢 ' + (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s);
+  }, 1000);
+}
+function _stopCallTimer() { clearInterval(_callTimerInterval); _callTimerInterval = null; }
+
+// ── Avatar HTML তৈরি ──
+function _avatarHtml(user, size) {
+  size = size || 100;
+  if (user && user.avatar && !(user.avatarLocked && user.username !== 'imtiaz')) {
+    return '<img src="'+user.avatar+'" style="width:'+size+'px;height:'+size+'px;border-radius:50%;object-fit:cover;border:3px solid rgba(108,99,255,0.6);">';
+  }
+  var name = (user && user.name) ? user.name : '?';
+  return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#48bfe3);display:flex;align-items:center;justify-content:center;font-size:'+(size*0.38)+'px;font-weight:800;color:white;border:3px solid rgba(108,99,255,0.6);">'+name.charAt(0).toUpperCase()+'</div>';
+}
+
+// ── Audio call screen (profile picture দেখাও) ──
+function _showAudioScreen(targetUser, statusText) {
+  var area = document.getElementById('callMainArea');
+  var selfUser = currentUser || {};
+  var targetName = (targetUser && targetUser.name) ? targetUser.name : 'ব্যবহারকারী';
+  area.innerHTML =
+    '<div style="text-align:center;">' +
+      '<div style="margin-bottom:20px;" class="call-avatar-pulse">' + _avatarHtml(targetUser, 110) + '</div>' +
+      '<div style="color:white;font-size:20px;font-weight:800;margin-bottom:8px;">' + targetName + '</div>' +
+      '<div id="callStatusText" style="color:#aaa;font-size:14px;margin-bottom:24px;">' + (statusText||'📞 কল করা হচ্ছে...') + '</div>' +
+    '</div>' +
+    // নিজের ছোট avatar
+    '<div style="margin-top:10px;opacity:0.7;">' + _avatarHtml(selfUser, 48) + '</div>';
+}
+
+// ── Video box তৈরি ──
+function _makeVideoBox(uid, isSelf, userObj) {
+  var box = document.createElement('div');
+  box.id = 'vbox-' + uid;
+  box.style.cssText = 'position:relative;height:200px;background:#1a1a2e;border-radius:14px;overflow:hidden;border:2px solid '+(isSelf?'#6c63ff':'#333')+';';
+  var inner = document.createElement('div');
+  inner.id = 'vinner-' + uid;
+  inner.style.cssText = 'width:100%;height:100%;';
+  // Avatar placeholder (video চালু না হলে দেখাবে)
+  var avHolder = document.createElement('div');
+  avHolder.id = 'vav-' + uid;
+  avHolder.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#1a1a2e;';
+  var u = isSelf ? (currentUser||{}) : (userObj || {name:'User'});
+  avHolder.innerHTML = _avatarHtml(u, 72);
+  var label = document.createElement('span');
+  label.style.cssText = 'position:absolute;bottom:8px;left:10px;background:rgba(0,0,0,0.65);color:white;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;';
+  label.textContent = isSelf ? (currentUser&&currentUser.name?currentUser.name:'আপনি') : (u.name||'User');
+  box.appendChild(avHolder);
+  box.appendChild(inner);
+  box.appendChild(label);
+  return box;
+}
+
+function _hideVideoAvatar(uid) {
+  var el = document.getElementById('vav-' + uid);
+  if (el) el.style.display = 'none';
+}
+
+function _updateCallInfo(isAudio) {
+  var grid = document.getElementById('callMainArea');
+  var count = _agoraClient ? (_agoraClient.remoteUsers.length + 1) : 1;
+  document.getElementById('callUserCount').textContent = '👥 ' + count + ' জন';
+}
+
+// ── Call শুরু ──
+async function startCall(channelName, targetUid, isAudioOnly) {
+  if (!AGORA_APP_ID || AGORA_APP_ID === 'এখানে_AGORA_APP_ID_দিন') {
+    alert('❌ Agora APP_ID সেট করুন!'); return;
+  }
+  _currentCallChannel = channelName || 'room-' + Date.now();
+  _callVideoOff = !!isAudioOnly;
+
+  // Target user এর data নাও
+  _callTargetUser = null;
+  if (targetUid && typeof allUsers !== 'undefined' && allUsers[targetUid]) {
+    _callTargetUser = allUsers[targetUid];
+  } else if (window._activeChatUid && typeof allUsers !== 'undefined') {
+    _callTargetUser = allUsers[window._activeChatUid] || null;
+  }
+
+  // Firebase-এ call notification
+  if (db && currentUser) {
+    db.ref('activeCalls/' + _currentCallChannel).set({
+      callerUid: currentUser.uid,
+      callerName: currentUser.name || 'কেউ',
+      callerAvatar: currentUser.avatar || '',
+      channel: _currentCallChannel,
+      isAudio: !!isAudioOnly,
+      ts: Date.now()
+    });
+  }
+
+  document.getElementById('callOverlay').style.display = 'flex';
+  document.getElementById('callTypeLabel').textContent = isAudioOnly ? '📞 AUDIO CALL' : '📹 VIDEO CALL';
+  document.getElementById('callUserCount').textContent = '👥 1 জন';
+
+  var area = document.getElementById('callMainArea');
+  area.innerHTML = '';
+
+  // Audio call হলে avatar দেখাও, Calling... status
+  if (isAudioOnly) {
+    _showAudioScreen(_callTargetUser, '📞 কল করা হচ্ছে...');
+    // রিং টাইমআউট
+    var _ringingTimer = setTimeout(function() {
+      var st = document.getElementById('callStatusText');
+      if (st && st.textContent.includes('করা হচ্ছে')) st.textContent = '🔔 রিং হচ্ছে...';
+    }, 2000);
+  }
+
+  _agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+
+  _agoraClient.on('user-published', async function(user, mediaType) {
+    await _agoraClient.subscribe(user, mediaType);
+    if (mediaType === 'video') {
+      if (isAudioOnly || _callVideoOff) {
+        // Audio call-এ video stream দেখাবো না
+        if (mediaType === 'audio') { user.audioTrack && user.audioTrack.play(); }
+        return;
+      }
+      // Video: grid mode
+      var existing = document.getElementById('vbox-' + user.uid);
+      if (!existing) {
+        var remoteUser = (typeof allUsers!=='undefined') ? (allUsers[user.uid]||{}) : {};
+        var box = _makeVideoBox(user.uid, false, remoteUser);
+        area.appendChild(box);
+      }
+      user.videoTrack.play('vinner-' + user.uid);
+      _hideVideoAvatar(user.uid);
+    }
+    if (mediaType === 'audio') { user.audioTrack && user.audioTrack.play(); }
+
+    // Connected! Timer চালু
+    _startCallTimer();
+    if (isAudioOnly) {
+      _showAudioScreen(_callTargetUser, '');
+      // timer এলিমেন্ট আবার আপডেট হবে interval থেকে
+    }
+    _updateCallInfo();
+  });
+
+  _agoraClient.on('user-left', function(user) {
+    var box = document.getElementById('vbox-' + user.uid);
+    if (box) box.remove();
+    if (isAudioOnly) _showAudioScreen(_callTargetUser, '⚪ সংযোগ বিচ্ছিন্ন');
+    _stopCallTimer();
+    _updateCallInfo();
+  });
+
+  try {
+    await _agoraClient.join(AGORA_APP_ID, _currentCallChannel, null);
+
+    if (isAudioOnly) {
+      _localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      await _agoraClient.publish([_localAudioTrack]);
+    } else {
+      [_localAudioTrack, _localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+      var selfBox = _makeVideoBox('self', true, currentUser||{});
+      area.appendChild(selfBox);
+      _localVideoTrack.play('vinner-self');
+      _hideVideoAvatar('self');
+      await _agoraClient.publish([_localAudioTrack, _localVideoTrack]);
+    }
+    _updateCallInfo();
+  } catch(e) {
+    console.error('Call error:', e);
+    if (typeof showNotification === 'function') showNotification('❌ Mic/Camera অনুমতি দিন!');
+    endCall();
+  }
+}
+
+// ── Audio Call shortcut ──
+async function startAudioCall(channelName, targetUid) {
+  await startCall(channelName, targetUid, true);
+}
+
+// ── Call শেষ ──
+async function endCall() {
+  _stopCallTimer();
+  if (_localAudioTrack) { _localAudioTrack.close(); _localAudioTrack = null; }
+  if (_localVideoTrack) { _localVideoTrack.close(); _localVideoTrack = null; }
+  if (_agoraClient) { await _agoraClient.leave(); _agoraClient = null; }
+  if (db && _currentCallChannel) db.ref('activeCalls/' + _currentCallChannel).remove();
+  document.getElementById('callOverlay').style.display = 'none';
+  document.getElementById('callMainArea').innerHTML = '';
+  _callMuted = false; _callVideoOff = false; _currentCallChannel = null; _callTargetUser = null;
+  document.getElementById('callMicBtn').style.background = '#2a2a3e';
+  document.getElementById('callVideoBtn').style.background = '#2a2a3e';
+  document.getElementById('callMicLbl').textContent = 'Mic';
+  document.getElementById('callVideoLbl').textContent = 'Video';
+}
+
+async function callToggleMic() {
+  if (!_localAudioTrack) return;
+  _callMuted = !_callMuted;
+  await _localAudioTrack.setMuted(_callMuted);
+  document.getElementById('callMicBtn').innerHTML = _callMuted ? '🔇' : '🎤';
+  document.getElementById('callMicBtn').style.background = _callMuted ? '#555' : '#2a2a3e';
+  document.getElementById('callMicLbl').textContent = _callMuted ? 'Muted' : 'Mic';
+}
+
+async function callToggleVideo() {
+  if (!_localVideoTrack) return;
+  _callVideoOff = !_callVideoOff;
+  await _localVideoTrack.setMuted(_callVideoOff);
+  document.getElementById('callVideoBtn').innerHTML = _callVideoOff ? '📵' : '📹';
+  document.getElementById('callVideoBtn').style.background = _callVideoOff ? '#555' : '#2a2a3e';
+  document.getElementById('callVideoLbl').textContent = _callVideoOff ? 'Off' : 'Video';
+}
+
+async function callSwitchCamera() {
+  if (!_localVideoTrack) return;
+  try { await _localVideoTrack.switchCamera(); } catch(e) {}
+}
+
+// ── Incoming Call ──
+function _listenForIncomingCalls() {
+  if (!db || !currentUser) return;
+  db.ref('activeCalls').on('child_added', function(snap) {
+    var data = snap.val();
+    if (!data || data.callerUid === currentUser.uid || _agoraClient) return;
+    _incomingCallData = data;
+    var callerUser = (typeof allUsers !== 'undefined') ? (allUsers[data.callerUid] || {}) : {};
+    var banner = document.getElementById('incomingCallBanner');
+    var avEl = document.getElementById('incomingCallerAvatar');
+    avEl.innerHTML = _avatarHtml(callerUser, 110);
+    avEl.style.background = 'none';
+    document.getElementById('incomingCallerName').textContent = data.callerName || 'কেউ';
+    document.getElementById('incomingCallType').textContent = data.isAudio ? '📞 Audio Call করছে' : '📹 Video Call করছে';
+    banner.style.display = 'flex';
+    setTimeout(function() { if (_incomingCallData) rejectIncomingCall(); }, 30000);
+  });
+  db.ref('activeCalls').on('child_removed', function() {
+    document.getElementById('incomingCallBanner').style.display = 'none';
+    _incomingCallData = null;
+  });
+}
+
+function acceptIncomingCall() {
+  document.getElementById('incomingCallBanner').style.display = 'none';
+  if (_incomingCallData) {
+    var d = _incomingCallData;
+    _incomingCallData = null;
+    startCall(d.channel, d.callerUid, d.isAudio);
+  }
+}
+
+function rejectIncomingCall() {
+  document.getElementById('incomingCallBanner').style.display = 'none';
+  _incomingCallData = null;
+}
+
+window.addEventListener('load', function() {
+  var _checkAuth = setInterval(function() {
+    if (typeof currentUser !== 'undefined' && currentUser && typeof db !== 'undefined' && db) {
+      clearInterval(_checkAuth);
+      _listenForIncomingCalls();
+    }
+  }, 1000);
+});
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     💡 ব্যবহার: যেকোনো জায়গায় এই বাটন যোগ করুন:
+
+     Video Call:
+     <button onclick="startCall('room-নাম')">📹 Video Call</button>
+
+     Audio Call:
+     <button onclick="startAudioCall('room-নাম')">📞 Audio Call</button>
+
+     User Profile-এ যোগ করতে:
+     startCall('call-' + targetUserUid);
+     ═══════════════════════════════════════════════ -->
+
+
+<!-- ════════════════════════════════════════
+     🔐 PERMISSION REQUEST SCREEN
+     ════════════════════════════════════════ -->
+<div id="permissionScreen" style="
+  display:none; position:fixed; inset:0;
+  background:linear-gradient(160deg,#0d0d1a 0%,#1a1a2e 100%);
+  z-index:999998; flex-direction:column; align-items:center;
+  justify-content:center; padding:24px;
+">
+  <div style="max-width:360px;width:100%;text-align:center;">
+    <div style="font-size:52px;margin-bottom:16px;">🔐</div>
+    <div style="color:white;font-size:22px;font-weight:800;margin-bottom:8px;">অনুমতি দরকার</div>
+    <div style="color:#aaa;font-size:14px;margin-bottom:28px;line-height:1.6;">
+      MeetApp-কে ভালোভাবে ব্যবহার করতে নিচের অনুমতিগুলো দিন
+    </div>
+
+    <!-- Permission Items -->
+    <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:6px;margin-bottom:20px;">
+
+      <div id="perm-notif" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;margin-bottom:4px;">
+        <div style="font-size:28px;flex-shrink:0;">🔔</div>
+        <div style="flex:1;text-align:left;">
+          <div style="color:white;font-weight:700;font-size:14px;">নোটিফিকেশন</div>
+          <div style="color:#aaa;font-size:12px;">কল ও মেসেজের নোটিফিকেশন পেতে</div>
+        </div>
+        <div id="perm-notif-status" style="font-size:20px;">⏳</div>
+      </div>
+
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:0 10px;"></div>
+
+      <div id="perm-mic" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;margin-bottom:4px;">
+        <div style="font-size:28px;flex-shrink:0;">🎤</div>
+        <div style="flex:1;text-align:left;">
+          <div style="color:white;font-weight:700;font-size:14px;">মাইক্রোফোন</div>
+          <div style="color:#aaa;font-size:12px;">ভয়েস ও অডিও কলের জন্য</div>
+        </div>
+        <div id="perm-mic-status" style="font-size:20px;">⏳</div>
+      </div>
+
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:0 10px;"></div>
+
+      <div id="perm-cam" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;">
+        <div style="font-size:28px;flex-shrink:0;">📷</div>
+        <div style="flex:1;text-align:left;">
+          <div style="color:white;font-weight:700;font-size:14px;">ক্যামেরা</div>
+          <div style="color:#aaa;font-size:12px;">ভিডিও কলের জন্য</div>
+        </div>
+        <div id="perm-cam-status" style="font-size:20px;">⏳</div>
+      </div>
+
+    </div>
+
+    <button id="permGrantBtn" onclick="requestAllPermissions()" style="
+      width:100%; padding:16px; background:linear-gradient(135deg,#6c63ff,#48bfe3);
+      color:white; border:none; border-radius:14px; font-size:16px;
+      font-weight:800; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 20px rgba(108,99,255,0.4);
+    ">✅ অনুমতি দিন</button>
+
+    <button onclick="skipPermissions()" style="
+      margin-top:12px; background:none; border:none; color:#555;
+      font-size:13px; cursor:pointer; font-family:inherit; padding:8px;
+    ">এড়িয়ে যান (কিছু ফিচার কাজ নাও করতে পারে)</button>
+  </div>
+</div>
+
+<script>
+// ── Permission checker ──
+function _setPermStatus(id, status) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  if (status === 'granted')  { el.textContent = '✅'; el.parentElement.style.background = 'rgba(76,175,80,0.08)'; }
+  if (status === 'denied')   { el.textContent = '❌'; el.parentElement.style.background = 'rgba(244,67,54,0.08)'; }
+  if (status === 'pending')  { el.textContent = '⏳'; }
+  if (status === 'skipped')  { el.textContent = '⚠️'; }
+}
+
+async function requestAllPermissions() {
+  var btn = document.getElementById('permGrantBtn');
+  btn.textContent = '⏳ অনুমতি নেওয়া হচ্ছে...';
+  btn.disabled = true;
+
+  // 1. Notification
+  try {
+    var np = Notification.permission;
+    if (np === 'default') np = await Notification.requestPermission();
+    _setPermStatus('perm-notif-status', np === 'granted' ? 'granted' : 'denied');
+    if (np === 'granted' && typeof window._fcmRequestPermission === 'function') {
+      window._fcmRequestPermission();
+    }
+  } catch(e) { _setPermStatus('perm-notif-status', 'denied'); }
+
+  await new Promise(r => setTimeout(r, 500));
+
+  // 2. Mic + Camera
+  var micOk = false, camOk = false;
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    micOk = true; camOk = true;
+    stream.getTracks().forEach(t => t.stop()); // অবিলম্বে বন্ধ করো
+    _setPermStatus('perm-mic-status', 'granted');
+    _setPermStatus('perm-cam-status', 'granted');
+  } catch(e) {
+    // শুধু mic চেষ্টা
+    try {
+      var micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micOk = true;
+      micStream.getTracks().forEach(t => t.stop());
+      _setPermStatus('perm-mic-status', 'granted');
+    } catch(e2) { _setPermStatus('perm-mic-status', 'denied'); }
+    _setPermStatus('perm-cam-status', 'denied');
+  }
+
+  // সব শেষে screen বন্ধ করো
+  await new Promise(r => setTimeout(r, 800));
+  btn.textContent = '🎉 সম্পন্ন!';
+  localStorage.setItem('meetapp_perms_asked_v2', '1');
+  setTimeout(function() {
+    document.getElementById('permissionScreen').style.display = 'none';
+  }, 700);
+}
+
+function skipPermissions() {
+  _setPermStatus('perm-notif-status', 'skipped');
+  _setPermStatus('perm-mic-status', 'skipped');
+  _setPermStatus('perm-cam-status', 'skipped');
+  localStorage.setItem('meetapp_perms_asked_v2', '1');
+  document.getElementById('permissionScreen').style.display = 'none';
+}
+
+// ── App খুললে একবার দেখাও (আগে না দেখালে) ──
+window.addEventListener('load', function() {
+  // আগে permission নেওয়া হয়েছে কিনা চেক
+  if (localStorage.getItem('meetapp_perms_asked_v2')) return;
+
+  // User login হলে দেখাও
+  var _permCheck = setInterval(function() {
+    if (typeof currentUser !== 'undefined' && currentUser) {
+      clearInterval(_permCheck);
+
+      // আগে থেকে permission আছে কিনা চেক
+      if (navigator.permissions) {
+        Promise.all([
+          navigator.permissions.query({name:'notifications'}).catch(()=>({state:'prompt'})),
+          navigator.permissions.query({name:'microphone'}).catch(()=>({state:'prompt'})),
+          navigator.permissions.query({name:'camera'}).catch(()=>({state:'prompt'}))
+        ]).then(function(results) {
+          var allGranted = results.every(r => r.state === 'granted');
+          if (allGranted) {
+            localStorage.setItem('meetapp_perms_asked_v2', '1');
+            return;
+          }
+          document.getElementById('permissionScreen').style.display = 'flex';
+        });
+      } else {
+        document.getElementById('permissionScreen').style.display = 'flex';
+      }
+    }
+  }, 1200);
+});
+
+// ── Call করার আগেও check করো ──
+var _origStartCall = startCall;
+startCall = async function(channelName, targetUid, isAudioOnly) {
+  // Permission আছে কিনা দ্রুত চেক
+  try {
+    var testStream = await navigator.mediaDevices.getUserMedia(
+      isAudioOnly ? {audio:true} : {audio:true, video:true}
+    );
+    testStream.getTracks().forEach(t => t.stop());
+  } catch(e) {
+    if (typeof showNotification === 'function') {
+      showNotification('❌ ' + (isAudioOnly ? 'মাইক' : 'ক্যামেরা ও মাইক') + ' অনুমতি দিন! Browser settings থেকে enable করুন।');
+    }
+    return;
+  }
+  return _origStartCall.apply(this, arguments);
 };
 </script>
 
