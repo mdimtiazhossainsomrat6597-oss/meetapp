@@ -10,12 +10,14 @@
     <meta name="theme-color" content="#6c63ff">
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
     <!-- Firebase Cloud Messaging (FCM) -->
-    <!-- App Shell SW — অফলাইন সাপোর্ট -->
+    <!-- App Shell SW — অফলাইন সাপোর্ট (GitHub Pages compatible) -->
     <script>
     if('serviceWorker' in navigator){
       window.addEventListener('load', function(){
-        navigator.serviceWorker.register('/sw.js', {scope:'/'})
-          .then(function(r){ console.log('✅ App SW:', r.scope); })
+        // GitHub Pages-এ relative path ব্যবহার করি
+        var swUrl = './sw.js';
+        navigator.serviceWorker.register(swUrl)
+          .then(function(r){ console.log('✅ App SW registered:', r.scope); })
           .catch(function(e){ console.warn('⚠️ App SW failed:', e); });
       });
     }

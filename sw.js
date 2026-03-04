@@ -1,37 +1,32 @@
 // ══════════════════════════════════════════════════════
-// MeetApp — App Shell Service Worker
-// অফলাইনেও অ্যাপ চালু রাখার জন্য
+// MeetApp — App Shell Service Worker (GitHub Pages Compatible)
 // ══════════════════════════════════════════════════════
 
-const CACHE_NAME = 'meetapp-shell-v3';
+const CACHE_NAME = 'meetapp-shell-v4';
 
-// এগুলো প্রথমবার ইন্টারনেটে লোড হওয়ার সময় cache করা হবে
+// GitHub Pages-এ relative paths ব্যবহার করি
 const SHELL_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  // Firebase SDK (CDN থেকে)
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.png',
   'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js',
-  // Twemoji
   'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js',
 ];
 
-// ── Install: app shell assets cache করো ──
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      // প্রতিটি asset আলাদাভাবে try করো যাতে একটা fail হলে বাকিগুলো আটকে না যায়
       return Promise.allSettled(
         SHELL_ASSETS.map(url =>
-          cache.add(url).catch(err => console.warn('[SW] Cache miss:', url, err))
+          cache.add(url).catch(err => console.warn('[SW] Cache miss:', url, err.message))
         )
       );
     }).then(() => self.skipWaiting())
   );
 });
 
-// ── Activate: পুরনো cache মুছে দাও ──
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -44,23 +39,21 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ── Fetch: Cache-first strategy ──
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // POST / non-GET request — cache করা যাবে না
   if (request.method !== 'GET') return;
 
-  // Firebase Realtime DB requests — সবসময় network থেকে নাও (live data)
+  // Firebase DB — always network
   if (
     url.hostname.includes('firebasedatabase.app') ||
-    url.hostname.includes('googleapis.com') ||
-    url.hostname.includes('firebaseio.com')
+    url.hostname.includes('firebaseio.com') ||
+    url.hostname.includes('googleapis.com')
   ) {
     event.respondWith(
       fetch(request).catch(() =>
-        new Response(JSON.stringify({ error: 'offline' }), {
+        new Response(JSON.stringify({ offline: true }), {
           headers: { 'Content-Type': 'application/json' }
         })
       )
@@ -68,38 +61,40 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Firebase Storage / Analytics — network-first, fallback to nothing
+  // Firebase Storage, FCM — network only
   if (
-    url.hostname.includes('firebasestorage.googleapis.com') ||
-    url.hostname.includes('firebase.googleapis.com') ||
-    url.hostname.includes('fcm.googleapis.com')
+    url.hostname.includes('firebasestorage') ||
+    url.hostname.includes('fcm.googleapis') ||
+    url.hostname.includes('firebase.googleapis')
   ) {
     event.respondWith(fetch(request).catch(() => new Response('', { status: 503 })));
     return;
   }
 
-  // App Shell + CDN assets — Cache-first
+  // App shell + CDN: Cache-first
   event.respondWith(
     caches.match(request).then(cached => {
-      if (cached) return cached;
+      if (cached) {
+        // Background revalidate
+        fetch(request).then(fresh => {
+          if (fresh && fresh.status === 200) {
+            caches.open(CACHE_NAME).then(c => c.put(request, fresh));
+          }
+        }).catch(() => {});
+        return cached;
+      }
 
-      // Cache-এ নেই → network থেকে আনো এবং cache করো
-      return fetch(request).then(networkResponse => {
-        if (
-          networkResponse &&
-          networkResponse.status === 200 &&
-          (networkResponse.type === 'basic' || networkResponse.type === 'cors')
-        ) {
-          const toCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, toCache));
+      return fetch(request).then(response => {
+        if (response && response.status === 200 &&
+           (response.type === 'basic' || response.type === 'cors')) {
+          caches.open(CACHE_NAME).then(c => c.put(request, response.clone()));
         }
-        return networkResponse;
+        return response;
       }).catch(() => {
-        // সবই fail → index.html দাও (SPA fallback)
         if (request.headers.get('Accept') && request.headers.get('Accept').includes('text/html')) {
-          return caches.match('/index.html');
+          return caches.match('./index.html');
         }
-        return new Response('', { status: 503 });
+        return new Response('Offline', { status: 503 });
       });
     })
   );
