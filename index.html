@@ -112,6 +112,20 @@
             requestNotificationPermission();
           }
         }, 3000);
+
+        // ✅ Service Worker থেকে sound বাজানোর message শোনো
+        navigator.serviceWorker.addEventListener('message', function(event) {
+          if (event.data && event.data.type === 'PLAY_NOTIFICATION_SOUND') {
+            try {
+              const emoji = event.data.emoji || '🔔';
+              if (typeof playSoundByEmoji === 'function') {
+                playSoundByEmoji(emoji);
+              } else if (typeof SoundFX !== 'undefined') {
+                SoundFX.notify();
+              }
+            } catch(e) {}
+          }
+        });
       });
     </script>
     <script>
@@ -287,6 +301,46 @@ if (typeof twemoji === 'undefined') {
             --shadow-btn:0 6px 20px rgba(108,92,231,0.38);
             --r-sm:10px;--r-md:16px;--r-lg:22px;--r-xl:28px;
         }
+
+        /* ══ Theme: Facebook নীল ══ */
+        body.theme-blue{
+            --bg-page:#f0f2f5;
+            --bg-card:rgba(255,255,255,0.98);
+            --bg-card-solid:#ffffff;
+            --bg-glass:rgba(255,255,255,0.90);
+            --bg-deep:#1c2b4a;
+            --text-primary:#1c1e21;
+            --text-on-light:#1c1e21;
+            --text-secondary:#65676b;
+            --text-muted-light:#8a8d91;
+            --text-on-dark:#e4e6eb;
+            --p1:#1877f2;--p2:#4299f7;--p3:#42b72a;--p4:#0d8de3;--p5:#e7f3ff;
+            --accent-coral:#fa3e3e;--accent-gold:#f5c518;--accent-violet:#1877f2;--accent-mint:#0d8de3;
+            --grad-brand:linear-gradient(135deg,#1877f2 0%,#4299f7 100%);
+            --grad-btn:linear-gradient(135deg,#1877f2,#4299f7);
+            --grad-header:linear-gradient(160deg,#1c2b4a 0%,#1a3a6e 50%,#1877f2 100%);
+            --aurora-btn:linear-gradient(135deg,#1877f2,#4299f7);
+            --aurora-accent:linear-gradient(90deg,#1877f2,#4299f7,#42b72a);
+            --border-light:rgba(24,119,242,0.15);
+            --border-card:rgba(0,0,0,0.10);
+            --shadow-sm:0 1px 3px rgba(0,0,0,0.10);
+            --shadow-card:0 1px 4px rgba(0,0,0,0.10),0 0 1px rgba(0,0,0,0.08);
+            --shadow-glow:0 0 30px rgba(24,119,242,0.20);
+            --shadow-btn:0 4px 14px rgba(24,119,242,0.40);
+        }
+        /* Facebook Blue — specific overrides */
+        body.theme-blue .header{background:var(--grad-header)!important;}
+        body.theme-blue .bottom-nav{background:rgba(255,255,255,0.95)!important;border-top:1px solid rgba(0,0,0,0.10)!important;}
+        body.theme-blue .bn-item.active .bn-icon{background:rgba(24,119,242,0.12)!important;}
+        body.theme-blue .bn-item.active .bn-label{color:#1877f2!important;}
+        body.theme-blue .photo-card,.theme-blue .video-card,.theme-blue .text-card{border-radius:8px!important;}
+        body.theme-blue.dark-mode{--bg-page:#18191a;--bg-card:rgba(36,37,38,0.98);--bg-card-solid:#242526;--bg-glass:rgba(36,37,38,0.90);--text-primary:#e4e6eb;--text-on-light:#e4e6eb;--text-secondary:#b0b3b8;--text-muted-light:#6a6d72;--border-card:rgba(255,255,255,0.08);--border-light:rgba(24,119,242,0.20);}
+        body.theme-blue.dark-mode .bottom-nav{background:rgba(36,37,38,0.97)!important;border-top:1px solid rgba(255,255,255,0.08)!important;}
+        body.theme-blue.dark-mode input,body.theme-blue.dark-mode textarea{background:#3a3b3c!important;color:#e4e6eb!important;border-color:rgba(255,255,255,0.10)!important;}
+        body.dark-mode .bn-item.active .bn-icon{background:rgba(108,92,231,0.2);}
+        body.theme-blue.dark-mode .bn-item.active .bn-icon{background:rgba(24,119,242,0.2)!important;}
+        /* Purple theme remove */
+        body.theme-purple{display:none;}
         body.dark-mode{--bg-page:#0d0b18;--bg-card:rgba(26,22,46,0.94);--bg-card-solid:#1a1630;--bg-glass:rgba(26,22,46,0.75);--text-primary:#e8e3f8;--text-on-light:#e8e3f8;--text-secondary:#9488b8;--text-muted-light:#6a6085;--border-light:rgba(162,155,254,0.10);--border-card:rgba(255,255,255,0.06);--shadow-card:0 8px 32px rgba(0,0,0,0.45),0 2px 8px rgba(0,0,0,0.3);}
         body.dark-mode{background:#0d0b18;}
         body.dark-mode input,body.dark-mode textarea,body.dark-mode select{background:#231e3d!important;color:#e8e3f8!important;border-color:rgba(162,155,254,0.14)!important;}
@@ -383,7 +437,7 @@ if (typeof twemoji === 'undefined') {
             background:linear-gradient(135deg,#00875a 0%,#43aa8b 50%,#f9a825 100%)!important;
         }
         body.theme-ramadan .login-lang-btn.active{
-            background:linear-gradient(135deg,rgba(0,135,90,0.65),rgba(249,168,37,0.5))!important;
+            background:var(--grad-btn)!important;
             border-color:rgba(0,182,122,0.5)!important;box-shadow:0 0 18px rgba(0,135,90,0.4)!important;
         }
         body.theme-ramadan .skip-btn{color:rgba(165,240,197,0.45)!important;}
@@ -416,7 +470,7 @@ if (typeof twemoji === 'undefined') {
             box-shadow:0 4px 20px rgba(26,107,58,0.5)!important;
         }
         body.theme-eid .login-lang-btn.active{
-            background:linear-gradient(135deg,rgba(26,107,58,0.65),rgba(218,165,32,0.5))!important;
+            background:var(--grad-btn)!important;
             border-color:rgba(218,165,32,0.4)!important;box-shadow:0 0 18px rgba(26,107,58,0.5)!important;
         }
         body.theme-eid .login-input{border-color:rgba(218,165,32,0.15)!important;}
@@ -699,13 +753,63 @@ if (typeof twemoji === 'undefined') {
         .interaction-btn.liked{background:rgba(24,119,242,0.10);border-color:rgba(24,119,242,0.4);color:#1877F2;font-weight:700;}
         .interaction-btn.reacted{background:linear-gradient(135deg,rgba(108,92,231,0.12),rgba(253,121,168,0.10));border-color:rgba(108,92,231,0.35);color:var(--p1);}
         .react-hold-wrap{position:relative;}
-        .reaction-picker{display:none;position:absolute;background:#fff;border:none;border-radius:50px;padding:8px 12px;gap:4px;box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.12);z-index:200;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);}
-        .reaction-picker.show{display:flex;animation:popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);}
-        body.dark-mode .reaction-picker{background:#242526;}
-        @keyframes popIn{from{opacity:0;transform:scale(0.7) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-        .reaction-emoji{font-size:30px;cursor:pointer;transition:transform 0.15s;display:inline-block;line-height:1;padding:2px;width:36px;height:36px;text-align:center;}
+        .reaction-picker{
+            display:none;position:absolute;
+            background:rgba(255,255,255,0.75);
+            backdrop-filter:blur(24px) saturate(200%);
+            -webkit-backdrop-filter:blur(24px) saturate(200%);
+            border:1.5px solid rgba(255,255,255,0.9);
+            border-radius:60px;padding:10px 14px;gap:6px;
+            box-shadow:
+                0 8px 32px rgba(0,0,0,0.15),
+                0 2px 8px rgba(0,0,0,0.08),
+                inset 0 1px 0 rgba(255,255,255,1);
+            z-index:200;bottom:calc(100% + 14px);
+            left:50%;transform:translateX(-50%);
+        }
+        body.dark-mode .reaction-picker{
+            background:rgba(30,24,55,0.82);
+            border-color:rgba(162,155,254,0.20);
+        }
+        .reaction-picker.show{
+            display:flex;
+        }
+        /* প্রতিটি emoji staggered bounce করে আসে */
+        .reaction-picker.show .reaction-emoji:nth-child(1){animation:emojiPopIn 0.4s cubic-bezier(0.34,1.8,0.64,1) 0.00s both;}
+        .reaction-picker.show .reaction-emoji:nth-child(2){animation:emojiPopIn 0.4s cubic-bezier(0.34,1.8,0.64,1) 0.05s both;}
+        .reaction-picker.show .reaction-emoji:nth-child(3){animation:emojiPopIn 0.4s cubic-bezier(0.34,1.8,0.64,1) 0.10s both;}
+        .reaction-picker.show .reaction-emoji:nth-child(4){animation:emojiPopIn 0.4s cubic-bezier(0.34,1.8,0.64,1) 0.15s both;}
+        .reaction-picker.show .reaction-emoji:nth-child(5){animation:emojiPopIn 0.4s cubic-bezier(0.34,1.8,0.64,1) 0.20s both;}
+        .reaction-picker.show .reaction-emoji:nth-child(6){animation:emojiPopIn 0.4s cubic-bezier(0.34,1.8,0.64,1) 0.25s both;}
+        @keyframes emojiPopIn{
+            0%{opacity:0;transform:scale(0) translateY(20px) rotate(-15deg);}
+            60%{opacity:1;transform:scale(1.35) translateY(-8px) rotate(5deg);}
+            80%{transform:scale(0.88) translateY(2px) rotate(-2deg);}
+            100%{opacity:1;transform:scale(1) translateY(0) rotate(0deg);}
+        }
+        .reaction-emoji{
+            font-size:30px;cursor:pointer;
+            display:inline-flex;align-items:center;justify-content:center;
+            width:42px;height:42px;border-radius:50%;
+            transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), background 0.15s;
+            position:relative;
+        }
         .reaction-emoji img.emoji{height:30px!important;width:30px!important;vertical-align:middle!important;pointer-events:none;}
-        .reaction-emoji:hover,.reaction-emoji:active{transform:scale(1.45) translateY(-6px);}
+        .reaction-emoji:hover{
+            transform:scale(1.55) translateY(-8px);
+            background:rgba(108,92,231,0.10);
+            z-index:2;
+        }
+        /* tap করলে burst ইফেক্ট */
+        .reaction-emoji:active{
+            animation:emojiBurst 0.3s cubic-bezier(0.34,1.56,0.64,1) both!important;
+        }
+        @keyframes emojiBurst{
+            0%{transform:scale(1);}
+            30%{transform:scale(1.7) rotate(10deg);}
+            60%{transform:scale(0.85) rotate(-5deg);}
+            100%{transform:scale(1) rotate(0deg);}
+        }
         .pwa-banner{display:none;background:var(--grad-header);border-radius:var(--r-md);padding:14px 16px;margin-bottom:12px;align-items:center;gap:12px;border:1px solid rgba(108,92,231,0.3);position:relative;z-index:1;}
         .pwa-banner.show{display:flex;}
         .pwa-banner-text{flex:1;color:rgba(240,236,251,0.9);font-size:13px;font-weight:500;}
@@ -839,7 +943,7 @@ if (typeof twemoji === 'undefined') {
         .login-logo p{font-size:12px;color:rgba(240,236,251,0.55);font-weight:300;}
         .login-lang-toggle{display:flex;gap:6px;justify-content:center;margin-bottom:12px;}
         .login-lang-btn{padding:6px 18px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(240,236,251,0.65);cursor:pointer;font-weight:600;font-size:13px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
-        .login-lang-btn.active{background:linear-gradient(135deg,rgba(108,92,231,0.65),rgba(253,121,168,0.5));border-color:rgba(255,255,255,0.4);color:white;box-shadow:0 0 18px rgba(108,92,231,0.5);}
+        .login-lang-btn.active{background:var(--grad-btn);border-color:rgba(255,255,255,0.4);color:white;box-shadow:0 0 18px rgba(0,0,0,0.2);}
         .login-tabs{display:flex;gap:0;margin-bottom:16px;background:rgba(0,0,0,0.2);border-radius:var(--r-md);padding:4px;}
         .login-tab{flex:1;padding:9px;text-align:center;cursor:pointer;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:rgba(255,255,255,0.45);border:none;background:transparent;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:all 0.3s;}
         .login-tab.active{background:rgba(255,255,255,0.12);color:white;box-shadow:0 2px 10px rgba(0,0,0,0.25);}
@@ -900,56 +1004,79 @@ if (typeof twemoji === 'undefined') {
         .header h1{font-size:34px;font-weight:700;position:relative;z-index:1;background:linear-gradient(135deg,#fff 20%,#a29bfe 60%,#fd79a8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;letter-spacing:-0.5px;}
         .header p{font-size:12px;color:rgba(240,236,251,0.6);position:relative;z-index:1;font-weight:300;letter-spacing:0.3px;}
         .lang-btn{padding:6px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(240,236,251,0.75);cursor:pointer;font-weight:600;transition:all 0.3s;font-size:12px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
-        .lang-btn.active{background:linear-gradient(135deg,rgba(108,92,231,0.65),rgba(253,121,168,0.5));border-color:rgba(255,255,255,0.35);color:white;box-shadow:0 0 16px rgba(108,92,231,0.4);}
-        /* ══ BEAUTIFUL BOTTOM NAV — ৬টি আইটেম, + একদম মাঝখানে ══ */
+        .lang-btn.active{background:var(--grad-btn);border-color:rgba(255,255,255,0.35);color:white;box-shadow:0 0 16px rgba(0,0,0,0.2);}
+        /* ══ BEAUTIFUL BOTTOM NAV — Liquid Glass ══ */
         .bottom-nav{
             position:fixed;bottom:0;left:0;right:0;z-index:1000;
-            background:rgba(255,255,255,0.93);
-            backdrop-filter:blur(30px) saturate(200%);
-            -webkit-backdrop-filter:blur(30px) saturate(200%);
-            border-top:1.5px solid rgba(108,92,231,0.08);
+            /* Liquid Glass base */
+            background:rgba(255,255,255,0.55);
+            backdrop-filter:blur(40px) saturate(220%) brightness(1.08);
+            -webkit-backdrop-filter:blur(40px) saturate(220%) brightness(1.08);
+            border-top:1px solid rgba(255,255,255,0.75);
             display:flex;align-items:center;justify-content:space-around;
             height:68px;padding:0 2px 6px;
-            box-shadow:0 -1px 0 rgba(108,92,231,0.05), 0 -10px 40px rgba(22,18,42,0.07);
+            box-shadow:
+                0 -1px 0 rgba(255,255,255,0.6),
+                0 -12px 40px rgba(108,92,231,0.06),
+                inset 0 1px 0 rgba(255,255,255,0.9);
         }
         body.dark-mode .bottom-nav{
-            background:rgba(14,11,27,0.95)!important;
-            border-top:1.5px solid rgba(162,155,254,0.07)!important;
-            box-shadow:0 -1px 0 rgba(162,155,254,0.05), 0 -10px 40px rgba(0,0,0,0.4)!important;
+            background:rgba(20,16,40,0.65)!important;
+            border-top:1px solid rgba(255,255,255,0.10)!important;
+            box-shadow:
+                0 -1px 0 rgba(255,255,255,0.08),
+                0 -12px 40px rgba(0,0,0,0.35),
+                inset 0 1px 0 rgba(255,255,255,0.07)!important;
+            backdrop-filter:blur(40px) saturate(180%) brightness(0.9)!important;
+            -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(0.9)!important;
         }
-        /* সব আইটেম সমান flex */
+
+        /* ══ Liquid Glass bn-item ══ */
         .bn-item{
             flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
             gap:3px;cursor:pointer;padding:5px 2px 0;border:none;background:none;
             font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;
-            transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+            transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
             position:relative;min-width:0;
         }
-        .bn-item:active{transform:scale(0.82);}
+        .bn-item:active{transform:scale(0.80);}
 
-        /* আইকন wrapper */
         .bn-icon{
-            width:38px;height:32px;border-radius:12px;
+            width:42px;height:34px;border-radius:14px;
             display:flex;align-items:center;justify-content:center;
-            font-size:19px;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            font-size:20px;
+            transition:all 0.32s cubic-bezier(0.34,1.56,0.64,1);
             position:relative;
         }
+
+        /* Liquid Glass — active icon pill */
         .bn-item.active .bn-icon{
-            background:linear-gradient(145deg,rgba(108,92,231,0.15),rgba(162,155,254,0.08));
-            box-shadow:0 3px 14px rgba(108,92,231,0.20);
-            transform:translateY(-3px) scale(1.1);
+            background:
+                linear-gradient(145deg,rgba(255,255,255,0.75) 0%,rgba(255,255,255,0.25) 100%);
+            backdrop-filter:blur(16px) saturate(180%);
+            -webkit-backdrop-filter:blur(16px) saturate(180%);
+            border:1px solid rgba(255,255,255,0.85);
+            box-shadow:
+                0 4px 16px rgba(108,92,231,0.22),
+                0 1px 3px rgba(108,92,231,0.12),
+                inset 0 1px 0 rgba(255,255,255,1),
+                inset 0 -1px 0 rgba(108,92,231,0.08);
+            transform:translateY(-4px) scale(1.12);
         }
         body.dark-mode .bn-item.active .bn-icon{
-            background:linear-gradient(145deg,rgba(108,92,231,0.30),rgba(162,155,254,0.12));
-            box-shadow:0 3px 14px rgba(108,92,231,0.40);
+            background:linear-gradient(145deg,rgba(162,155,254,0.25),rgba(108,92,231,0.12));
+            border:1px solid rgba(162,155,254,0.30);
+            box-shadow:
+                0 4px 18px rgba(108,92,231,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.15);
         }
 
-        /* নিচের active dot */
+        /* Active dot */
         .bn-item.active::after{
             content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);
             width:18px;height:2.5px;border-radius:2px;
             background:linear-gradient(90deg,#6c5ce7,#a29bfe);
-            box-shadow:0 0 8px rgba(108,92,231,0.55);
+            box-shadow:0 0 8px rgba(108,92,231,0.6);
             animation:navDotIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
         }
         @keyframes navDotIn{from{width:0;opacity:0}to{width:18px;opacity:1}}
@@ -957,12 +1084,12 @@ if (typeof twemoji === 'undefined') {
         /* লেবেল */
         .bn-label{
             font-size:9.5px;font-weight:600;
-            color:rgba(100,90,130,0.55);
+            color:rgba(80,70,120,0.5);
             transition:all 0.25s;letter-spacing:0.2px;white-space:nowrap;
         }
-        body.dark-mode .bn-label{color:rgba(162,155,254,0.35);}
+        body.dark-mode .bn-label{color:rgba(162,155,254,0.38);}
         .bn-item.active .bn-label{
-            font-weight:800;letter-spacing:0.3px;
+            font-weight:800;
             background:linear-gradient(135deg,#6c5ce7,#a29bfe);
             -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         }
@@ -971,52 +1098,48 @@ if (typeof twemoji === 'undefined') {
             -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         }
 
-        /* ══ + CREATE বোতাম — একদম মাঝখানে, উপরে ভাসমান ══ */
+        /* ══ + CREATE বোতাম — গোল, ভাসমান, Liquid Glass ring ══ */
         .bn-create{
             flex:1;display:flex;flex-direction:column;
             align-items:center;justify-content:center;
             position:relative;
         }
         .bn-create-btn{
-            width:52px;height:52px;
-            border-radius:16px;
-            background:linear-gradient(135deg,#6c5ce7 0%,#a29bfe 45%,#fd79a8 100%);
+            width:54px;height:54px;
+            border-radius:50%;
+            background:var(--grad-brand);
             border:none;color:white;font-size:24px;cursor:pointer;
             display:flex;align-items:center;justify-content:center;
-            /* উপরে ভাসমান */
-            transform:translateY(-10px);
+            transform:translateY(-12px);
             box-shadow:
-                0 8px 24px rgba(108,92,231,0.55),
-                0 3px 8px rgba(108,92,231,0.25),
-                inset 0 1px 0 rgba(255,255,255,0.25);
-            transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+                0 10px 30px rgba(108,92,231,0.50),
+                0 4px 10px rgba(108,92,231,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.45),
+                inset 0 -1px 0 rgba(0,0,0,0.08);
+            transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
             position:relative;
             overflow:hidden;
         }
-        /* শাইন ইফেক্ট */
-        .bn-create-btn::before{
-            content:'';position:absolute;
-            top:-50%;left:-60%;width:60%;height:200%;
-            background:linear-gradient(105deg,transparent,rgba(255,255,255,0.28),transparent);
-            transform:skewX(-20deg);
-            animation:btnShine 3s ease-in-out infinite;
+        body.theme-ramadan .bn-create-btn{
+            box-shadow:
+                0 10px 30px rgba(0,135,90,0.45),
+                0 4px 10px rgba(0,135,90,0.20),
+                inset 0 1px 0 rgba(255,255,255,0.45);
         }
-        @keyframes btnShine{
-            0%,100%{left:-60%;}
-            50%{left:120%;}
+        body.theme-eid .bn-create-btn{
+            box-shadow:
+                0 10px 30px rgba(218,165,32,0.50),
+                0 4px 10px rgba(218,165,32,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.45);
         }
-        /* নিচে গ্লো halo */
-        .bn-create-btn::after{
-            content:'';position:absolute;
-            bottom:-14px;left:50%;transform:translateX(-50%);
-            width:44px;height:10px;
-            background:radial-gradient(ellipse,rgba(108,92,231,0.45),transparent 70%);
-            border-radius:50%;
-            z-index:-1;
+        body.dark-mode .bn-create-btn{
+            box-shadow:
+                0 10px 30px rgba(108,92,231,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.3)!important;
         }
         .bn-create-btn:active{
-            transform:translateY(-7px) scale(0.91);
-            box-shadow:0 4px 12px rgba(108,92,231,0.4);
+            transform:translateY(-8px) scale(0.90);
+            box-shadow:0 4px 14px rgba(108,92,231,0.45);
         }
         .tabs{display:none;}
         .tab{flex:1;padding:10px 6px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.08);border-radius:12px;font-size:12px;font-weight:600;transition:all 0.3s;color:rgba(240,236,251,0.45);font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
@@ -1195,11 +1318,60 @@ if (typeof twemoji === 'undefined') {
         ::-webkit-scrollbar-thumb{background:rgba(108,92,231,0.2);border-radius:10px;}
         .fab-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(22,18,42,0.35);backdrop-filter:blur(4px);}
         .fab-overlay.show{display:block;animation:fadeIn 0.2s;}
-        .fab-menu{display:none;position:fixed;bottom:78px;left:50%;transform:translateX(-50%);z-index:1001;flex-direction:row;gap:12px;justify-content:center;flex-wrap:wrap;padding:0 16px;width:100%;max-width:400px;}
-        .fab-menu.show{display:flex;animation:fadeUp 0.25s cubic-bezier(0.34,1.56,0.64,1);}
-        .fab-option{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;background:var(--bg-card-solid);border:1px solid var(--border-light);border-radius:var(--r-md);padding:14px 18px;box-shadow:var(--shadow-card);transition:all 0.2s;min-width:80px;}
-        .fab-option:active{transform:scale(0.93);}
-        .fab-option-icon{font-size:28px;}
+        .fab-menu{
+            display:none;position:fixed;bottom:78px;left:50%;transform:translateX(-50%);
+            z-index:1001;flex-direction:row;gap:10px;
+            justify-content:center;flex-wrap:wrap;
+            padding:0 16px;width:100%;max-width:400px;
+        }
+        .fab-menu.show{display:flex;}
+        /* প্রতিটি option staggered করে উপরে উঠে আসে */
+        .fab-menu.show .fab-option:nth-child(1){animation:fabItemIn 0.45s cubic-bezier(0.34,1.7,0.64,1) 0.00s both;}
+        .fab-menu.show .fab-option:nth-child(2){animation:fabItemIn 0.45s cubic-bezier(0.34,1.7,0.64,1) 0.06s both;}
+        .fab-menu.show .fab-option:nth-child(3){animation:fabItemIn 0.45s cubic-bezier(0.34,1.7,0.64,1) 0.12s both;}
+        .fab-menu.show .fab-option:nth-child(4){animation:fabItemIn 0.45s cubic-bezier(0.34,1.7,0.64,1) 0.18s both;}
+        @keyframes fabItemIn{
+            0%{opacity:0;transform:scale(0.4) translateY(40px) rotate(-8deg);}
+            55%{opacity:1;transform:scale(1.12) translateY(-6px) rotate(2deg);}
+            75%{transform:scale(0.95) translateY(2px) rotate(-1deg);}
+            100%{opacity:1;transform:scale(1) translateY(0) rotate(0deg);}
+        }
+        /* বন্ধ হওয়ার সময় */
+        .fab-menu:not(.show) .fab-option{animation:fabItemOut 0.2s ease-in both;}
+        @keyframes fabItemOut{
+            from{opacity:1;transform:scale(1) translateY(0);}
+            to{opacity:0;transform:scale(0.5) translateY(20px);}
+        }
+        .fab-option{
+            display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+            background:rgba(255,255,255,0.80);
+            backdrop-filter:blur(20px) saturate(180%);
+            -webkit-backdrop-filter:blur(20px) saturate(180%);
+            border:1.5px solid rgba(255,255,255,0.9);
+            border-radius:20px;padding:14px 18px;
+            box-shadow:
+                0 8px 24px rgba(108,92,231,0.14),
+                0 2px 6px rgba(0,0,0,0.06),
+                inset 0 1px 0 rgba(255,255,255,1);
+            transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+            min-width:78px;
+        }
+        body.dark-mode .fab-option{
+            background:rgba(30,24,55,0.82);
+            border-color:rgba(162,155,254,0.18);
+            box-shadow:0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.07);
+        }
+        .fab-option:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 14px 32px rgba(108,92,231,0.22);}
+        .fab-option:active{
+            animation:fabTap 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        @keyframes fabTap{
+            0%{transform:scale(1);}
+            40%{transform:scale(0.88);}
+            100%{transform:scale(1);}
+        }
+        .fab-option-icon{font-size:28px;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+        .fab-option:hover .fab-option-icon{transform:scale(1.2) rotate(-5deg);}
         .fab-option-label{font-size:12px;font-weight:700;color:var(--text-primary);white-space:nowrap;}
         .avatar-change-overlay{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--grad-btn);border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
         /* DRAFT EVENTS SECTION */
@@ -1567,14 +1739,15 @@ if (typeof twemoji === 'undefined') {
         </div>
         <!-- Right: Action buttons -->
         <div class="user-bar-right">
-            <button class="logout-btn" id="logoutBtnEl" onclick="handleLogout()">লগ আউট</button>
             <div class="notif-bell-wrap" style="position:relative;">
                 <button class="user-bar-icon-btn" onclick="openNotifPanel()" title="নোটিফিকেশন">🔔</button>
                 <div class="notif-dot" id="notifDot"></div>
             </div>
-            <button class="user-bar-icon-btn" id="darkToggleBtn" onclick="toggleDarkMode()" title="থিম">🌙</button>
             <button class="user-bar-icon-btn" id="refreshBtn" onclick="refreshApp()" title="রিফ্রেশ">🔄</button>
         </div>
+        <!-- hidden stubs so JS refs don't break -->
+        <span id="logoutBtnEl" style="display:none;"></span>
+        <span id="darkToggleBtn" style="display:none;"></span>
     </div>
     <div class="event-banner">
         <div class="banner-title" id="bannerTitle">আসন্ন ইভেন্ট</div>
@@ -1728,6 +1901,10 @@ if (typeof twemoji === 'undefined') {
                 <div class="bn-icon" id="bnAboutIcon" style="position:relative;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;border:2px solid rgba(108,92,231,0.3);overflow:hidden;">IM</div>
                 <span class="bn-label" id="bnLabelAbout">About</span>
             </button>
+            <button class="bn-item" id="bnSettings" onclick="bnSwitch('settings',this)">
+                <div class="bn-icon">⚙️</div>
+                <span class="bn-label" id="bnLabelSettings">সেটিংস</span>
+            </button>
         </nav>
         <div class="content">
             <div id="posts" class="tab-content active">
@@ -1836,6 +2013,70 @@ if (typeof twemoji === 'undefined') {
                     </div>
                 </div>
             </div>
+            <!-- ══ SETTINGS TAB ══ -->
+            <div id="settings" class="tab-content">
+                <div style="max-width:600px;margin:0 auto;padding:20px;">
+                    <h2 style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:20px;">⚙️ <span id="settingsTitle">সেটিংস</span></h2>
+
+                    <!-- Appearance -->
+                    <div style="background:var(--bg-card-solid);border:1px solid var(--border-card);border-radius:18px;padding:16px;margin-bottom:16px;">
+                        <div style="font-size:12px;font-weight:700;color:var(--text-muted-light);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;">🎨 <span id="settingsAppearance">অ্যাপিয়ারেন্স</span></div>
+                        <!-- Dark Mode -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-light);">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">🌙</span>
+                                <div>
+                                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);" id="settingsDarkLabel">ডার্ক মোড</div>
+                                    <div style="font-size:12px;color:var(--text-muted-light);" id="settingsDarkSub">রাতের থিম চালু করুন</div>
+                                </div>
+                            </div>
+                            <button onclick="toggleDarkMode()" style="background:var(--grad-brand);border:none;color:white;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;" id="settingsDarkBtn">চালু/বন্ধ</button>
+                        </div>
+                        <!-- Color Theme -->
+                        <div style="padding:12px 0 4px;">
+                            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:10px;" id="settingsColorLabel">🎨 রঙ থিম</div>
+                            <div style="display:flex;gap:10px;">
+                                <button onclick="applyColorTheme('blue')" id="themeBlueBtn" style="flex:1;padding:12px 8px;border-radius:14px;border:2.5px solid #1877f2;background:linear-gradient(135deg,#1877f2,#4299f7);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;">
+                                    <span style="width:14px;height:14px;border-radius:50%;background:white;display:inline-block;"></span> নীল
+                                </button>
+                                <button onclick="applyColorTheme('purple')" id="themePurpleBtn" style="flex:1;padding:12px 8px;border-radius:14px;border:2.5px solid #6c5ce7;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;">
+                                    <span style="width:14px;height:14px;border-radius:50%;background:white;display:inline-block;"></span> বেগুনি
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Language -->
+                    <div style="background:var(--bg-card-solid);border:1px solid var(--border-card);border-radius:18px;padding:16px;margin-bottom:16px;">
+                        <div style="font-size:12px;font-weight:700;color:var(--text-muted-light);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;">🌐 <span id="settingsLanguage">ভাষা</span></div>
+                        <div style="display:flex;gap:10px;">
+                            <button onclick="changeLanguage('bn')" style="flex:1;padding:12px;border-radius:14px;border:2px solid var(--p1);background:rgba(108,92,231,0.1);color:var(--p1);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">🇧🇩 বাংলা</button>
+                            <button onclick="changeLanguage('en')" style="flex:1;padding:12px;border-radius:14px;border:2px solid var(--border-light);background:var(--bg-glass);color:var(--text-primary);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">🇬🇧 English</button>
+                        </div>
+                    </div>
+
+                    <!-- Account -->
+                    <div style="background:var(--bg-card-solid);border:1px solid var(--border-card);border-radius:18px;padding:16px;margin-bottom:16px;">
+                        <div style="font-size:12px;font-weight:700;color:var(--text-muted-light);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;">👤 <span id="settingsAccount">অ্যাকাউন্ট</span></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-light);">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">👤</span>
+                                <div style="font-size:14px;font-weight:600;color:var(--text-primary);" id="settingsProfileLink">প্রোফাইল দেখুন</div>
+                            </div>
+                            <button onclick="bnSwitch('profile',document.getElementById('bnProfile'))" style="background:var(--bg-glass);border:1.5px solid var(--border-light);color:var(--p1);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">যান</button>
+                        </div>
+                        <div style="padding:12px 0;">
+                            <button onclick="handleLogout()" style="width:100%;padding:13px;border-radius:14px;border:none;background:rgba(255,71,87,0.1);color:#ff4757;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;border:1.5px solid rgba(255,71,87,0.25);">🚪 <span id="settingsLogout">লগ আউট করুন</span></button>
+                        </div>
+                    </div>
+
+                    <!-- App Info -->
+                    <div style="text-align:center;padding:20px;background:rgba(108,92,231,0.06);border-radius:16px;border:1px solid rgba(108,92,231,0.15);">
+                        <p style="font-size:12px;color:var(--text-muted-light);margin:0;">MeetApp v2.0 • © 2026 MD Imtiaz Hossain Somrat</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- ══ MESSAGES TAB ══ -->
             <div id="messages" class="tab-content">
                 <div id="msgListView">
@@ -2403,8 +2644,8 @@ async function doLogin(){
     if(!username||!password) return showLoginError(t('fillAllFields'));
     showLoginLoading();
 
-    // ── অফলাইন মোড: db নেই বা ইন্টারনেট নেই → cache থেকে লগিন ──
-    const isOfflineMode = !db || !navigator.onLine;
+    // ── অফলাইন মোড: db নেই → cache থেকে লগিন ──
+    const isOfflineMode = !db;
     if(isOfflineMode){
         const cachedUsers = loadCache(_offlineCacheKey.users) || {};
         let userData = null;
@@ -2656,7 +2897,7 @@ function applyLanguage(lang){
     const bnLabels = {
         bnLabelHome:lang==='bn'?'হোম':'Home', bnLabelSearch:lang==='bn'?'খুঁজুন':'Search',
         bnLabelEvents:lang==='bn'?'ইভেন্ট':'Events', bnLabelProfile:lang==='bn'?'প্রোফাইল':'Profile',
-        bnLabelAbout:lang==='bn'?'সম্পর্কে':'About',
+        bnLabelAbout:lang==='bn'?'সম্পর্কে':'About', bnLabelSettings:lang==='bn'?'সেটিংস':'Settings',
         fabLabelPhoto:lang==='bn'?'ফটো':'Photo', fabLabelVideo:lang==='bn'?'ভিডিও':'Video',
         fabLabelWritten:lang==='bn'?'লিখিত':'Written', fabLabelEvent:lang==='bn'?'ইভেন্ট':'Event',
     };
@@ -3308,7 +3549,7 @@ function adminRequestPost(targetUid, targetName){
     }
 }
 
-const FCM_SERVER_URL = 'https://fcm-server-m7fx.onrender.com/send-notification';
+const FCM_SERVER_URL = 'https://meetapp-fcm-server.onrender.com/send-notification';
 
 function sendFcmPush(targetUid, title, body){
     if(!db||!targetUid) return;
@@ -3409,7 +3650,48 @@ function uploadWrittenPost(){
     }
     const content=document.getElementById('writtenPostContent').value.trim(); if(!content) return showNotification(t('pleaseEnterContent')); showPostingAnimation('text'); const tp={id:Date.now(),type:'text',content,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('textPosts/'+tp.id).set(tp).then(()=>{hidePostingAnimation();showNotification(t('postCreated'));document.getElementById('writtenPostContent').value='';bnSwitch('posts',document.getElementById('bnHome'));sendNotifToAllUsers(`📝 <b>${currentUser&&currentUser.name||'কেউ'}</b> নতুন পোস্ট করেছেন: "${content.slice(0,60)}${content.length>60?'...':''}"`,'📝'); sendPushToAll(`📝 ${currentUser&&currentUser.name||'কেউ'} নতুন পোস্ট করেছেন`, content.slice(0,80)||'নতুন পোস্ট দেখুন!', '📝');}).catch(()=>hidePostingAnimation()); else{textPosts.push(tp);hidePostingAnimation();showNotification(t('postCreated'));document.getElementById('writtenPostContent').value='';bnSwitch('posts',document.getElementById('bnHome'));displayPosts();} }
 
-function addReaction(id,type,emoji){ if(!currentUser){ showNotification(currentLanguage==='bn'?'রিয়্যাক্ট করতে লগইন করুন!':'Please login to react!'); return; } const uid=currentUser.uid; let arr=type==='video'?videos:type==='photo'?photos:textPosts; let item=arr.find(x=>x.id===id); if(!item) return; if(!item.reactedBy) item.reactedBy={}; if(item.reactedBy[uid]){ const prev=item.reactedBy[uid]; if(prev===emoji){ item.reactions[prev]=(item.reactions[prev]||1)-1; if(item.reactions[prev]<=0) delete item.reactions[prev]; delete item.reactedBy[uid]; } else { item.reactions[prev]=(item.reactions[prev]||1)-1; if(item.reactions[prev]<=0) delete item.reactions[prev]; if(!item.reactions) item.reactions={}; item.reactions[emoji]=(item.reactions[emoji]||0)+1; item.reactedBy[uid]=emoji; } } else { if(!item.reactions) item.reactions={}; item.reactions[emoji]=(item.reactions[emoji]||0)+1; item.reactedBy[uid]=emoji; if(item.uid&&item.uid!==uid) sendUserNotification(item.uid,`${emoji} <b>${currentUser.name}</b> ${currentLanguage==='bn'?'আপনার পোস্টে রিয়্যাক্ট করেছেন':'reacted to your post'}`,emoji,id,type); } const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}`).set(item); else displayPosts(); const picker=document.getElementById('reactionPicker-'+id); if(picker) picker.classList.remove('show'); }
+function spawnFloatingEmoji(emoji, originEl){
+    try{
+        var rect = originEl ? originEl.getBoundingClientRect() : {left: window.innerWidth/2, top: window.innerHeight/2, width:0, height:0};
+        var count = 6;
+        for(var i=0; i<count; i++){
+            (function(idx){
+                var el = document.createElement('div');
+                el.textContent = emoji;
+                el.style.cssText = [
+                    'position:fixed',
+                    'z-index:9999',
+                    'font-size:'+(22+Math.random()*14)+'px',
+                    'left:'+(rect.left + rect.width/2 - 12)+'px',
+                    'top:'+(rect.top + rect.height/2 - 12)+'px',
+                    'pointer-events:none',
+                    'user-select:none',
+                    'will-change:transform,opacity',
+                    'transition:none',
+                ].join(';');
+                document.body.appendChild(el);
+                var angle = (idx / count) * 360 + (Math.random()-0.5)*40;
+                var dist = 55 + Math.random()*55;
+                var dx = Math.cos(angle * Math.PI/180) * dist;
+                var dy = Math.sin(angle * Math.PI/180) * dist - 30;
+                var delay = idx * 35;
+                setTimeout(function(){
+                    el.style.transition = 'transform 0.7s cubic-bezier(0.22,1,0.36,1), opacity 0.5s ease 0.25s';
+                    el.style.transform = 'translate('+dx+'px,'+dy+'px) scale(0.2) rotate('+(Math.random()*60-30)+'deg)';
+                    el.style.opacity = '0';
+                    setTimeout(function(){ el.remove(); }, 900);
+                }, delay);
+            })(i);
+        }
+    }catch(e){}
+}
+
+function addReaction(id,type,emoji){ if(!currentUser){ showNotification(currentLanguage==='bn'?'রিয়্যাক্ট করতে লগইন করুন!':'Please login to react!'); return; }
+    // Floating emoji burst
+    var originEl = document.querySelector('#reactionPicker-'+id+' .reaction-emoji:hover') ||
+                   document.querySelector('#reactionPicker-'+id);
+    spawnFloatingEmoji(emoji, originEl);
+    const uid=currentUser.uid; let arr=type==='video'?videos:type==='photo'?photos:textPosts; let item=arr.find(x=>x.id===id); if(!item) return; if(!item.reactedBy) item.reactedBy={}; if(item.reactedBy[uid]){ const prev=item.reactedBy[uid]; if(prev===emoji){ item.reactions[prev]=(item.reactions[prev]||1)-1; if(item.reactions[prev]<=0) delete item.reactions[prev]; delete item.reactedBy[uid]; } else { item.reactions[prev]=(item.reactions[prev]||1)-1; if(item.reactions[prev]<=0) delete item.reactions[prev]; if(!item.reactions) item.reactions={}; item.reactions[emoji]=(item.reactions[emoji]||0)+1; item.reactedBy[uid]=emoji; } } else { if(!item.reactions) item.reactions={}; item.reactions[emoji]=(item.reactions[emoji]||0)+1; item.reactedBy[uid]=emoji; if(item.uid&&item.uid!==uid) sendUserNotification(item.uid,`${emoji} <b>${currentUser.name}</b> ${currentLanguage==='bn'?'আপনার পোস্টে রিয়্যাক্ট করেছেন':'reacted to your post'}`,emoji,id,type); } const ref=type==='text'?'textPosts':type+'s'; if(db) db.ref(`${ref}/${id}`).set(item); else displayPosts(); const picker=document.getElementById('reactionPicker-'+id); if(picker) picker.classList.remove('show'); }
 function showReactionPicker(id){ const picker=document.getElementById('reactionPicker-'+id); if(!picker) return; const isOpen=picker.classList.contains('show'); document.querySelectorAll('.reaction-picker.show').forEach(p=>p.classList.remove('show')); if(!isOpen){ picker.classList.add('show'); setTimeout(()=>applyTwemoji(picker),50); } }
 function getUserReaction(item){ if(!currentUser||!item.reactedBy) return null; return item.reactedBy[currentUser.uid]||null; }
 
@@ -3956,11 +4238,26 @@ function initFirebaseListeners(){
         return;
     }
 
-    // নেট আছে কিনা চেক করো — না থাকলে আগে cache দেখাও
-    var _isOnline = true;
+    // নেট আছে কিনা চেক করো — Firebase প্রথমবার সবসময় false দেয়, তাই delay লাগে
+    var _connectedEver = false;
+    var _offlineDataTimer = null;
     db.ref('.info/connected').on('value', function(snap){
-        _isOnline = snap.val() === true;
-        if(!_isOnline) loadOfflineData();
+        var isConn = snap.val() === true;
+        if(isConn){
+            _connectedEver = true;
+            // Online হয়ে গেলে pending offline timer বাতিল করো
+            if(_offlineDataTimer){ clearTimeout(_offlineDataTimer); _offlineDataTimer = null; }
+        } else {
+            // প্রথম false মানে app সবে load হচ্ছে — অপেক্ষা করো
+            // একবার connected হওয়ার পরে disconnect হলে ৫ সেকেন্ড পর offline data দেখাও
+            var delay = _connectedEver ? 5000 : 99999; // প্রথমবার কখনো offline দেখাবো না
+            if(_offlineDataTimer) clearTimeout(_offlineDataTimer);
+            _offlineDataTimer = setTimeout(function(){
+                db.ref('.info/connected').once('value', function(s){
+                    if(s.val() !== true) loadOfflineData();
+                });
+            }, delay);
+        }
     });
 
     // debounce to prevent multiple rapid re-renders
@@ -6508,6 +6805,28 @@ function isBlockedUser(uid){ return _blockedUsers.includes(uid); }
 })();
 
 
+
+// ══════════════════════════════════════════════════════
+// 🎨 COLOR THEME SWITCHER (Purple Aurora / Facebook Blue)
+// ══════════════════════════════════════════════════════
+function applyColorTheme(theme){
+    if(theme === 'blue'){
+        document.body.classList.add('theme-blue');
+    } else {
+        document.body.classList.remove('theme-blue');
+    }
+    localStorage.setItem('meetapp_color_theme', theme);
+    var blueBtn = document.getElementById('themeBlueBtn');
+    var purpleBtn = document.getElementById('themePurpleBtn');
+    if(blueBtn) blueBtn.style.boxShadow = theme==='blue' ? '0 0 0 3px #fff, 0 0 0 5px #1877f2' : 'none';
+    if(purpleBtn) purpleBtn.style.boxShadow = theme==='purple' ? '0 0 0 3px #fff, 0 0 0 5px #6c5ce7' : 'none';
+}
+// Load saved color theme on startup
+(function(){
+    var saved = localStorage.getItem('meetapp_color_theme') || 'blue';
+    if(saved === 'blue') document.body.classList.add('theme-blue');
+    window.addEventListener('load', function(){ applyColorTheme(saved); });
+})();
 
 window.previewPhotoBeforeUpload = function(input){
     if(!input.files||!input.files[0]) return;
