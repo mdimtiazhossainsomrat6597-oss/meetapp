@@ -6,8 +6,18 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>MeetApp</title>
+    <!-- ✅ Splash-এর আগেই theme apply করো -->
+    <script>
+    (function(){
+        var t = localStorage.getItem('meetapp_color_theme') || 'blue';
+        if(t === 'blue') document.documentElement.classList.add('theme-blue');
+        document.addEventListener('DOMContentLoaded', function(){
+            if(t === 'blue') document.body.classList.add('theme-blue');
+        });
+    })();
+    </script>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6c63ff">
+    <meta name="theme-color" content="#1877f2">
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
     <!-- Firebase Cloud Messaging (FCM) -->
     <!-- App Shell SW — অফলাইন সাপোর্ট (GitHub Pages compatible) -->
@@ -828,6 +838,29 @@ if (typeof twemoji === 'undefined') {
             transition:opacity 0.5s cubic-bezier(0.4,0,0.2,1);overflow:hidden;
             box-sizing:border-box;padding:20px;
         }
+        /* Blue theme splash */
+        body.theme-blue #splashScreen,
+        html.theme-blue #splashScreen{
+            background:radial-gradient(ellipse at 30% 20%,#1a3a6e 0%,#0d1f3c 40%,#050d1a 100%);
+        }
+        body.theme-blue #splashScreen::before,
+        html.theme-blue #splashScreen::before{
+            background:
+                radial-gradient(ellipse 80% 55% at 15% 15%,rgba(24,119,242,0.45) 0%,transparent 60%),
+                radial-gradient(ellipse 60% 50% at 85% 80%,rgba(66,153,247,0.25) 0%,transparent 55%),
+                radial-gradient(ellipse 40% 40% at 70% 20%,rgba(66,183,42,0.12) 0%,transparent 50%);
+        }
+        body.theme-blue #splashScreen::after{
+            background:radial-gradient(circle,rgba(24,119,242,0.15) 0%,transparent 70%);
+        }
+        body.theme-blue .splash-icon,
+        html.theme-blue .splash-icon{background:linear-gradient(135deg,#1877f2,#4299f7)!important;box-shadow:0 8px 28px rgba(24,119,242,0.6),0 2px 0 rgba(255,255,255,0.18) inset!important;}
+        body.theme-blue .splash-logo,
+        html.theme-blue .splash-logo{background:linear-gradient(135deg,#ffffff 0%,#90c8ff 50%,#4299f7 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;}
+        body.theme-blue .splash-bar,
+        html.theme-blue .splash-bar{background:linear-gradient(90deg,#1877f2,#4299f7,#42b72a)!important;}
+        body.theme-blue .splash-status,
+        html.theme-blue .splash-status{background:rgba(24,119,242,0.15)!important;border-color:rgba(66,153,247,0.3)!important;}
         /* Ramadan splash */
         body.theme-ramadan #splashScreen{
             background:radial-gradient(ellipse at 30% 20%,#003d28 0%,#001a0f 40%,#000d07 100%);
@@ -2046,6 +2079,20 @@ if (typeof twemoji === 'undefined') {
                         </div>
                     </div>
 
+                    <!-- Sound -->
+                    <div style="background:var(--bg-card-solid);border:1px solid var(--border-card);border-radius:18px;padding:16px;margin-bottom:16px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">🔊</span>
+                                <div>
+                                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);">নোটিফিকেশন সাউন্ড</div>
+                                    <div style="font-size:12px;color:var(--text-muted-light);">লাইক, কমেন্ট, মেসেজ</div>
+                                </div>
+                            </div>
+                            <button id="soundToggleBtn" onclick="toggleSound()" style="background:var(--grad-brand);border:none;color:white;padding:8px 16px;border-radius:20px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">🔔</button>
+                        </div>
+                    </div>
+
                     <!-- Language -->
                     <div style="background:var(--bg-card-solid);border:1px solid var(--border-card);border-radius:18px;padding:16px;margin-bottom:16px;">
                         <div style="font-size:12px;font-weight:700;color:var(--text-muted-light);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;">🌐 <span id="settingsLanguage">ভাষা</span></div>
@@ -2303,8 +2350,8 @@ async function broadcastPostNotif(title, body, emoji, posterUid){
   sendFcmBroadcast(title, body, emoji);
 }
 
-// Backward compat
-const VERCEL_NOTIFY_URL = 'https://meetapp-notify.vercel.app/api/notify';
+// Backward compat stub
+const VERCEL_NOTIFY_URL = '';
 
 async function sendPushToAll(title, body, emoji){
   emoji = emoji || '🔔';
@@ -3988,7 +4035,47 @@ function loadMorePosts() {
 }
 
 function createPhotoCard(photo){ const bm=isBookmarked(photo.id); return `<div class="photo-card" data-id="${photo.id}">${postHeaderHtml(photo)}${postActionBtns(photo,'photo')}<div class="media-container"><img loading="lazy" src="${photo.image}" alt="Photo"><div class="expand-overlay" onclick="openModal(${photo.id},'photo')"><div class="expand-icon">⛶</div></div></div>${editForm(photo,'photo')}<div class="photo-info">${photo.caption?`<p class="photo-caption">${photo.caption}</p>`:''}${reactionsDisplay(photo)}${reactionBar(photo,'photo')}${commentSection(photo,'photo')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${photo.id},'photo')">${bm?'🔖':'🏷️'}</button></div></div>`; }
-function createVideoCard(video){ const bm=isBookmarked(video.id); return `<div class="video-card" data-id="${video.id}">${postHeaderHtml(video)}${postActionBtns(video,'video')}<div class="media-container"><video controls><source src="${video.video}" type="video/mp4"></video></div>${editForm(video,'video')}<div class="photo-info">${video.caption?`<p class="photo-caption">${video.caption}</p>`:''}${reactionsDisplay(video)}${reactionBar(video,'video')}${commentSection(video,'video')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${video.id},'video')">${bm?'🔖':'🏷️'}</button></div></div>`; }
+function generateVideoThumbnail(videoSrc, callback){
+    var v = document.createElement('video');
+    v.crossOrigin = 'anonymous';
+    v.preload = 'metadata';
+    v.muted = true;
+    v.playsInline = true;
+    v.src = videoSrc;
+    var done = false;
+    function capture(){
+        if(done) return; done = true;
+        try{
+            var canvas = document.createElement('canvas');
+            canvas.width = v.videoWidth || 320;
+            canvas.height = v.videoHeight || 180;
+            canvas.getContext('2d').drawImage(v, 0, 0, canvas.width, canvas.height);
+            callback(canvas.toDataURL('image/jpeg', 0.8));
+        } catch(e){ callback(null); }
+    }
+    v.addEventListener('seeked', capture);
+    v.addEventListener('loadedmetadata', function(){
+        v.currentTime = Math.min(0.5, v.duration * 0.1 || 0.5);
+    });
+    v.addEventListener('loadeddata', function(){
+        if(!done) { v.currentTime = Math.min(0.5, v.duration * 0.1 || 0.5); }
+    });
+    v.addEventListener('error', function(){ callback(null); });
+    // fallback: 3 সেকেন্ড পরও না হলে ছেড়ে দাও
+    setTimeout(function(){ if(!done){ done=true; callback(null); } }, 3000);
+}
+function createVideoCard(video){
+    const bm=isBookmarked(video.id);
+    const thumbId = 'vthumb-' + video.id;
+    const html = `<div class="video-card" data-id="${video.id}">${postHeaderHtml(video)}${postActionBtns(video,'video')}<div class="media-container" style="position:relative;background:#000;min-height:180px;"><div id="${thumbId}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#111;cursor:pointer;z-index:2;" onclick="this.style.display='none';this.nextElementSibling.style.display='block';this.nextElementSibling.play();"><img id="${thumbId}-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;"><div style="position:absolute;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;font-size:26px;">▶️</div></div><video style="display:none;width:100%;" controls><source src="${video.video}" type="video/mp4"></video></div>${editForm(video,'video')}<div class="photo-info">${video.caption?`<p class="photo-caption">${video.caption}</p>`:""}${reactionsDisplay(video)}${reactionBar(video,'video')}${commentSection(video,'video')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${video.id},'video')">${bm?'🔖':'🏷️'}</button></div></div>`;
+    setTimeout(function(){
+        var thumbImg = document.getElementById(thumbId + '-img');
+        if(!thumbImg) return;
+        if(video.thumbnail){ thumbImg.src = video.thumbnail; thumbImg.style.display = 'block'; }
+        else { generateVideoThumbnail(video.video, function(dataUrl){ if(dataUrl && thumbImg){ thumbImg.src = dataUrl; thumbImg.style.display = 'block'; } }); }
+    }, 200);
+    return html;
+}
 function createTextCard(tp){ const bm=isBookmarked(tp.id); return `<div class="text-card" data-id="${tp.id}">${postHeaderHtml(tp)}${postActionBtns(tp,'text')}<div class="text-post-content">${tp.content}</div>${editForm(tp,'text')}<div class="photo-info">${reactionsDisplay(tp)}${reactionBar(tp,'text')}${commentSection(tp,'text')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${tp.id},'text')">${bm?'🔖':'🏷️'}</button></div></div>`; }
 
 function openModal(id,type){ const item=type==='video'?videos.find(v=>v.id===id):photos.find(p=>p.id===id); if(!item) return; const mediaEl=document.getElementById('modalMedia'); if(type==='photo') mediaEl.innerHTML=`<img src="${item.image}" alt="Photo">`; else mediaEl.innerHTML=`<video controls autoplay><source src="${item.video}" type="video/mp4"></video>`; const modalUser=(currentUser&&item.uid===currentUser.uid)?currentUser:(allUsers[item.uid]||{}); const modalName=modalUser.name||item.uploaderName||t('guestUser'); document.getElementById('modalBody').innerHTML=`<div style="margin-bottom:4px">${modalName}</div><div style="font-size:12px;color:var(--text-muted-light);margin-bottom:12px">${item.uploadDate}</div>${item.caption?`<p class="photo-caption">${item.caption}</p>`:''}${reactionsDisplay(item)}${reactionBar(item,type)}${commentSection(item,type)}`; document.getElementById('modalOverlay').classList.add('show'); document.body.style.overflow='hidden'; }
@@ -4008,24 +4095,14 @@ function addEvent(){
         document.getElementById('eventTitle').value='';
         document.getElementById('eventTime').value='';
         document.getElementById('eventDescription').value='';
-        // সব user-দের notify করুন
-        db.ref('fcmTokens').once('value').then(function(snap){
-            const tokens = snap.val();
-            if(!tokens) return;
-            const creatorName = currentUser ? (currentUser.name||'কেউ') : 'কেউ';
-            Object.entries(tokens).forEach(function([uid, token]){
-                if(uid === (currentUser&&currentUser.uid)) return; // নিজেকে বাদ দিন
-                fetch(FCM_SERVER_URL,{
-                    method:'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({
-                        token,
-                        title:'MeetApp 📅 নতুন ইভেন্ট!',
-                        body: creatorName+' একটি নতুন ইভেন্ট যোগ করেছেন: '+title+' ('+timeFormatted+')'
-                    })
-                }).catch(function(){});
-            });
-        });
+        // ✅ OneSignal broadcast — সবাইকে এক request-এ
+        const creatorName = currentUser ? (currentUser.name||'কেউ') : 'কেউ';
+        sendPushToAll(
+            'MeetApp 📅 নতুন ইভেন্ট!',
+            creatorName+' একটি নতুন ইভেন্ট যোগ করেছেন: '+title+' ('+timeFormatted+')',
+            '📅'
+        );
+        sendNotifToAllUsers('📅 <b>'+creatorName+'</b> নতুন ইভেন্ট যোগ করেছেন: '+title, '📅');
     });
     else{events.push(newEvent);showNotification(t('eventAdded'));displayEvents();initEventSlider();}
 }
@@ -4577,6 +4654,8 @@ function playSoundForEmoji(emoji){
   if(emoji==='❌') return SoundFX.error();
   return SoundFX.notify();
 }
+// ✅ alias — playSoundByEmoji নামেও কাজ করবে
+var playSoundByEmoji = playSoundForEmoji;
 // ===== END SOUND SYSTEM =====
 
 function addNotification(msg,emoji='🔔',fromUid=null,targetId=null,targetType=null){ if(!currentUser) return; playSoundForEmoji(emoji); const n={id:Date.now(),msg,emoji,time:new Date().toLocaleString(),unread:true,fromUid,targetId,targetType}; notifications.unshift(n); if(notifications.length>100) notifications=notifications.slice(0,100); localStorage.setItem('meetapp_notifs',JSON.stringify(notifications)); updateNotifDot(); renderNotifList(); }
@@ -4805,7 +4884,8 @@ function applyAppTheme(theme){
     // Update meta theme-color
     let metaTheme = document.querySelector('meta[name="theme-color"]');
     if(!metaTheme){ metaTheme=document.createElement('meta'); metaTheme.name='theme-color'; document.head.appendChild(metaTheme); }
-    metaTheme.content = theme==='ramadan'?'#00875a': theme==='eid'?'#0f3320':'#6c63ff';
+    const colorTheme = localStorage.getItem('meetapp_color_theme') || 'blue';
+    metaTheme.content = theme==='ramadan'?'#00875a': theme==='eid'?'#0f3320': colorTheme==='blue'?'#1877f2':'#6c63ff';
 }
 
 // Load theme schedules from Firebase and apply matching theme for today
@@ -5435,7 +5515,7 @@ function doSendMsg() {
         text: text, senderUid: currentUser.uid,
         senderName: currentUser.name || 'আপনি', ts: Date.now()
     });
-    // ✅ রিসিভারকে নোটিফিকেশন পাঠাও
+    // ✅ রিসিভারকে নোটিফিকেশন পাঠাও (in-app + OneSignal push একসাথে)
     var senderName = currentUser.name || 'কেউ';
     var preview = text.length > 50 ? text.slice(0, 50) + '...' : text;
     sendUserNotification(
@@ -5443,16 +5523,6 @@ function doSendMsg() {
         '💬 <b>' + senderName + '</b>: ' + preview,
         '💬'
     );
-    // ✅ Push notification (OneSignal — অ্যাপ বন্ধ থাকলেও)
-    fetch('https://meetapp-fcm-server.onrender.com/send-notification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            externalId: _msgActiveUid,
-            title: '💬 ' + senderName,
-            body: preview
-        })
-    }).catch(function(){});
 }
 
 function escMsg(str) {
@@ -6747,26 +6817,30 @@ function updateAboutPage(){
   }
   
   // Update avatars with @imtiaz profile picture
-  if(!allUsers) return;
-  var imtiazUser = null;
-  for(var uid in allUsers){
-    if(allUsers[uid].username === 'imtiaz'){
-      imtiazUser = allUsers[uid];
-      break;
+  function applyImtiazAvatar(avatar){
+    var aboutIcon = document.getElementById('bnAboutIcon');
+    if(aboutIcon) aboutIcon.innerHTML = '<img src="'+avatar+'" alt="" loading="eager" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    var aboutPageAvatar = document.getElementById('aboutPageAvatar');
+    if(aboutPageAvatar) aboutPageAvatar.innerHTML = '<img src="'+avatar+'" alt="" loading="eager" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+  }
+
+  // ১. allUsers cache থেকে সাথে সাথে
+  if(allUsers){
+    for(var uid in allUsers){
+      if(allUsers[uid].username === 'imtiaz' && allUsers[uid].avatar){
+        applyImtiazAvatar(allUsers[uid].avatar);
+        return;
+      }
     }
   }
-  if(!imtiazUser || !imtiazUser.avatar) return;
-  
-  // Update About button icon
-  var aboutIcon = document.getElementById('bnAboutIcon');
-  if(aboutIcon){
-    aboutIcon.innerHTML = '<img src="'+imtiazUser.avatar+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-  }
-  
-  // Update About page avatar
-  var aboutPageAvatar = document.getElementById('aboutPageAvatar');
-  if(aboutPageAvatar){
-    aboutPageAvatar.innerHTML = '<img src="'+imtiazUser.avatar+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+  // ২. Firebase থেকে সরাসরি fetch
+  if(db){
+    db.ref('users').orderByChild('username').equalTo('imtiaz').once('value', function(snap){
+      snap.forEach(function(child){
+        var u = child.val();
+        if(u && u.avatar) applyImtiazAvatar(u.avatar);
+      });
+    });
   }
 }
 
@@ -6833,10 +6907,15 @@ function isBlockedUser(uid){ return _blockedUsers.includes(uid); }
 function applyColorTheme(theme){
     if(theme === 'blue'){
         document.body.classList.add('theme-blue');
+        document.documentElement.classList.add('theme-blue');
     } else {
         document.body.classList.remove('theme-blue');
+        document.documentElement.classList.remove('theme-blue');
     }
     localStorage.setItem('meetapp_color_theme', theme);
+    // meta theme-color আপডেট
+    var metaTheme = document.querySelector('meta[name="theme-color"]');
+    if(metaTheme) metaTheme.content = theme==='blue' ? '#1877f2' : '#6c63ff';
     var blueBtn = document.getElementById('themeBlueBtn');
     var purpleBtn = document.getElementById('themePurpleBtn');
     if(blueBtn) blueBtn.style.boxShadow = theme==='blue' ? '0 0 0 3px #fff, 0 0 0 5px #1877f2' : 'none';
