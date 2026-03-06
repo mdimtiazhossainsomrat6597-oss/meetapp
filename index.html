@@ -2307,16 +2307,17 @@ async function broadcastPostNotif(title, body, emoji, posterUid){
 const VERCEL_NOTIFY_URL = 'https://meetapp-notify.vercel.app/api/notify';
 
 async function sendPushToAll(title, body, emoji){
-  emoji = emoji || '\uD83D\uDCCC';
+  emoji = emoji || '🔔';
   if(currentUser) broadcastPostNotif(title, body, emoji, currentUser.uid);
+  // OneSignal broadcast — সবাইকে পাঠাও
   try {
-    await fetch(VERCEL_NOTIFY_URL, {
+    await fetch('https://meetapp-fcm-server.onrender.com/send-all', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, body })
+      body: JSON.stringify({ title: title, body: body })
     });
   } catch(e) {
-    console.warn('Push notification error:', e);
+    console.warn('OneSignal broadcast error:', e);
   }
 }
 
@@ -3552,15 +3553,12 @@ function adminRequestPost(targetUid, targetName){
 const FCM_SERVER_URL = 'https://meetapp-fcm-server.onrender.com/send-notification';
 
 function sendFcmPush(targetUid, title, body){
-    if(!db||!targetUid) return;
-    db.ref('fcmTokens/'+targetUid).once('value').then(function(snap){
-        const token = snap.val();
-        if(!token) return;
-        fetch(FCM_SERVER_URL,{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({token, title, body})
-        }).catch(function(){});
+    if(!targetUid) return;
+    // OneSignal externalId = Firebase UID
+    fetch('https://meetapp-fcm-server.onrender.com/send-notification',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ externalId: targetUid, title: title, body: body })
     }).catch(function(){});
 }
 
@@ -4313,7 +4311,12 @@ function listenForMyNotifications(){
     db.ref('userNotifications/'+currentUser.uid).on('child_added',snap=>{
         const n=snap.val(); if(!n||!n.msg) return;
         const createdAt=n.time?new Date(n.time).getTime():0;
-        if(createdAt>APP_START_TIME-2000){ const plainMsg=n.msg.replace(/<[^>]+>/g,''); showNotification((n.emoji||'🔔')+' '+plainMsg); }
+        if(createdAt>APP_START_TIME-2000){
+            const plainMsg=n.msg.replace(/<[^>]+>/g,'');
+            showNotification((n.emoji||'🔔')+' '+plainMsg);
+            // ✅ Sound বাজাও
+            try{ playSoundByEmoji(n.emoji||'🔔'); }catch(e){ try{SoundFX.notify();}catch(e2){} }
+        }
         const notif={id:snap.key,msg:n.msg,emoji:n.emoji||'🔔',time:n.time?new Date(n.time).toLocaleString():new Date().toLocaleString(),unread:true,fromUid:n.from||'',targetId:n.targetId||null,targetType:n.targetType||null};
         if(!notifications.find(x=>x.id===snap.key)){ notifications.unshift(notif); if(notifications.length>100) notifications=notifications.slice(0,100); localStorage.setItem('meetapp_notifs',JSON.stringify(notifications)); updateNotifDot(); renderNotifList(); }
         setTimeout(()=>snap.ref.update({read:true}),3000);
@@ -5432,6 +5435,24 @@ function doSendMsg() {
         text: text, senderUid: currentUser.uid,
         senderName: currentUser.name || 'আপনি', ts: Date.now()
     });
+    // ✅ রিসিভারকে নোটিফিকেশন পাঠাও
+    var senderName = currentUser.name || 'কেউ';
+    var preview = text.length > 50 ? text.slice(0, 50) + '...' : text;
+    sendUserNotification(
+        _msgActiveUid,
+        '💬 <b>' + senderName + '</b>: ' + preview,
+        '💬'
+    );
+    // ✅ Push notification (OneSignal — অ্যাপ বন্ধ থাকলেও)
+    fetch('https://meetapp-fcm-server.onrender.com/send-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            externalId: _msgActiveUid,
+            title: '💬 ' + senderName,
+            body: preview
+        })
+    }).catch(function(){});
 }
 
 function escMsg(str) {

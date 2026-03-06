@@ -1,204 +1,92 @@
-const express = require("express");
-const admin = require("firebase-admin");
-const https = require("https");
+const express = require('express');
+const cors = require('cors');
+const admin = require('firebase-admin');
 
-const serviceAccount = require("./serviceAccountKey.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://photo-share-app-c65fd-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
-
-const db = admin.database();
 const app = express();
-app.use(express.json());
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
 
-// ═══════════════════════════════════════════
-// 🔧 OneSignal API দিয়ে notification পাঠানো
-// ═══════════════════════════════════════════
-const ONESIGNAL_APP_ID = "de1d5e11-90fd-4e5d-8f30-8018855c36d0";
+const ONESIGNAL_APP_ID = 'df8597d9-1032-4b6f-8634-43ca9f24f308';
+const ONESIGNAL_API_KEY = 'os_v2_app_36czpwiqgjfw7bruipfj6jhtbdryg3vn4njeivei3kehlsr7rve6o6vm76mv2xxudcvkcjhcvmldc57y5gwhsoccwhobohilzzyfimq';
 
-async function sendOneSignalToAll(title, body, data = {}) {
-  return new Promise((resolve, reject) => {
-    const payload = JSON.stringify({
+try {
+  const serviceAccount = require('./serviceAccountKey.json');
+  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  console.log('✅ Firebase Admin initialized');
+} catch (err) {
+  console.error('❌ Firebase init error:', err.message);
+}
+
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'MeetApp Server চালু আছে ✅' });
+});
+
+// নির্দিষ্ট user-কে notification (externalId = Firebase UID)
+app.post('/send-notification', async (req, res) => {
+  const { token, externalId, title, body } = req.body;
+  if (!title) return res.status(400).json({ error: 'title আবশ্যক' });
+  const targetId = externalId || (token && (token.externalId || token.uid));
+  try {
+    const payload = {
       app_id: ONESIGNAL_APP_ID,
-      included_segments: ["All"],
       headings: { en: title },
-      contents: { en: body },
-      data: data,
-      android_sound: "default",
-      priority: 10
-    });
-
-    const options = {
-      hostname: "onesignal.com",
-      port: 443,
-      path: "/api/v1/notifications",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(payload)
-      }
+      contents: { en: body || '' },
+      priority: 10,
+      android_sound: 'notification',
+      ios_sound: 'notification.wav',
+      android_channel_id: 'meetapp_channel',
     };
-
-    const req = https.request(options, (res) => {
-      let data = "";
-      res.on("data", chunk => data += chunk);
-      res.on("end", () => {
-        console.log(`✅ OneSignal সবাইকে পাঠানো হয়েছে: ${title}`);
-        resolve(data);
-      });
+    if (targetId) {
+      payload.include_aliases = { external_id: [String(targetId)] };
+      payload.target_channel = 'push';
+    } else {
+      payload.included_segments = ['All'];
+    }
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Key ' + ONESIGNAL_API_KEY },
+      body: JSON.stringify(payload),
     });
-    req.on("error", reject);
-    req.write(payload);
-    req.end();
-  });
-}
+    const data = await response.json();
+    console.log('✅ OneSignal:', JSON.stringify(data));
+    res.json({ success: true, data });
+  } catch (err) {
+    console.error('❌ Error:', err.message);
+    res.json({ success: false, error: err.message });
+  }
+});
 
-async function sendOneSignalToUser(externalUserId, title, body, data = {}) {
-  return new Promise((resolve, reject) => {
-    const payload = JSON.stringify({
-      app_id: ONESIGNAL_APP_ID,
-      filters: [{ field: "tag", key: "uid", relation: "=", value: externalUserId }],
-      headings: { en: title },
-      contents: { en: body },
-      data: data,
-      android_sound: "default",
-      priority: 10
+// সবাইকে broadcast
+app.post('/send-all', async (req, res) => {
+  const { title, body } = req.body;
+  if (!title) return res.status(400).json({ error: 'title আবশ্যক' });
+  try {
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Key ' + ONESIGNAL_API_KEY },
+      body: JSON.stringify({
+        app_id: ONESIGNAL_APP_ID,
+        included_segments: ['All'],
+        headings: { en: title },
+        contents: { en: body || '' },
+        priority: 10,
+        android_sound: 'notification',
+        ios_sound: 'notification.wav',
+      }),
     });
-
-    const options = {
-      hostname: "onesignal.com",
-      port: 443,
-      path: "/api/v1/notifications",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(payload)
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let data = "";
-      res.on("data", chunk => data += chunk);
-      res.on("end", () => {
-        console.log(`✅ OneSignal → ${externalUserId}: ${title}`);
-        resolve(data);
-      });
-    });
-    req.on("error", reject);
-    req.write(payload);
-    req.end();
-  });
-}
-
-// 🔧 নতুন কিনা চেক (৩০ সেকেন্ড)
-function isNew(val) {
-  const ts = val?.uploadDate ? new Date(val.uploadDate).getTime() : val?.id || val?.ts || val?.time || 0;
-  return Date.now() - ts < 30000;
-}
-
-// ═══════════════════════════════════════════
-// 📝 টেক্সট পোস্ট → সবাইকে
-// ═══════════════════════════════════════════
-db.ref("textPosts").on("child_added", async (snap) => {
-  const post = snap.val();
-  if (!post || !isNew(post)) return;
-  const name = post.authorName || post.userName || "কেউ একজন";
-  const body = post.content ? `${post.content.substring(0, 70)}...` : "নতুন পোস্ট দেখুন";
-  await sendOneSignalToAll(`📝 ${name} নতুন পোস্ট করেছেন!`, body, { type: "new_post" });
-});
-
-// ═══════════════════════════════════════════
-// 📷 ছবি পোস্ট → সবাইকে
-// ═══════════════════════════════════════════
-db.ref("photos").on("child_added", async (snap) => {
-  const post = snap.val();
-  if (!post || !isNew(post)) return;
-  const name = post.authorName || post.userName || "কেউ একজন";
-  const body = post.caption ? post.caption.substring(0, 70) : "নতুন ছবি দেখুন";
-  await sendOneSignalToAll(`📷 ${name} নতুন ছবি পোস্ট করেছেন!`, body, { type: "new_photo" });
-});
-
-// ═══════════════════════════════════════════
-// 🎥 ভিডিও পোস্ট → সবাইকে
-// ═══════════════════════════════════════════
-db.ref("videos").on("child_added", async (snap) => {
-  const post = snap.val();
-  if (!post || !isNew(post)) return;
-  const name = post.authorName || post.userName || "কেউ একজন";
-  const body = post.caption ? post.caption.substring(0, 70) : "নতুন ভিডিও দেখুন";
-  await sendOneSignalToAll(`🎥 ${name} নতুন ভিডিও পোস্ট করেছেন!`, body, { type: "new_video" });
-});
-
-// ═══════════════════════════════════════════
-// 💌 ম্যাসেজ → receiver কে
-// ═══════════════════════════════════════════
-const watchedChats = new Set();
-db.ref("messages").on("child_added", (chatSnap) => {
-  const chatId = chatSnap.key;
-  if (watchedChats.has(chatId)) return;
-  watchedChats.add(chatId);
-
-  db.ref(`messages/${chatId}`).on("child_added", async (msgSnap) => {
-    const msg = msgSnap.val();
-    if (!msg || !isNew(msg)) return;
-    const senderId = msg.senderUid || msg.uid || msg.senderId;
-    if (!senderId) return;
-    const uids = chatId.split("_");
-    const receiverId = uids.find(id => id !== senderId);
-    if (!receiverId) return;
-    const senderSnap = await db.ref(`users/${senderId}`).once("value");
-    const sender = senderSnap.val();
-    const senderName = sender?.name || "কেউ একজন";
-    const msgText = msg.text || "";
-    await sendOneSignalToUser(receiverId, `💌 ${senderName}`, msgText ? msgText.substring(0, 80) : "নতুন ম্যাসেজ পাঠিয়েছেন", { type: "message" });
-  });
-});
-
-// ═══════════════════════════════════════════
-// 👋 Friend Request → receiver কে
-// ═══════════════════════════════════════════
-db.ref("friendRequests").on("child_added", (receiverSnap) => {
-  const receiverUid = receiverSnap.key;
-  db.ref(`friendRequests/${receiverUid}`).on("child_added", async (reqSnap) => {
-    const req = reqSnap.val();
-    if (!req || !isNew({ ts: req.ts || 0 })) return;
-    const senderUid = reqSnap.key;
-    const senderSnap = await db.ref(`users/${senderUid}`).once("value");
-    const sender = senderSnap.val();
-    const senderName = sender?.name || "কেউ একজন";
-    await sendOneSignalToUser(receiverUid, `👋 ${senderName} Friend Request পাঠিয়েছেন`, "Accept করতে অ্যাপ খুলুন", { type: "friend_request" });
-  });
-});
-
-// ═══════════════════════════════════════════
-// 👑 Admin Broadcast → সবাইকে
-// ═══════════════════════════════════════════
-db.ref("broadcastNotif").on("child_added", async (snap) => {
-  const notif = snap.val();
-  if (!notif || !notif.title) return;
-  const ts = notif.createdAt ? new Date(notif.createdAt).getTime() : 0;
-  if (Date.now() - ts > 30000) return;
-  await sendOneSignalToAll(notif.title, notif.body || "", { type: "admin" });
-  await snap.ref.update({ sentAt: new Date().toISOString(), status: "sent" });
-});
-
-// ═══════════════════════════════════════════
-// ⏰ Daily Notification
-// ═══════════════════════════════════════════
-app.get("/daily-notif", async (req, res) => {
-  if (req.query.secret !== "meetapp2024") return res.status(403).json({ error: "Unauthorized" });
-  await sendOneSignalToAll("🌅 MeetApp", "আজকের নতুন পোস্ট ও আপডেট দেখুন 👀", { type: "daily" });
-  res.json({ success: true });
-});
-
-// ═══════════════════════════════════════════
-// 🏥 Health Check
-// ═══════════════════════════════════════════
-app.get("/", (req, res) => {
-  res.json({ status: "✅ MeetApp Notification Server চালু আছে!" });
+    const data = await response.json();
+    console.log('✅ Broadcast:', JSON.stringify(data));
+    res.json({ success: true, data });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server চালু: port ${PORT}`));
+app.listen(PORT, () => {
+  console.log('🚀 MeetApp Server running on port ' + PORT);
+  setInterval(() => {
+    const url = process.env.RENDER_EXTERNAL_URL || 'http://localhost:' + PORT;
+    fetch(url + '/').then(() => console.log('✅ Self-ping')).catch(() => {});
+  }, 14 * 60 * 1000);
+});
