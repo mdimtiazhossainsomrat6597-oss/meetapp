@@ -1543,7 +1543,8 @@ if (typeof twemoji === 'undefined') {
         'একটু অপেক্ষা করো'+(firstName?', '+firstName:'')+'... চা বানিয়ে আসো ☕',
         'লোড হলেই মিষ্টি খাওয়াবো, প্রমিস! 🍮',
         'ভালো কিছুর জন্য একটু অপেক্ষা করতেই হয় 😌',
-        'সম্রাট অনেক কষ্ট করে এই অ্যাপটা বানিয়েছে — একটু ধৈর্য ধরো 🙏'
+        'সম্রাট অনেক কষ্ট করে এই অ্যাপটা বানিয়েছে — একটু ধৈর্য ধরো 🙏',
+        '\u09b9\u09af\u09bc\u09a4\u09cb \u0987\u09ae\u09a4\u09bf\u09af\u09bc\u09be\u099c \u09a4\u09cb\u09ae\u09be\u0995\u09c7 \u09ae\u09bf\u09b8 \u0995\u09b0\u099b\u09c7, \u09a4\u09be\u0987 \u098f\u0995\u099f\u09c1 \u09a6\u09c7\u09b0\u09bf \u09b9\u099a\u09cd\u099b\u09c7...'
     ];
     var i=0;
     el.textContent=msgs[0];
@@ -1657,8 +1658,10 @@ if (typeof twemoji === 'undefined') {
 </div>
 
 <!-- Offline Indicator -->
-<div id="offlineIndicator" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:rgba(30,20,50,0.92);color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;font-family:'DM Sans','SolaimanLipi',sans-serif;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);">
-  <span>📡</span><span>ইন্টারনেট সংযোগ নেই</span>
+<div id="offlineIndicator" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;padding:7px 14px;font-size:12px;font-weight:700;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;align-items:center;justify-content:center;gap:8px;transition:all 0.3s;">
+  <span id="offlineIndicatorIcon">📡</span>
+  <span id="offlineIndicatorText">ইন্টারনেট সংযোগ নেই</span>
+  <span id="offlineRetryBtn" onclick="window._retryFirebase&&window._retryFirebase()" style="margin-left:8px;background:rgba(255,255,255,0.2);padding:2px 10px;border-radius:12px;cursor:pointer;">আবার চেষ্টা করুন</span>
 </div>
 
 <!-- Report Overlay -->
@@ -1941,6 +1944,14 @@ if (typeof twemoji === 'undefined') {
         </nav>
         <div class="content">
             <div id="posts" class="tab-content active">
+                <div id="homeFeedTabBar" style="display:flex;border-bottom:2px solid var(--border-light);margin:0 -14px;background:var(--bg-card-solid);position:sticky;top:0;z-index:50;">
+                  <button id="homeFeedAll" onclick="switchHomeFeed('all')" style="flex:1;padding:13px 0;border:none;background:transparent;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--p1);border-bottom:3px solid var(--p1);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <span>🏠</span><span>All</span>
+                  </button>
+                  <button id="homeFeedVideos" onclick="switchHomeFeed('videos')" style="flex:1;padding:13px 0;border:none;background:transparent;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text-muted-light);border-bottom:3px solid transparent;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <span>🎬</span><span>Videos</span>
+                  </button>
+                </div>
                 <div class="story-bar" id="storyBar"></div>
                 <div class="photo-grid" id="postsGallery"></div>
             </div>
@@ -1972,6 +1983,24 @@ if (typeof twemoji === 'undefined') {
                     <div class="upload-section">
                         <h2 id="uploadVideoTitle">নতুন ভিডিও আপলোড করুন</h2>
                         <div class="form-group"><label id="labelSelectVideo">ভিডিও নির্বাচন করুন</label><input type="file" id="videoFile" accept="video/*"></div>
+                        <!-- Custom Thumbnail -->
+                        <div class="form-group">
+                          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text-muted-light);margin-bottom:8px;">
+                            <span>🖼️</span> কাস্টম থাম্বনেইল <span style="font-size:11px;background:rgba(108,92,231,0.12);color:var(--p1);padding:2px 8px;border-radius:10px;font-weight:700;">ঐচ্ছিক</span>
+                          </label>
+                          <div id="videoThumbPickerWrap" onclick="document.getElementById('videoThumbFile').click()" style="border:2px dashed var(--border-light);border-radius:14px;padding:18px;text-align:center;cursor:pointer;background:var(--bg-glass);transition:all 0.2s;position:relative;" onmouseover="this.style.borderColor='var(--p1)'" onmouseout="this.style.borderColor='var(--border-light)'">
+                            <input type="file" id="videoThumbFile" accept="image/*" style="display:none;" onchange="previewVideoThumb(this)">
+                            <div id="videoThumbPreview" style="display:none;position:relative;">
+                              <img id="videoThumbImg" src="" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;display:block;">
+                              <button onclick="event.stopPropagation();clearVideoThumb()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:26px;height:26px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+                            </div>
+                            <div id="videoThumbPlaceholder" style="color:var(--text-muted-light);">
+                              <div style="font-size:28px;margin-bottom:6px;">📸</div>
+                              <div style="font-size:13px;font-weight:600;">ছবি বেছে নিন</div>
+                              <div style="font-size:11px;margin-top:3px;opacity:0.7;">না দিলে ভিডিও থেকে অটো তৈরি হবে</div>
+                            </div>
+                          </div>
+                        </div>
                         <div class="form-group"><label id="labelVideoCaption">ক্যাপশন (ঐচ্ছিক)</label><textarea id="videoCaption" rows="3" placeholder="এই ভিডিও সম্পর্কে কিছু লিখুন..."></textarea></div>
                         <button class="btn" onclick="uploadVideo()" id="btnUploadVideo">ভিডিও আপলোড করুন</button>
                     </div>
@@ -2249,24 +2278,22 @@ let db;
 try {
     firebase.initializeApp(firebaseConfig);
     db=firebase.database();
+    try { db.ref('photos').keepSynced(true); db.ref('videos').keepSynced(true); db.ref('textPosts').keepSynced(true); db.ref('users').keepSynced(true); } catch(e){}
     // Realtime DB offline: ডেটা auto-cache হয়, reconnect হলে sync হবে
     // Connection status — প্রথম load-এ false আসে তাই delay দিয়ে দেখাই
     var _offlineTimer = null;
     var _hasEverConnected = false;
     db.ref('.info/connected').on('value', function(snap){
         var isOnline = snap.val() === true;
-        var indicator = document.getElementById('offlineIndicator');
-        if(!indicator) return;
         if(isOnline){
             _hasEverConnected = true;
             if(_offlineTimer){ clearTimeout(_offlineTimer); _offlineTimer = null; }
-            indicator.style.display = 'none';
         } else {
             var delay = _hasEverConnected ? 4000 : 7000;
             if(_offlineTimer) clearTimeout(_offlineTimer);
             _offlineTimer = setTimeout(function(){
                 db.ref('.info/connected').once('value', function(s){
-                    if(s.val() !== true){ indicator.style.display = 'flex'; }
+                    if(s.val() !== true && typeof setNetState === 'function') setNetState('offline');
                 });
             }, delay);
         }
@@ -3680,13 +3707,52 @@ function uploadPhoto(){
     };
     reader.readAsDataURL(file.files[0]);
 }
+// ── Video Custom Thumbnail ──
+var _customVideoThumb = null;
+
+window.previewVideoThumb = function(input){
+    if(!input.files||!input.files[0]) return;
+    var file = input.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e){
+        _customVideoThumb = e.target.result;
+        var preview = document.getElementById('videoThumbPreview');
+        var placeholder = document.getElementById('videoThumbPlaceholder');
+        var img = document.getElementById('videoThumbImg');
+        if(img) img.src = e.target.result;
+        if(preview) preview.style.display = 'block';
+        if(placeholder) placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+};
+
+window.clearVideoThumb = function(){
+    _customVideoThumb = null;
+    var preview = document.getElementById('videoThumbPreview');
+    var placeholder = document.getElementById('videoThumbPlaceholder');
+    var thumbFile = document.getElementById('videoThumbFile');
+    if(preview) preview.style.display = 'none';
+    if(placeholder) placeholder.style.display = 'block';
+    if(thumbFile) thumbFile.value = '';
+};
+
+function resetVideoThumbUI(){
+    _customVideoThumb = null;
+    var preview = document.getElementById('videoThumbPreview');
+    var placeholder = document.getElementById('videoThumbPlaceholder');
+    var thumbFile = document.getElementById('videoThumbFile');
+    if(preview) preview.style.display = 'none';
+    if(placeholder) placeholder.style.display = 'block';
+    if(thumbFile) thumbFile.value = '';
+}
+
 function uploadVideo(){ 
     if(isGuestUser()){ 
         showNotification(currentLanguage==='bn'?'ভিডিও আপলোড করতে লগইন করুন!':'Please login to upload videos!'); 
         setTimeout(()=>showLoginScreen(), 1000);
         return; 
     }
-    const file=document.getElementById('videoFile'); const caption=document.getElementById('videoCaption').value.trim(); if(!file.files[0]) return showNotification(t('pleaseSelectVideo')); showPostingAnimation('video'); const reader=new FileReader(); reader.onload=e=>{ const video={id:Date.now(),type:'video',video:e.target.result,caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('videos/'+video.id).set(video).then(()=>{hidePostingAnimation();showNotification(t('videoUploaded'));file.value='';document.getElementById('videoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));sendNotifToAllUsers(`🎥 <b>${currentUser&&currentUser.name||'কেউ'}</b> নতুন ভিডিও পোস্ট করেছেন`,'🎥'); sendPushToAll(`🎥 ${currentUser&&currentUser.name||'কেউ'} নতুন ভিডিও পোস্ট করেছেন`, caption||'নতুন ভিডিও দেখুন!', '🎥');}).catch(()=>hidePostingAnimation()); else{videos.push(video);hidePostingAnimation();showNotification(t('videoUploaded'));file.value='';document.getElementById('videoCaption').value='';bnSwitch('posts',document.getElementById('bnHome'));displayPosts();} }; reader.readAsDataURL(file.files[0]); }
+    const file=document.getElementById('videoFile'); const caption=document.getElementById('videoCaption').value.trim(); if(!file.files[0]) return showNotification(t('pleaseSelectVideo')); showPostingAnimation('video'); const reader=new FileReader(); reader.onload=e=>{ const videoSrc=e.target.result; function saveVideo(thumbData){ const video={id:Date.now(),type:'video',video:videoSrc,thumbnail:thumbData||'',caption,...getUploaderInfo(),comments:[],likes:0,reactions:{},reactedBy:{},likedBy:{},uploadDate:new Date().toLocaleString()}; if(db) db.ref('videos/'+video.id).set(video).then(()=>{hidePostingAnimation();showNotification(t('videoUploaded'));file.value='';document.getElementById('videoCaption').value='';resetVideoThumbUI();bnSwitch('posts',document.getElementById('bnHome'));sendNotifToAllUsers(`🎥 <b>${currentUser&&currentUser.name||'কেউ'}</b> নতুন ভিডিও পোস্ট করেছেন`,'🎥'); sendPushToAll(`🎥 ${currentUser&&currentUser.name||'কেউ'} নতুন ভিডিও পোস্ট করেছেন`, caption||'নতুন ভিডিও দেখুন!', '🎥');}).catch(()=>hidePostingAnimation()); else{videos.push(video);hidePostingAnimation();showNotification(t('videoUploaded'));file.value='';document.getElementById('videoCaption').value='';resetVideoThumbUI();bnSwitch('posts',document.getElementById('bnHome'));displayPosts();} } if(_customVideoThumb){ saveVideo(_customVideoThumb); } else { generateVideoThumbnail(videoSrc, function(thumbData){ saveVideo(thumbData); }); } }; reader.readAsDataURL(file.files[0]); }
 function uploadWrittenPost(){ 
     if(isGuestUser()){ 
         showNotification(currentLanguage==='bn'?'পোস্ট করতে লগইন করুন!':'Please login to post!'); 
@@ -3771,6 +3837,24 @@ function canSeeUser(uid){
   return !!(u.privateAccess && u.privateAccess[currentUser.uid]);
 }
 
+// ══ Home Feed Filter: All | Videos ══
+var _homeFeedMode = 'all';
+
+function switchHomeFeed(mode) {
+  _homeFeedMode = mode;
+  var allBtn = document.getElementById('homeFeedAll');
+  var vidBtn = document.getElementById('homeFeedVideos');
+  if (allBtn) {
+    allBtn.style.color        = mode==='all' ? 'var(--p1)' : 'var(--text-muted-light)';
+    allBtn.style.borderBottom = mode==='all' ? '3px solid var(--p1)' : '3px solid transparent';
+  }
+  if (vidBtn) {
+    vidBtn.style.color        = mode==='videos' ? 'var(--p1)' : 'var(--text-muted-light)';
+    vidBtn.style.borderBottom = mode==='videos' ? '3px solid var(--p1)' : '3px solid transparent';
+  }
+  displayPosts();
+}
+
 function displayPosts(){
   const gallery=document.getElementById('postsGallery');
   if(!gallery) return;
@@ -3786,6 +3870,10 @@ function displayPosts(){
       return true;
     })
     .sort((a,b)=>b.id-a.id);
+  // Feed mode filter
+  if (typeof _homeFeedMode !== 'undefined' && _homeFeedMode === 'videos') {
+    all = all.filter(p => p.type === 'video');
+  }
   
   // Guest user restriction: only show first 2 posts
   const isGuest = isGuestUser();
@@ -4037,7 +4125,6 @@ function loadMorePosts() {
 function createPhotoCard(photo){ const bm=isBookmarked(photo.id); return `<div class="photo-card" data-id="${photo.id}">${postHeaderHtml(photo)}${postActionBtns(photo,'photo')}<div class="media-container"><img loading="lazy" src="${photo.image}" alt="Photo"><div class="expand-overlay" onclick="openModal(${photo.id},'photo')"><div class="expand-icon">⛶</div></div></div>${editForm(photo,'photo')}<div class="photo-info">${photo.caption?`<p class="photo-caption">${photo.caption}</p>`:''}${reactionsDisplay(photo)}${reactionBar(photo,'photo')}${commentSection(photo,'photo')}</div><div class="post-footer-row"><button class="bookmark-btn ${bm?'saved':''}" onclick="toggleBookmark(${photo.id},'photo')">${bm?'🔖':'🏷️'}</button></div></div>`; }
 function generateVideoThumbnail(videoSrc, callback){
     var v = document.createElement('video');
-    v.crossOrigin = 'anonymous';
     v.preload = 'metadata';
     v.muted = true;
     v.playsInline = true;
@@ -4274,7 +4361,7 @@ function loadCache(key){
     } catch(e){ return null; }
 }
 
-function loadOfflineData(){
+function loadOfflineData(silent){
     var cached_photos    = loadCache(_offlineCacheKey.photos)    || [];
     var cached_videos    = loadCache(_offlineCacheKey.videos)    || [];
     var cached_textPosts = loadCache(_offlineCacheKey.textPosts) || [];
@@ -4297,80 +4384,131 @@ function loadOfflineData(){
         displayEvents();
         initStoryBar();
         renderProfile();
-        showNotification('📦 অফলাইন মোড — আগের ডেটা দেখানো হচ্ছে');
+        if(!silent) showNotification('📦 অফলাইন মোড — আগের ডেটা দেখানো হচ্ছে');
         return true;
     }
     return false;
 }
 
+// ── Connection State Manager ──
+var _netState = 'unknown';
+function setNetState(state){
+    _netState = state;
+    var bar = document.getElementById('offlineIndicator');
+    var icon = document.getElementById('offlineIndicatorIcon');
+    var text = document.getElementById('offlineIndicatorText');
+    var retry = document.getElementById('offlineRetryBtn');
+    if(!bar) return;
+    if(state === 'online'){
+        bar.style.display = 'none';
+    } else if(state === 'slow'){
+        bar.style.display = 'flex';
+        bar.style.background = 'rgba(253,203,110,0.95)';
+        bar.style.color = '#7d5a00';
+        if(icon) icon.textContent = '🐢';
+        if(text) text.textContent = 'দুর্বল সংযোগ — পুরনো ডেটা দেখানো হচ্ছে, সিঙ্ক হচ্ছে...';
+        if(retry) retry.style.display = 'inline';
+    } else if(state === 'syncing'){
+        bar.style.display = 'flex';
+        bar.style.background = 'rgba(108,92,231,0.92)';
+        bar.style.color = '#fff';
+        if(icon) icon.textContent = '🔄';
+        if(text) text.textContent = 'সংযোগ হয়েছে, ডেটা আপডেট হচ্ছে...';
+        if(retry) retry.style.display = 'none';
+        setTimeout(function(){ if(_netState==='syncing') setNetState('online'); }, 4000);
+    } else {
+        bar.style.display = 'flex';
+        bar.style.background = 'rgba(214,48,49,0.92)';
+        bar.style.color = '#fff';
+        if(icon) icon.textContent = '📡';
+        if(text) text.textContent = 'ইন্টারনেট সংযোগ নেই';
+        if(retry) retry.style.display = 'inline';
+    }
+}
+
 function initFirebaseListeners(){
+    // STEP 1: Cache থেকে তাৎক্ষণিক দেখাও
+    var cachedLoaded = loadOfflineData(true);
+    if(cachedLoaded){ isLoadingPosts = false; isLoadingEvents = false; }
+
     if(!db){
-        isLoadingPosts=false;
-        isLoadingEvents=false;
-        // নেট না থাকলে cache থেকে দেখাও
-        var loaded = loadOfflineData();
-        if(!loaded){ displayPosts(); displayEvents(); initStoryBar(); }
+        isLoadingPosts=false; isLoadingEvents=false;
+        if(!cachedLoaded){ displayPosts(); displayEvents(); initStoryBar(); }
+        setNetState('offline');
         return;
     }
 
-    // নেট আছে কিনা চেক করো — Firebase প্রথমবার সবসময় false দেয়, তাই delay লাগে
     var _connectedEver = false;
-    var _offlineDataTimer = null;
+    var _dpTimer=null, _rpTimer=null;
+    function debouncedDisplayPosts(){ clearTimeout(_dpTimer); _dpTimer=setTimeout(function(){isLoadingPosts=false;displayPosts();displayBookmarks();},150); }
+    function debouncedRenderProfile(){ clearTimeout(_rpTimer); _rpTimer=setTimeout(function(){renderProfile();},180); }
+
+    // STEP 2: ৫ সেকেন্ডে connect না হলে slow indicator + cache
+    var _slowTimer = setTimeout(function(){
+        if(!_connectedEver){
+            isLoadingPosts=false; isLoadingEvents=false;
+            var loaded = loadOfflineData(true);
+            if(!loaded){ displayPosts(); displayEvents(); initStoryBar(); }
+            setNetState('slow');
+        }
+    }, 5000);
+
+    // Retry button
+    window._retryFirebase = function(){
+        setNetState('unknown');
+        try { firebase.database().goOffline(); } catch(e){}
+        setTimeout(function(){ try { firebase.database().goOnline(); } catch(e){} }, 800);
+    };
+
+    // STEP 3: Connection listener
     db.ref('.info/connected').on('value', function(snap){
         var isConn = snap.val() === true;
         if(isConn){
+            var wasOffline = _connectedEver;
             _connectedEver = true;
-            // Online হয়ে গেলে pending offline timer বাতিল করো
-            if(_offlineDataTimer){ clearTimeout(_offlineDataTimer); _offlineDataTimer = null; }
+            clearTimeout(_slowTimer);
+            setNetState(wasOffline ? 'syncing' : 'online');
         } else {
-            // প্রথম false মানে app সবে load হচ্ছে — অপেক্ষা করো
-            // একবার connected হওয়ার পরে disconnect হলে ৫ সেকেন্ড পর offline data দেখাও
-            var delay = _connectedEver ? 5000 : 99999; // প্রথমবার কখনো offline দেখাবো না
-            if(_offlineDataTimer) clearTimeout(_offlineDataTimer);
-            _offlineDataTimer = setTimeout(function(){
+            if(!_connectedEver) return;
+            setTimeout(function(){
+                if(_netState !== 'online') return;
                 db.ref('.info/connected').once('value', function(s){
-                    if(s.val() !== true) loadOfflineData();
+                    if(s.val() !== true){ setNetState('offline'); loadOfflineData(true); }
                 });
-            }, delay);
+            }, 4000);
         }
     });
 
-    // debounce to prevent multiple rapid re-renders
-    var _dpTimer=null, _rpTimer=null;
-    function debouncedDisplayPosts(){ clearTimeout(_dpTimer); _dpTimer=setTimeout(function(){isLoadingPosts=false;displayPosts();displayBookmarks();},120); }
-    function debouncedRenderProfile(){ clearTimeout(_rpTimer); _rpTimer=setTimeout(function(){renderProfile();},150); }
-
+    // STEP 4: Firebase listeners
     db.ref('photos').on('value',snap=>{
         photos=snap.val()?Object.values(snap.val()):[];
-        saveCache(_offlineCacheKey.photos, photos); // cache সেভ
-        debouncedDisplayPosts();debouncedRenderProfile();
+        saveCache(_offlineCacheKey.photos, photos);
+        debouncedDisplayPosts(); debouncedRenderProfile();
     });
     db.ref('videos').on('value',snap=>{
         videos=snap.val()?Object.values(snap.val()):[];
         saveCache(_offlineCacheKey.videos, videos);
-        debouncedDisplayPosts();debouncedRenderProfile();
+        debouncedDisplayPosts(); debouncedRenderProfile();
     });
     db.ref('textPosts').on('value',snap=>{
         textPosts=snap.val()?Object.values(snap.val()):[];
         saveCache(_offlineCacheKey.textPosts, textPosts);
-        debouncedDisplayPosts();debouncedRenderProfile();
+        debouncedDisplayPosts(); debouncedRenderProfile();
     });
     db.ref('events').on('value',snap=>{
         events=snap.val()?Object.values(snap.val()):[];
         saveCache(_offlineCacheKey.events, events);
-        isLoadingEvents=false;initEventSlider();displayEvents();checkAndDraftExpiredEvents();
+        isLoadingEvents=false; initEventSlider(); displayEvents(); checkAndDraftExpiredEvents();
     });
     db.ref('users').on('value',snap=>{
         if(snap.exists()){
             allUsers={};
             snap.forEach(c=>{ const ud=c.val(); if(ud.username==='imtiaz'){ ud.verified=true; ud.avatarLocked=false; } allUsers[ud.uid]=ud; });
-            saveCache(_offlineCacheKey.users, allUsers); // cache সেভ
+            saveCache(_offlineCacheKey.users, allUsers);
             if(currentUser&&allUsers[currentUser.uid]){ const fresh=allUsers[currentUser.uid]; currentUser.following=fresh.following||{}; currentUser.followers=fresh.followers||{}; localStorage.setItem('meetapp_user',JSON.stringify(currentUser)); }
         }
         debouncedRenderProfile(); debouncedDisplayPosts();
-        initStoryBar();
-        updateUserBar();
-        updateAboutPage();
+        initStoryBar(); updateUserBar(); updateAboutPage();
     });
     db.ref('stories').on('value',snap=>{
         stories=[];
