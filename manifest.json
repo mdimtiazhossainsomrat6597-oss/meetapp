@@ -11,6 +11,7 @@
   "theme_color": "#6c63ff",
   "lang": "bn",
   "dir": "ltr",
+  "gcm_sender_id": "585105127605",
   "categories": ["social", "entertainment"],
   "icons": [
     {

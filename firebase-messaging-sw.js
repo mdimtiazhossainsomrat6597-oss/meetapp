@@ -51,9 +51,9 @@ messaging.onBackgroundMessage(function(payload) {
     renotify: true,
     requireInteraction: false,
     data: {
-      url: data.url || '/',
+      url: data.url || '/meetapp/',   // ✅ FIX: GitHub Pages সঠিক path
       emoji: data.emoji || '🔔',
-      playSound: true // ✅ click করলে sound বাজানোর flag
+      playSound: true                 // ✅ click করলে sound বাজানোর flag
     }
   });
 });
@@ -65,7 +65,7 @@ self.addEventListener('notificationclick', function(event) {
   event.notification.close();
 
   const notifData = event.notification.data || {};
-  const url = notifData.url || '/';
+  const url = notifData.url || '/meetapp/';   // ✅ FIX: GitHub Pages সঠিক path
   const emoji = notifData.emoji || '🔔';
   const playSound = notifData.playSound || false;
 
@@ -86,8 +86,9 @@ self.addEventListener('notificationclick', function(event) {
       }
 
       // ✅ App বন্ধ থাকলে — নতুন window খোলো, URL-এ sound param দাও
-      // index.html এ ?sound=notify চেক করে sound বাজাতে হবে
-      const openUrl = playSound ? (url + (url.includes('?') ? '&' : '?') + 'sound=' + encodeURIComponent(emoji)) : url;
+      const openUrl = playSound
+        ? (url + (url.includes('?') ? '&' : '?') + 'sound=' + encodeURIComponent(emoji))
+        : url;
       return self.clients.openWindow(openUrl);
     })
   );

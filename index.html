@@ -1058,6 +1058,7 @@ if (typeof twemoji === 'undefined') {
         .lang-btn{padding:6px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(240,236,251,0.75);cursor:pointer;font-weight:600;transition:all 0.3s;font-size:12px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
         .lang-btn.active{background:var(--grad-btn);border-color:rgba(255,255,255,0.35);color:white;box-shadow:0 0 16px rgba(0,0,0,0.2);}
         /* ══ BEAUTIFUL BOTTOM NAV — Liquid Glass ══ */
+        @keyframes msgBadgePop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
         .bottom-nav{
             position:fixed;bottom:0;left:0;right:0;z-index:1000;
             /* Liquid Glass base */
@@ -2202,7 +2203,7 @@ if (typeof twemoji === 'undefined') {
                 <div class="bn-icon">🏠</div><span class="bn-label" id="bnLabelHome">হোম</span>
             </button>
             <button class="bn-item" id="bnMessages" onclick="bnSwitch('messages',this)">
-                <div class="bn-icon" style="position:relative;">💬<span id="msgNavBadge" style="display:none;position:absolute;top:-5px;right:-8px;background:#ff4757;color:white;font-size:9px;font-weight:700;border-radius:50%;width:15px;height:15px;line-height:15px;text-align:center;border:2px solid var(--bg-page);"></span></div>
+                <div class="bn-icon" style="position:relative;">💬<span id="msgNavBadge" style="display:none;position:absolute;top:-6px;right:-10px;background:#ff4757;color:white;font-size:9px;font-weight:800;border-radius:20px;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 4px;border:2px solid var(--bg-page);box-sizing:border-box;animation:msgBadgePop 0.3s cubic-bezier(0.34,1.56,0.64,1);"></span></div>
                 <span class="bn-label">মেসেজ</span>
             </button>
             <button class="bn-item" id="bnEvents" onclick="bnSwitch('events',this)">
@@ -4945,6 +4946,8 @@ function initFirebaseListeners(){
     });
     listenForMyNotifications();
     listenOnlineUsers();
+    // Message badge init
+    setTimeout(initMsgSystem, 800);
 }
 
 function listenForMyNotifications(){
@@ -5839,27 +5842,45 @@ function getChatId(a, b) { return a < b ? a + '_' + b : b + '_' + a; }
 
 function initMsgSystem() {
     if (!db || !currentUser) return;
-    // শুধু unread messages track করো — read:true না থাকলে এবং sender নিজে না হলে
-    db.ref('messages').on('value', function(snap) {
-        if (!snap.exists()) { 
-            var b = document.getElementById('msgNavBadge'); 
-            if (b) b.style.display = 'none'; 
-            return; 
-        }
-        var unreadCount = 0;
-        snap.forEach(function(chatSnap) {
-            if (chatSnap.key.indexOf(currentUser.uid) === -1) return;
-            chatSnap.forEach(function(m) {
-                var msg = m.val();
-                // শুধু unread এবং অন্যের message count করো
-                if (msg.senderUid !== currentUser.uid && !msg.read) unreadCount++;
-            });
-        });
+    // friends list থেকে প্রতিটি chat check করো — full scan এড়াতে
+    var uid = currentUser.uid;
+    var _unreadPerChat = {};
+
+    function updateMsgBadge(){
+        var total = Object.values(_unreadPerChat).reduce(function(s,n){return s+n;},0);
         var b = document.getElementById('msgNavBadge');
-        if (b) {
-            b.style.display = unreadCount > 0 ? 'block' : 'none';
-            b.textContent = unreadCount > 9 ? '9+' : (unreadCount > 0 ? unreadCount : '');
+        if(!b) return;
+        if(total > 0){
+            b.style.display = 'inline-block';
+            b.textContent = total > 99 ? '99+' : total > 9 ? '9+' : String(total);
+        } else {
+            b.style.display = 'none';
+            b.textContent = '';
         }
+    }
+
+    function listenChat(otherUid){
+        var chatId = getChatId(uid, otherUid);
+        db.ref('messages/'+chatId).on('value', function(snap){
+            var count = 0;
+            if(snap.exists()) snap.forEach(function(m){
+                var msg = m.val();
+                if(msg.senderUid !== uid && !msg.read) count++;
+            });
+            _unreadPerChat[chatId] = count;
+            updateMsgBadge();
+        });
+    }
+
+    // Friends + admin-দের সাথে chat listen করো
+    db.ref('friends/'+uid).on('value', function(snap){
+        var friendUids = snap.exists() ? Object.keys(snap.val()) : [];
+        // admin always
+        Object.values(allUsers).forEach(function(u){
+            if(u.username==='imtiaz'||u.adminVerified) friendUids.push(u.uid);
+        });
+        friendUids.forEach(function(fuid){ if(fuid!==uid) listenChat(fuid); });
+        updateMsgBadge();
     });
 }
 
@@ -6013,9 +6034,7 @@ function openMsgChat(uid, userObj) {
     document.getElementById('msgListView').style.display = 'none';
     document.getElementById('msgChatView').style.display = 'flex';
     document.getElementById('msgChatView').style.flexDirection = 'column';
-    // clear message badge when chat is opened
-    var badge = document.getElementById('msgNavBadge');
-    if (badge) badge.style.display = 'none';
+    // chat খুললে ঐ chat-এর unread count reset হবে (listener থেকে auto-update)
 
     if (_msgChatRef) { _msgChatRef.off(); _msgChatRef = null; }
     var bubblesEl = document.getElementById('msgBubbles');
@@ -7752,21 +7771,150 @@ window.rechosePhoto = function(){
 <!-- ════════════════════════════════════════════
      📱 FACEBOOK-STYLE REELS / VIDEO SCROLL PLAYER
      ════════════════════════════════════════════ -->
-<div id="reelsOverlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9000;overflow:hidden;touch-action:none;">
+<div id="reelsOverlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9000;overflow:hidden;">
 
   <!-- Top bar -->
   <div style="position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(to bottom,rgba(0,0,0,0.7),transparent);">
     <div style="font-size:18px;font-weight:800;color:white;letter-spacing:0.02em;">🎬 ভিডিও</div>
-    <button onclick="closeReelsPlayer()" style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    <button onclick="closeReelsPlayer(true)" style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
   </div>
 
   <!-- Video track container -->
-  <div id="reelsTrack" style="height:100%;width:100%;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+  <div id="reelsTrack" style="height:100%;width:100%;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-y;">
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     💬 VIDEO COMMENT PAGE (Videos ট্যাবের জন্য)
+     ════════════════════════════════════════════ -->
+<div id="videoCommentPage" style="display:none;position:fixed;inset:0;background:var(--bg-page);z-index:9100;overflow:hidden;">
+  
+  <!-- Top bar -->
+  <div style="position:sticky;top:0;z-index:10;background:var(--bg-glass);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-light);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+    <button onclick="closeVideoCommentPage()" style="background:transparent;border:none;color:var(--text-primary);font-size:24px;cursor:pointer;padding:4px 8px;">←</button>
+    <div style="font-size:16px;font-weight:700;color:var(--text-primary);">💬 মন্তব্য</div>
+    <div style="width:40px;"></div>
+  </div>
+
+  <!-- Content container -->
+  <div id="videoCommentContent" style="height:calc(100% - 60px);overflow-y:auto;padding-bottom:80px;">
+    <!-- Will be populated dynamically -->
+  </div>
+
+  <!-- Comment input (fixed at bottom) -->
+  <div id="videoCommentInputBar" style="position:fixed;bottom:0;left:0;right:0;background:var(--bg-glass);backdrop-filter:blur(12px);border-top:1px solid var(--border-light);padding:12px 16px;display:flex;gap:10px;align-items:center;z-index:11;">
+    <input type="text" id="videoCommentInput" placeholder="মন্তব্য লিখুন..." style="flex:1;padding:10px 16px;border:1.5px solid var(--border-light);border-radius:24px;font-size:14px;background:var(--bg-page);color:var(--text-primary);outline:none;font-family:inherit;">
+    <button onclick="submitVideoComment()" style="background:var(--grad-brand);border:none;color:white;padding:10px 20px;border-radius:24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">পাঠান</button>
   </div>
 </div>
 
 <style>
 #reelsTrack::-webkit-scrollbar{display:none;}
+
+/* ═══ VIDEO COMMENT PAGE STYLES ═══ */
+#videoCommentPage {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#videoCommentPage.show {
+  display: block;
+}
+.video-comment-preview {
+  position: relative;
+  width: 100%;
+  max-height: 400px;
+  background: #000;
+  overflow: hidden;
+}
+.video-comment-preview video,
+.video-comment-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.video-comment-info {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+.video-comment-list {
+  padding: 16px;
+}
+.video-comment-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+.video-comment-item:last-child {
+  border-bottom: none;
+}
+.video-comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.video-comment-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.video-comment-avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--grad-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+}
+.video-comment-body {
+  flex: 1;
+}
+.video-comment-author {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.video-comment-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+.video-comment-date {
+  font-size: 11px;
+  color: var(--text-muted-light);
+  margin-top: 4px;
+}
+.video-comment-reply-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--p1);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 4px;
+  font-family: inherit;
+}
+.video-comment-replies {
+  margin-top: 12px;
+  padding-left: 20px;
+  border-left: 2px solid var(--border-light);
+}
+.video-comment-reply-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ═══ REELS PLAYER STYLES ═══ */
 .reel-slide{
   position:relative;width:100%;height:100vh;
   scroll-snap-align:start;scroll-snap-stop:always;
@@ -7865,7 +8013,7 @@ function openReelsPlayer(){
   setTimeout(function(){ playReelAt(0); }, 200);
 }
 
-function closeReelsPlayer(){
+function closeReelsPlayer(keepTabMode){
   // Pause all videos
   document.querySelectorAll('.reel-video').forEach(function(v){ try{v.pause();}catch(e){} });
   Object.keys(_reelProgressTimers).forEach(function(k){ clearInterval(_reelProgressTimers[k]); });
@@ -7873,12 +8021,16 @@ function closeReelsPlayer(){
   var overlay = document.getElementById('reelsOverlay');
   if(overlay) overlay.style.display = 'none';
   document.body.style.overflow = '';
-  // Reset tab
-  _homeFeedMode = 'all';
-  var allBtn = document.getElementById('homeFeedAll');
-  var vidBtn = document.getElementById('homeFeedVideos');
-  if(allBtn) allBtn.classList.add('lg-tab-active');
-  if(vidBtn) vidBtn.classList.remove('lg-tab-active');
+  
+  // ✅ FIX: যদি keepTabMode true হয়, তাহলে current tab mode রাখো
+  if(!keepTabMode){
+    // Reset tab to 'all' শুধুমাত্র যখন explicitly বলা হয়
+    _homeFeedMode = 'all';
+    var allBtn = document.getElementById('homeFeedAll');
+    var vidBtn = document.getElementById('homeFeedVideos');
+    if(allBtn) allBtn.classList.add('lg-tab-active');
+    if(vidBtn) vidBtn.classList.remove('lg-tab-active');
+  }
   displayPosts();
 }
 
@@ -8037,12 +8189,298 @@ window.reelToggleLike = function(id, btn){
 };
 
 window.reelOpenComments = function(id){
-  closeReelsPlayer();
-  setTimeout(function(){
-    var el = document.querySelector('.video-card[data-id="'+id+'"]');
-    if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); }
-  }, 400);
+  // ✅ Comment page খোলার আগে current ভিডিও pause করো
+  var vid = document.getElementById('rvid_'+id);
+  if(vid && !vid.paused) vid.pause();
+  openVideoCommentPage(id);
 };
+
+// ═══════════════════════════════════════════
+// VIDEO COMMENT PAGE FUNCTIONS
+// ═══════════════════════════════════════════
+let _currentVideoComment = null;
+
+function openVideoCommentPage(videoId) {
+  const video = videos.find(v => v.id === videoId);
+  if (!video) return;
+  
+  _currentVideoComment = video;
+  const page = document.getElementById('videoCommentPage');
+  const content = document.getElementById('videoCommentContent');
+  
+  // Build content
+  const uploader = allUsers[video.uid] || {};
+  const uploaderName = uploader.name || video.uploaderName || 'Unknown';
+  const uploaderAvatar = uploader.avatar || video.uploaderAvatar || '';
+  
+  let html = `
+    <!-- Video Preview -->
+    <div class="video-comment-preview">
+      <video 
+        src="${video.video}" 
+        poster="${video.thumbnail || ''}"
+        controls 
+        style="width:100%;max-height:400px;object-fit:contain;"
+      ></video>
+    </div>
+    
+    <!-- Video Info -->
+    <div class="video-comment-info">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        ${uploaderAvatar 
+          ? `<img src="${uploaderAvatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`
+          : `<div class="video-comment-avatar-placeholder">${uploaderName.charAt(0).toUpperCase()}</div>`
+        }
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text-primary);">${uploaderName}</div>
+          <div style="font-size:12px;color:var(--text-muted-light);">${video.uploadDate || ''}</div>
+        </div>
+      </div>
+      ${video.caption ? `<div style="font-size:14px;color:var(--text-secondary);line-height:1.5;margin-top:8px;">${video.caption}</div>` : ''}
+      
+      <!-- Like & Reaction Stats -->
+      <div style="display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);">
+        <div style="font-size:13px;color:var(--text-muted-light);">
+          👍 ${video.likes || 0} ${currentLanguage==='bn'?'লাইক':'likes'}
+        </div>
+        <div style="font-size:13px;color:var(--text-muted-light);">
+          💬 ${(video.comments || []).length} ${currentLanguage==='bn'?'মন্তব্য':'comments'}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Comments List -->
+    <div class="video-comment-list">
+      <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:16px;">
+        ${currentLanguage==='bn'?'মন্তব্য':'Comments'} (${(video.comments || []).length})
+      </div>
+      ${renderVideoComments(video)}
+    </div>
+  `;
+  
+  content.innerHTML = html;
+  page.style.display = 'block'; // ✅ FIX: inline style দিয়ে দেখাও
+  page.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  
+  // Focus on comment input
+  setTimeout(() => {
+    const input = document.getElementById('videoCommentInput');
+    if (input) input.focus();
+  }, 300);
+}
+
+function renderVideoComments(video) {
+  if (!video.comments || video.comments.length === 0) {
+    return `<div style="text-align:center;padding:40px 20px;color:var(--text-muted-light);">
+      <div style="font-size:48px;margin-bottom:12px;">💬</div>
+      <div style="font-size:14px;">${currentLanguage==='bn'?'এখনো কোনো মন্তব্য নেই':'No comments yet'}</div>
+      <div style="font-size:12px;margin-top:4px;">${currentLanguage==='bn'?'প্রথম মন্তব্য করুন!':'Be the first to comment!'}</div>
+    </div>`;
+  }
+  
+  return video.comments.map((comment, idx) => {
+    const avatar = comment.avatar 
+      ? `<img src="${comment.avatar}" style="width:100%;height:100%;">`
+      : `<div class="video-comment-avatar-placeholder">${(comment.author || '?').charAt(0).toUpperCase()}</div>`;
+    
+    const commentText = (comment.text || '')
+      .replace(/@(\w+)/g, '<span style="color:var(--p1);font-weight:600;">@$1</span>')
+      .replace(/#(\w+)/g, '<span style="color:#1877F2;font-weight:600;">#$1</span>');
+    
+    // Render replies
+    let repliesHtml = '';
+    if (comment.replies && comment.replies.length > 0) {
+      repliesHtml = `
+        <div class="video-comment-replies">
+          ${comment.replies.map(reply => {
+            const replyAvatar = reply.avatar 
+              ? `<img src="${reply.avatar}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">`
+              : `<div style="width:28px;height:28px;border-radius:50%;background:var(--grad-brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;">${(reply.author || '?').charAt(0).toUpperCase()}</div>`;
+            
+            return `
+              <div class="video-comment-reply-item">
+                ${replyAvatar}
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:700;color:var(--text-primary);">${reply.author || ''}</div>
+                  <div style="font-size:13px;color:var(--text-secondary);margin-top:2px;">${reply.text || ''}</div>
+                  <div style="font-size:10px;color:var(--text-muted-light);margin-top:2px;">${reply.date || ''}</div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+    
+    return `
+      <div class="video-comment-item">
+        <div class="video-comment-avatar">${avatar}</div>
+        <div class="video-comment-body">
+          <div class="video-comment-author">${comment.author || ''}</div>
+          <div class="video-comment-text">${commentText}</div>
+          <div class="video-comment-date">${comment.date || ''}</div>
+          ${currentUser ? `
+            <button class="video-comment-reply-btn" onclick="showVideoReplyBox(${idx})">
+              ↩ ${currentLanguage==='bn'?'উত্তর দিন':'Reply'}
+            </button>
+            <div id="videoReplyBox-${idx}" style="display:none;margin-top:8px;">
+              <div style="display:flex;gap:8px;">
+                <input 
+                  type="text" 
+                  id="videoReplyInput-${idx}" 
+                  placeholder="${currentLanguage==='bn'?'উত্তর লিখুন...':'Write a reply...'}"
+                  onkeydown="if(event.key==='Enter') submitVideoReply(${idx})"
+                  style="flex:1;padding:8px 12px;border:1.5px solid var(--border-light);border-radius:20px;font-size:13px;background:var(--bg-page);color:var(--text-primary);outline:none;font-family:inherit;"
+                >
+                <button 
+                  onclick="submitVideoReply(${idx})"
+                  style="background:var(--grad-brand);border:none;color:white;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;"
+                >${currentLanguage==='bn'?'পাঠান':'Send'}</button>
+              </div>
+            </div>
+          ` : ''}
+          ${repliesHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showVideoReplyBox(idx) {
+  // Hide all other reply boxes
+  document.querySelectorAll('[id^="videoReplyBox-"]').forEach(box => {
+    box.style.display = 'none';
+  });
+  
+  const box = document.getElementById('videoReplyBox-' + idx);
+  if (box) {
+    box.style.display = 'block';
+    const input = document.getElementById('videoReplyInput-' + idx);
+    if (input) input.focus();
+  }
+}
+
+function submitVideoComment() {
+  if (!currentUser) {
+    showNotification(currentLanguage === 'bn' ? 'মন্তব্য করতে লগইন করুন!' : 'Login to comment!');
+    return;
+  }
+  
+  if (!_currentVideoComment) return;
+  
+  const input = document.getElementById('videoCommentInput');
+  const text = input.value.trim();
+  
+  if (!text) {
+    showNotification(currentLanguage === 'bn' ? 'মন্তব্য লিখুন!' : 'Write a comment!');
+    return;
+  }
+  
+  const comment = {
+    author: currentUser.name || 'Guest',
+    text: text,
+    date: new Date().toLocaleString(),
+    avatar: currentUser.avatar || '',
+    uid: currentUser.uid,
+    ts: Date.now(),
+    replies: []
+  };
+  
+  if (!_currentVideoComment.comments) _currentVideoComment.comments = [];
+  _currentVideoComment.comments.push(comment);
+  
+  // Update in videos array
+  const video = videos.find(v => v.id === _currentVideoComment.id);
+  if (video) video.comments = _currentVideoComment.comments;
+  
+  // Save to Firebase
+  if (db) {
+    db.ref('videos/' + _currentVideoComment.id + '/comments').set(_currentVideoComment.comments);
+  }
+  
+  // Send notification
+  if (_currentVideoComment.uid && _currentVideoComment.uid !== currentUser.uid) {
+    sendUserNotification(
+      _currentVideoComment.uid,
+      `💬 <b>${currentUser.name}</b> ${currentLanguage === 'bn' ? 'আপনার ভিডিওতে মন্তব্য করেছেন' : 'commented on your video'}: "${text.slice(0, 40)}"`,
+      '💬',
+      _currentVideoComment.id,
+      'video'
+    );
+  }
+  
+  // Clear input and refresh
+  input.value = '';
+  openVideoCommentPage(_currentVideoComment.id); // Refresh the page
+  
+  showNotification('✅ ' + (currentLanguage === 'bn' ? 'মন্তব্য যোগ হয়েছে!' : 'Comment added!'));
+}
+
+function submitVideoReply(commentIdx) {
+  if (!currentUser) {
+    showNotification(currentLanguage === 'bn' ? 'উত্তর দিতে লগইন করুন!' : 'Login to reply!');
+    return;
+  }
+  
+  if (!_currentVideoComment) return;
+  
+  const input = document.getElementById('videoReplyInput-' + commentIdx);
+  const text = input.value.trim();
+  
+  if (!text) {
+    showNotification(currentLanguage === 'bn' ? 'উত্তর লিখুন!' : 'Write a reply!');
+    return;
+  }
+  
+  const reply = {
+    author: currentUser.name || 'Guest',
+    text: text,
+    date: new Date().toLocaleString(),
+    avatar: currentUser.avatar || '',
+    uid: currentUser.uid,
+    ts: Date.now()
+  };
+  
+  if (!_currentVideoComment.comments[commentIdx].replies) {
+    _currentVideoComment.comments[commentIdx].replies = [];
+  }
+  _currentVideoComment.comments[commentIdx].replies.push(reply);
+  
+  // Update in videos array
+  const video = videos.find(v => v.id === _currentVideoComment.id);
+  if (video) video.comments = _currentVideoComment.comments;
+  
+  // Save to Firebase
+  if (db) {
+    db.ref('videos/' + _currentVideoComment.id + '/comments').set(_currentVideoComment.comments);
+  }
+  
+  // Clear input and refresh
+  input.value = '';
+  openVideoCommentPage(_currentVideoComment.id); // Refresh the page
+  
+  showNotification('✅ ' + (currentLanguage === 'bn' ? 'উত্তর যোগ হয়েছে!' : 'Reply added!'));
+}
+
+function closeVideoCommentPage() {
+  const page = document.getElementById('videoCommentPage');
+  page.classList.remove('show');
+  page.style.display = 'none'; // ✅ FIX: inline style দিয়ে লুকাও
+  document.body.style.overflow = '';
+
+  // ✅ Comment page বন্ধ হলে ভিডিও আবার চালু করো
+  if(_currentVideoComment) {
+    var vid = document.getElementById('rvid_'+_currentVideoComment.id);
+    if(vid) vid.play().catch(function(){});
+  }
+
+  _currentVideoComment = null;
+  
+  // Clear input
+  const input = document.getElementById('videoCommentInput');
+  if (input) input.value = '';
+}
 
 window.reelShare = function(id){
   var video = videos.find(function(v){ return v.id===id; });
@@ -8060,7 +8498,10 @@ document.addEventListener('keydown', function(e){
   } else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){
     var prev = document.getElementById('reel_'+(_reels[_reelIdx-1]&&_reels[_reelIdx-1].id));
     if(prev) prev.scrollIntoView({behavior:'smooth'});
-  } else if(e.key==='Escape'){ closeReelsPlayer(); }
+  } else if(e.key==='Escape'){ 
+    // ✅ FIX: Escape key press করলেও Videos ট্যাবে থাকো
+    closeReelsPlayer(true); 
+  }
 });
 </script>
 </body>
