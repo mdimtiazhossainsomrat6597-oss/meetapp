@@ -1578,6 +1578,48 @@ if (typeof twemoji === 'undefined') {
         .upload-form.active{display:block;animation:fadeIn 0.3s;}
         .upload-section{background:var(--bg-card-solid);border-radius:var(--r-lg);padding:20px;border:1px solid var(--border-light);box-shadow:var(--shadow-sm);}
         .upload-section h2{font-size:18px;margin-bottom:16px;color:var(--text-primary);}
+
+        /* ── Gallery Picker Bottom Sheet ── */
+        #galleryPickerOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+        #galleryPickerOverlay.show{display:flex;animation:fadeIn 0.15s;}
+        #galleryPickerSheet{background:var(--bg-card-solid);border-radius:22px 22px 0 0;width:100%;max-width:540px;padding:0 0 max(16px,env(safe-area-inset-bottom)) 0;box-shadow:0 -8px 40px rgba(0,0,0,0.22);animation:slideUpSheet 0.28s cubic-bezier(0.34,1.2,0.64,1);}
+        @keyframes slideUpSheet{from{transform:translateY(100%);}to{transform:translateY(0);}}
+        .gp-handle{width:40px;height:4px;border-radius:3px;background:var(--border-light);margin:12px auto 16px;}
+        .gp-title{font-size:15px;font-weight:800;color:var(--text-primary);text-align:center;margin-bottom:14px;padding:0 16px;}
+        .gp-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 14px;}
+        .gp-action-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:18px 10px;border-radius:16px;border:2px solid var(--border-light);background:var(--bg-page);cursor:pointer;transition:all 0.18s;font-family:inherit;}
+        .gp-action-btn:active{transform:scale(0.96);}
+        .gp-action-btn .gp-icon{font-size:28px;line-height:1;}
+        .gp-action-btn .gp-label{font-size:13px;font-weight:700;color:var(--text-primary);}
+        .gp-action-btn .gp-sub{font-size:11px;color:var(--text-muted-light);}
+        .gp-action-btn.camera-btn{border-color:rgba(108,92,231,0.4);background:rgba(108,92,231,0.05);}
+        .gp-action-btn.gallery-btn{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.05);}
+        .gp-perm-notice{margin:0 16px 12px;padding:12px 14px;background:rgba(255,165,0,0.1);border:1.5px solid rgba(255,165,0,0.3);border-radius:12px;font-size:12px;color:var(--text-primary);line-height:1.5;}
+        .gp-thumbs-row{display:flex;gap:8px;padding:0 16px 10px;overflow-x:auto;scrollbar-width:none;}
+        .gp-thumbs-row::-webkit-scrollbar{display:none;}
+        .gp-done-btn{margin:4px 16px 0;background:var(--grad-brand);color:white;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;width:calc(100% - 32px);font-family:inherit;display:block;}
+        body.dark-mode #galleryPickerSheet{background:var(--bg-card-solid);}
+
+        /* ── Mixed Media Trigger ── */
+        .media-pick-trigger{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:26px 16px;border:2px dashed var(--border-light);border-radius:16px;cursor:pointer;transition:all 0.2s;background:rgba(108,92,231,0.03);margin-top:8px;}
+        .media-pick-trigger:hover,.media-pick-trigger:active{border-color:var(--p1);background:rgba(108,92,231,0.07);}
+        .mpt-icon-row{display:flex;gap:8px;align-items:center;}
+        .media-pick-icon-bubble{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;}
+        .mpt-camera{background:rgba(108,92,231,0.12);}
+        .mpt-gallery{background:rgba(16,185,129,0.12);}
+        .media-pick-trigger .mpt-label{font-size:14px;font-weight:700;color:var(--text-on-light);}
+        .media-pick-trigger .mpt-sub{font-size:12px;color:var(--text-muted-light);}
+
+        /* ── Mixed Media Preview Grid ── */
+        .mixed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;}
+        .mixed-grid-item{position:relative;aspect-ratio:1;overflow:hidden;border-radius:10px;background:#111;}
+        .mixed-grid-item img{width:100%;height:100%;object-fit:cover;display:block;}
+        .mixed-grid-item video{width:100%;height:100%;object-fit:cover;display:block;}
+        .mixed-grid-badge{position:absolute;top:5px;left:5px;background:rgba(0,0,0,0.65);color:white;font-size:9px;font-weight:800;padding:2px 7px;border-radius:8px;}
+        .mixed-grid-num{position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;}
+        .mixed-grid-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;gap:4px;opacity:0;transition:opacity 0.2s;}
+        .mixed-grid-item:hover .mixed-grid-overlay{opacity:1;}
+        .mixed-video-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;background:rgba(255,255,255,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;pointer-events:none;}
         .form-group{margin-bottom:14px;}
         .form-group label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted-light);margin-bottom:6px;}
         .form-group input,.form-group textarea,.form-group select{width:100%;padding:11px 14px;border:1.5px solid var(--border-light);border-radius:var(--r-sm);font-size:14px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;background:var(--bg-page);color:var(--text-primary);outline:none;transition:border 0.2s;}
@@ -2260,17 +2302,26 @@ if (typeof twemoji === 'undefined') {
                 </div>
                 <div id="photoUploadForm" class="upload-form active">
                     <div class="upload-section">
-                        <h2 id="uploadPhotoTitle">নতুন ফটো আপলোড করুন</h2>
-                        <!-- Multi Photo Upload Area -->
+                        <h2 id="uploadPhotoTitle">নতুন পোস্ট তৈরি করুন</h2>
+                        <!-- Mixed Media Upload Area -->
                         <div class="form-group">
-                          <label id="labelSelectPhoto">ফটো নির্বাচন করুন <span style="font-size:11px;background:rgba(108,92,231,0.15);color:var(--p1);padding:2px 8px;border-radius:10px;font-weight:700;margin-left:4px;">সর্বোচ্চ ১০টি</span></label>
-                          <input type="file" id="photoFile" accept="image/*" multiple onchange="previewMultiPhotos(this)" style="display:none;">
-                          <div id="multiPhotoDropZone" onclick="document.getElementById('photoFile').click()" style="margin-top:8px;border:2px dashed var(--border-light);border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;background:rgba(108,92,231,0.03);">
-                            <div style="font-size:32px;margin-bottom:6px;">📷</div>
-                            <div style="font-size:14px;font-weight:700;color:var(--text-on-light);">ছবি নির্বাচন করুন</div>
-                            <div style="font-size:12px;color:var(--text-muted-light);margin-top:4px;">একসাথে একাধিক ছবি বেছে নিন</div>
+                          <label id="labelSelectPhoto">ছবি / ভিডিও নির্বাচন করুন <span style="font-size:11px;background:rgba(108,92,231,0.15);color:var(--p1);padding:2px 8px;border-radius:10px;font-weight:700;margin-left:4px;">সর্বোচ্চ ১০টি</span></label>
+                          <!-- Mixed: image + video -->
+                          <input type="file" id="photoFile" accept="image/*,video/*" multiple onchange="previewMixedMedia(this)" style="display:none;">
+                          <input type="file" id="cameraFile" accept="image/*,video/*" capture="environment" onchange="previewMixedMedia(this)" style="display:none;">
+                          <!-- Trigger button -->
+                          <div class="media-pick-trigger" id="multiPhotoDropZone" onclick="openGalleryPicker()">
+                            <div class="mpt-icon-row">
+                              <div class="media-pick-icon-bubble mpt-camera">📷</div>
+                              <div style="width:2px;height:36px;background:var(--border-light);border-radius:2px;"></div>
+                              <div class="media-pick-icon-bubble mpt-gallery" style="background:rgba(239,71,111,0.12);">🎬</div>
+                              <div style="width:2px;height:36px;background:var(--border-light);border-radius:2px;"></div>
+                              <div class="media-pick-icon-bubble mpt-gallery">🖼️</div>
+                            </div>
+                            <div class="mpt-label">ছবি ও ভিডিও যোগ করুন</div>
+                            <div class="mpt-sub">ক্যামেরা বা গ্যালারি — একসাথে মিক্স করুন</div>
                           </div>
-                          <!-- Multi photo preview grid -->
+                          <!-- Mixed media preview grid -->
                           <div id="multiPhotoPreviewGrid" style="display:none;margin-top:12px;"></div>
                         </div>
 
@@ -2311,8 +2362,8 @@ if (typeof twemoji === 'undefined') {
                           </div>
                         </div>
 
-                        <div class="form-group"><label id="labelPhotoCaption">ক্যাপশন (ঐচ্ছিক)</label><textarea id="photoCaption" rows="3" placeholder="এই ফটো সম্পর্কে কিছু লিখুন..."></textarea></div>
-                        <button class="btn" onclick="uploadPhoto()" id="btnUploadPhoto">ফটো আপলোড করুন</button>
+                        <div class="form-group"><label id="labelPhotoCaption">ক্যাপশন (ঐচ্ছিক)</label><textarea id="photoCaption" rows="3" placeholder="পোস্ট সম্পর্কে কিছু লিখুন..."></textarea></div>
+                        <button class="btn" onclick="uploadMixedPost()" id="btnUploadPhoto">পোস্ট করুন</button>
                     </div>
                 </div>
                 <div id="videoUploadForm" class="upload-form">
@@ -7704,8 +7755,376 @@ window.openAlbumModal = function(pid, startIdx){
 };
 
 
-var _multiPhotos = []; // [{original, cropped, file}]
+var _multiPhotos = []; // [{original, cropped}]
+var _multiVideos = []; // [{src, thumb, name}]
 var _selectedFrame = 'none';
+
+/* ═══════════════════════════════════════════
+   📷🎬 MIXED MEDIA — ছবি + ভিডিও একসাথে
+   ═══════════════════════════════════════════ */
+
+// File input থেকে ছবি ও ভিডিও আলাদা করে প্রসেস করো
+window.previewMixedMedia = function(input) {
+  if(!input.files || !input.files.length) return;
+  var files = Array.from(input.files);
+  var existingCount = _multiPhotos.filter(Boolean).length + _multiVideos.filter(Boolean).length;
+  var remaining = 10 - existingCount;
+  if(remaining <= 0){ showNotification('সর্বোচ্চ ১০টি মিডিয়া যোগ করা যাবে!'); input.value=''; return; }
+  files = files.slice(0, remaining);
+
+  var toLoad = files.length, loaded = 0;
+
+  files.forEach(function(file) {
+    if(file.type.startsWith('image/')) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        _multiPhotos.push({ original: e.target.result, cropped: e.target.result });
+        loaded++;
+        if(loaded === toLoad) { input.value=''; _afterMediaLoad(); }
+      };
+      reader.readAsDataURL(file);
+    } else if(file.type.startsWith('video/')) {
+      var reader2 = new FileReader();
+      reader2.onload = function(e) {
+        var videoSrc = e.target.result;
+        // ভিডিও thumbnail তৈরি করো
+        generateVideoThumbnail(videoSrc, function(thumb) {
+          _multiVideos.push({ src: videoSrc, thumb: thumb, name: file.name });
+          loaded++;
+          if(loaded === toLoad) { input.value=''; _afterMediaLoad(); }
+        });
+      };
+      reader2.readAsDataURL(file);
+    } else {
+      loaded++;
+      if(loaded === toLoad) { input.value=''; _afterMediaLoad(); }
+    }
+  });
+};
+
+// backward compat
+window.previewMultiPhotos = window.previewMixedMedia;
+
+function _afterMediaLoad() {
+  var overlay = document.getElementById('galleryPickerOverlay');
+  if(overlay && overlay.classList.contains('show')) {
+    _gpUpdateThumbs();
+  } else {
+    _showMixedGrid();
+  }
+}
+
+function _showMixedGrid() {
+  var dz = document.getElementById('multiPhotoDropZone');
+  var grid = document.getElementById('multiPhotoPreviewGrid');
+  var fw = document.getElementById('frameSelectorWrap');
+  if(dz) dz.style.display = 'none';
+  if(grid) grid.style.display = 'block';
+  // ছবি থাকলেই frame দেখাও
+  if(fw) fw.style.display = _multiPhotos.filter(Boolean).length ? 'block' : 'none';
+  renderMultiPhotoGrid();
+}
+
+// ── Grid render ──
+function renderMultiPhotoGrid() {
+  var grid = document.getElementById('multiPhotoPreviewGrid');
+  if(!grid) return;
+  var photos = _multiPhotos.filter(Boolean);
+  var videos = _multiVideos.filter(Boolean);
+  var total = photos.length + videos.length;
+  if(!total) return;
+
+  var f = _FRAMES[_selectedFrame] || _FRAMES['none'];
+  var frameStyle = _selectedFrame !== 'none'
+    ? 'border:'+f.border+';box-shadow:'+f.shadow+';'
+    : 'border:2px solid var(--border-light);';
+
+  var html = '<div class="mixed-grid">';
+  var globalIdx = 0;
+
+  // ছবিগুলো আগে
+  photos.forEach(function(p, idx) {
+    html += '<div class="mixed-grid-item">'
+      + '<img src="'+p.cropped+'" style="'+frameStyle+'border-radius:10px;" />'
+      + '<div class="mixed-grid-badge">📷</div>'
+      + '<div class="mixed-grid-num">'+(globalIdx+1)+'</div>'
+      + '<div class="mixed-grid-overlay">'
+      +   '<button onclick="editMixedPhoto('+idx+')" style="background:rgba(255,255,255,0.9);border:none;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;">✏️</button>'
+      +   '<button onclick="removeMixedPhoto('+idx+')" style="background:rgba(255,60,60,0.9);color:white;border:none;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;">✕</button>'
+      + '</div>'
+      + '</div>';
+    globalIdx++;
+  });
+
+  // ভিডিওগুলো পরে
+  videos.forEach(function(v, idx) {
+    var thumbHtml = v.thumb
+      ? '<img src="'+v.thumb+'" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px;" />'
+      : '<div style="width:100%;height:100%;background:#222;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;">🎬</div>';
+    html += '<div class="mixed-grid-item">'
+      + thumbHtml
+      + '<div class="mixed-grid-badge">🎬</div>'
+      + '<div class="mixed-video-play">▶</div>'
+      + '<div class="mixed-grid-num">'+(globalIdx+1)+'</div>'
+      + '<div class="mixed-grid-overlay">'
+      +   '<button onclick="removeMixedVideo('+idx+')" style="background:rgba(255,60,60,0.9);color:white;border:none;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;">✕ সরান</button>'
+      + '</div>'
+      + '</div>';
+    globalIdx++;
+  });
+
+  html += '</div>';
+
+  // Footer row
+  var totalCount = photos.length + videos.length;
+  var summary = [];
+  if(photos.length) summary.push('📷 '+photos.length+' ছবি');
+  if(videos.length) summary.push('🎬 '+videos.length+' ভিডিও');
+  html += '<div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+    + '<div style="font-size:13px;color:var(--text-muted-light);">'+summary.join(' · ')+'</div>'
+    + '<button onclick="openGalleryPicker()" style="margin-left:auto;background:rgba(108,92,231,0.12);color:var(--p1);border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;">+ আরো যোগ করুন</button>'
+    + '</div>';
+
+  grid.innerHTML = html;
+}
+
+window.editMixedPhoto = function(idx) {
+  if(!_multiPhotos[idx]) return;
+  openCropModal(_multiPhotos[idx].original, 'post', function(data) {
+    if(!data) return;
+    _multiPhotos[idx].cropped = data;
+    renderMultiPhotoGrid();
+  });
+};
+
+window.removeMixedPhoto = function(idx) {
+  _multiPhotos.splice(idx, 1);
+  _checkEmptyAndReset();
+};
+
+window.removeMixedVideo = function(idx) {
+  _multiVideos.splice(idx, 1);
+  _checkEmptyAndReset();
+};
+
+// backward compat
+window.removeMultiPhoto = window.removeMixedPhoto;
+window.editMultiPhoto = window.editMixedPhoto;
+
+function _checkEmptyAndReset() {
+  var total = _multiPhotos.filter(Boolean).length + _multiVideos.filter(Boolean).length;
+  if(!total) {
+    var dz = document.getElementById('multiPhotoDropZone');
+    var grid = document.getElementById('multiPhotoPreviewGrid');
+    var fw = document.getElementById('frameSelectorWrap');
+    if(dz){ dz.style.display='flex'; }
+    if(grid){ grid.style.display='none'; grid.innerHTML=''; }
+    if(fw){ fw.style.display='none'; }
+    _selectedFrame='none';
+    document.querySelectorAll('.frame-opt').forEach(function(b,i){b.style.outline='none';if(i===0){b.style.outline='3px solid var(--p1)';b.style.outlineOffset='2px';}});
+  } else {
+    renderMultiPhotoGrid();
+  }
+}
+
+/* ════════════════════════════════════════════
+   📤 UPLOAD — Mixed post (ছবি + ভিডিও একসাথে)
+   ════════════════════════════════════════════ */
+window.uploadMixedPost = function() {
+  if(isGuestUser()){
+    showNotification(currentLanguage==='bn'?'পোস্ট করতে লগইন করুন!':'Please login!');
+    setTimeout(()=>showLoginScreen(), 1000); return;
+  }
+  var photos = _multiPhotos.filter(Boolean);
+  var vidItems = _multiVideos.filter(Boolean);
+  if(!photos.length && !vidItems.length)
+    return showNotification(currentLanguage==='bn'?'কোনো ছবি বা ভিডিও নির্বাচন করুননি!':'Select at least one photo or video!');
+
+  var caption = document.getElementById('photoCaption').value.trim();
+  var frame = _selectedFrame || 'none';
+  showPostingAnimation('photo');
+
+  // ছবিগুলো frame apply করো
+  var processedImages = [];
+  var imgDone = 0;
+
+  function afterImages() {
+    var ts = Date.now();
+    var postType = photos.length && vidItems.length ? 'mixed'
+                 : vidItems.length ? 'video'
+                 : 'photo';
+
+    // Mixed / photo post
+    if(postType === 'photo' || postType === 'mixed') {
+      var post = {
+        id: ts,
+        type: postType,
+        image: processedImages[0] || (vidItems[0] && vidItems[0].thumb) || '',
+        images: processedImages,
+        videos: vidItems.map(function(v){ return { src: v.src, thumb: v.thumb||'' }; }),
+        caption: caption,
+        frame: frame,
+        imageCount: processedImages.length,
+        videoCount: vidItems.length,
+        ...getUploaderInfo(),
+        comments:[], likes:0, reactions:{}, reactedBy:{}, likedBy:{},
+        uploadDate: new Date().toLocaleString()
+      };
+      function onSaved(){
+        hidePostingAnimation();
+        var cnt = (photos.length ? photos.length+'টি ছবি' : '') + (photos.length && vidItems.length ? ' ও ' : '') + (vidItems.length ? vidItems.length+'টি ভিডিও' : '');
+        showNotification('✅ '+cnt+' পোস্ট হয়েছে!');
+        _resetUploadForm();
+        bnSwitch('posts', document.getElementById('bnHome'));
+        var emoji = postType==='mixed'?'📸':'📷';
+        sendNotifToAllUsers(emoji+' <b>'+(currentUser.name||'কেউ')+'</b> নতুন পোস্ট করেছেন', emoji);
+        sendPushToAll(emoji+' '+(currentUser.name||'কেউ')+' নতুন পোস্ট করেছেন', caption||'নতুন পোস্ট দেখুন!', emoji);
+      }
+      if(db) db.ref('photos/'+ts).set(post).then(onSaved).catch(function(){ hidePostingAnimation(); });
+      else { photos.push(post); onSaved(); displayPosts(); }
+
+    } else if(postType === 'video') {
+      // শুধু ভিডিও — videos table-এ সেভ করো (একটার বেশি হলে আলাদা আলাদা পোস্ট)
+      var saved = 0;
+      vidItems.forEach(function(v, i) {
+        var vid = {
+          id: ts+i,
+          type: 'video',
+          video: v.src,
+          thumbnail: v.thumb||'',
+          caption: i===0 ? caption : '',
+          ...getUploaderInfo(),
+          comments:[], likes:0, reactions:{}, reactedBy:{}, likedBy:{},
+          uploadDate: new Date().toLocaleString()
+        };
+        function tryDone(){
+          saved++;
+          if(saved === vidItems.length){
+            hidePostingAnimation();
+            showNotification('✅ '+vidItems.length+'টি ভিডিও পোস্ট হয়েছে!');
+            _resetUploadForm();
+            bnSwitch('posts', document.getElementById('bnHome'));
+            sendNotifToAllUsers('🎬 <b>'+(currentUser.name||'কেউ')+'</b> নতুন ভিডিও পোস্ট করেছেন','🎬');
+            sendPushToAll('🎬 '+(currentUser.name||'কেউ')+' নতুন ভিডিও পোস্ট করেছেন', caption||'দেখুন!', '🎬');
+          }
+        }
+        if(db) db.ref('videos/'+vid.id).set(vid).then(tryDone).catch(tryDone);
+        else { videos.push(vid); tryDone(); displayPosts(); }
+      });
+    }
+  }
+
+  if(!photos.length) { afterImages(); return; }
+
+  photos.forEach(function(p, idx) {
+    applyFrameToCanvas(p.cropped, frame, function(finalImg) {
+      processedImages[idx] = finalImg;
+      imgDone++;
+      if(imgDone === photos.length) afterImages();
+    });
+  });
+};
+
+// backward compat — পুরানো uploadPhoto কল হলেও কাজ করবে
+window.uploadPhoto = window.uploadMixedPost;
+
+function _resetUploadForm() {
+  _multiPhotos = []; _multiVideos = []; _selectedFrame = 'none';
+  document.getElementById('photoCaption').value = '';
+  var dz = document.getElementById('multiPhotoDropZone');
+  var grid = document.getElementById('multiPhotoPreviewGrid');
+  var fw = document.getElementById('frameSelectorWrap');
+  if(dz){ dz.style.display='flex'; }
+  if(grid){ grid.style.display='none'; grid.innerHTML=''; }
+  if(fw){ fw.style.display='none'; }
+  document.querySelectorAll('.frame-opt').forEach(function(b,i){b.style.outline='none';if(i===0){b.style.outline='3px solid var(--p1)';b.style.outlineOffset='2px';}});
+}
+
+/* ════════════════════════════════════════════
+   📷 GALLERY PICKER BOTTOM SHEET
+   ════════════════════════════════════════════ */
+window.openGalleryPicker = function() {
+  if(!currentUser){
+    showNotification(currentLanguage==='bn'?'পোস্ট করতে লগইন করুন!':'Please login!');
+    setTimeout(()=>showLoginScreen(), 800); return;
+  }
+  var ov = document.getElementById('galleryPickerOverlay');
+  ov.style.display = 'flex'; ov.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  _gpUpdateThumbs();
+};
+
+window.closeGalleryPicker = function() {
+  var ov = document.getElementById('galleryPickerOverlay');
+  ov.classList.remove('show'); ov.style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.pickFromCamera = function() {
+  if(navigator.permissions){
+    navigator.permissions.query({name:'camera'}).then(function(r){
+      if(r.state==='denied'){
+        document.getElementById('gpPermNotice').style.display='block'; return;
+      }
+      document.getElementById('cameraFile').click();
+    }).catch(function(){ document.getElementById('cameraFile').click(); });
+  } else {
+    document.getElementById('cameraFile').click();
+  }
+};
+
+window.pickFromGallery = function() {
+  var total = _multiPhotos.filter(Boolean).length + _multiVideos.filter(Boolean).length;
+  if(total >= 10){ showNotification('সর্বোচ্চ ১০টি মিডিয়া যোগ করা যাবে!'); return; }
+  document.getElementById('photoFile').click();
+};
+
+function _gpUpdateThumbs() {
+  var row = document.getElementById('gpThumbsRow');
+  var doneBtn = document.getElementById('gpDoneBtn');
+  var doneTxt = document.getElementById('gpDoneTxt');
+  var photos = _multiPhotos.filter(Boolean);
+  var vids = _multiVideos.filter(Boolean);
+  var total = photos.length + vids.length;
+  if(!total){ if(row) row.style.display='none'; if(doneBtn) doneBtn.style.display='none'; return; }
+  if(row) row.style.display = 'flex';
+  if(doneBtn) doneBtn.style.display = 'block';
+  var summary = [];
+  if(photos.length) summary.push(photos.length+'টি ছবি');
+  if(vids.length) summary.push(vids.length+'টি ভিডিও');
+  if(doneTxt) doneTxt.textContent = summary.join(' ও ')+' নিশ্চিত করুন';
+  if(row){
+    row.innerHTML = photos.map(function(p,i){
+      return '<div style="position:relative;flex-shrink:0;">'
+        +'<img src="'+p.cropped+'" style="width:52px;height:52px;border-radius:10px;object-fit:cover;border:2.5px solid var(--p1);display:block;">'
+        +'<div onclick="removeMixedPhoto('+i+');_gpUpdateThumbs();" style="position:absolute;top:-5px;right:-5px;width:17px;height:17px;background:#ff4757;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:900;cursor:pointer;border:2px solid var(--bg-card-solid);">✕</div>'
+        +'<div style="position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,0.6);border-radius:6px;font-size:9px;color:white;padding:1px 4px;">📷</div>'
+        +'</div>';
+    }).join('')
+    + vids.map(function(v,i){
+      return '<div style="position:relative;flex-shrink:0;">'
+        +(v.thumb?'<img src="'+v.thumb+'" style="width:52px;height:52px;border-radius:10px;object-fit:cover;border:2.5px solid #ef476f;display:block;">'
+                 :'<div style="width:52px;height:52px;border-radius:10px;background:#222;display:flex;align-items:center;justify-content:center;font-size:22px;border:2.5px solid #ef476f;">🎬</div>')
+        +'<div onclick="removeMixedVideo('+i+');_gpUpdateThumbs();" style="position:absolute;top:-5px;right:-5px;width:17px;height:17px;background:#ff4757;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:900;cursor:pointer;border:2px solid var(--bg-card-solid);">✕</div>'
+        +'<div style="position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,0.6);border-radius:6px;font-size:9px;color:white;padding:1px 4px;">🎬</div>'
+        +'</div>';
+    }).join('')
+    + '<div style="background:var(--grad-brand);border-radius:50%;width:52px;height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:800;white-space:nowrap;">'+total+'/10</div>';
+  }
+}
+
+window.gpConfirmSelection = function() {
+  closeGalleryPicker();
+  _showMixedGrid();
+  var p = _multiPhotos.filter(Boolean).length, v = _multiVideos.filter(Boolean).length;
+  showNotification('✅ '+(p?p+'টি ছবি ':'')+((p&&v)?'ও ':'')+((v)?v+'টি ভিডিও ':'')+' নির্বাচিত!');
+};
+
+window.rechosePhoto = function() {
+  _multiPhotos=[]; _multiVideos=[]; _croppedPhotoData=null;
+  _resetUploadForm();
+  openGalleryPicker();
+};
 
 var _FRAMES = {
   none:     { border: 'none', shadow: 'none', bg: 'transparent', label: 'নেই' },
@@ -7751,91 +8170,39 @@ function applyFrameToCanvas(imgSrc, frameName, callback) {
   img.src = imgSrc;
 }
 
-window.previewMultiPhotos = function(input) {
-  if(!input.files || !input.files.length) return;
-  var files = Array.from(input.files).slice(0,10);
-  var nonImages = files.filter(function(f){ return !f.type.startsWith('image/'); });
-  if(nonImages.length){ showNotification('শুধুমাত্র ছবি ফাইল দিন!'); return; }
-  _multiPhotos = [];
-  var loaded = 0;
-  var dropZone = document.getElementById('multiPhotoDropZone');
-  if(dropZone) dropZone.style.display = 'none';
-  var grid = document.getElementById('multiPhotoPreviewGrid');
-  if(grid){ grid.style.display = 'block'; grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted-light);font-size:13px;">⏳ লোড হচ্ছে...</div>'; }
-  document.getElementById('frameSelectorWrap').style.display = 'block';
-  files.forEach(function(file, idx){
-    var reader = new FileReader();
-    reader.onload = function(e){
-      _multiPhotos[idx] = { original: e.target.result, cropped: e.target.result };
-      loaded++;
-      if(loaded === files.length){ input.value = ''; renderMultiPhotoGrid(); }
-    };
-    reader.readAsDataURL(file);
-  });
-};
 
-function renderMultiPhotoGrid() {
-  var grid = document.getElementById('multiPhotoPreviewGrid');
-  if(!grid || !_multiPhotos.length) return;
-  var f = _FRAMES[_selectedFrame] || _FRAMES['none'];
-  var frameStyle = _selectedFrame !== 'none'
-    ? 'border:'+f.border+';box-shadow:'+f.shadow+';border-radius:10px;'
-    : 'border-radius:10px;border:2px solid var(--border-light);';
-  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;">';
-  _multiPhotos.forEach(function(p, idx){
-    if(!p) return;
-    html += '<div style="position:relative;aspect-ratio:1;overflow:hidden;border-radius:10px;">'
-      + '<img src="'+p.cropped+'" style="width:100%;height:100%;object-fit:cover;display:block;'+frameStyle+'" />'
-      + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;background:rgba(0,0,0,0.35);" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0\'">'
-      + '<button onclick="editMultiPhoto('+idx+')" style="background:rgba(255,255,255,0.9);border:none;border-radius:20px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;margin:2px;">✏️</button>'
-      + '<button onclick="removeMultiPhoto('+idx+')" style="background:rgba(255,80,80,0.9);color:white;border:none;border-radius:20px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;margin:2px;">✕</button>'
-      + '</div>'
-      + '<div style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;">'+(idx+1)+'</div>'
-      + '</div>';
-  });
-  html += '</div>';
-  html += '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;">'
-    + '<div style="font-size:13px;color:var(--text-muted-light);">📷 '+_multiPhotos.filter(Boolean).length+' টি ছবি নির্বাচিত</div>'
-    + '<button onclick="document.getElementById(\'photoFile\').click()" style="background:rgba(108,92,231,0.12);color:var(--p1);border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;margin-left:auto;">+ আরো যোগ করুন</button>'
-    + '</div>';
-  grid.innerHTML = html;
-}
-
-window.editMultiPhoto = function(idx) {
-  if(!_multiPhotos[idx]) return;
-  openCropModal(_multiPhotos[idx].original, 'post', function(croppedData){
-    if(!croppedData) return;
-    _multiPhotos[idx].cropped = croppedData;
-    renderMultiPhotoGrid();
-  });
-};
-
-window.removeMultiPhoto = function(idx) {
-  _multiPhotos.splice(idx, 1);
-  if(_multiPhotos.length === 0){
-    var dropZone = document.getElementById('multiPhotoDropZone');
-    var grid = document.getElementById('multiPhotoPreviewGrid');
-    var frameWrap = document.getElementById('frameSelectorWrap');
-    if(dropZone){ dropZone.style.display = 'block'; }
-    if(grid){ grid.style.display = 'none'; grid.innerHTML = ''; }
-    if(frameWrap){ frameWrap.style.display = 'none'; }
-    _selectedFrame = 'none';
-    document.querySelectorAll('.frame-opt').forEach(function(b,i){ b.style.outline='none'; if(i===0){ b.style.outline='3px solid var(--p1)'; b.style.outlineOffset='2px'; } });
-  } else {
-    renderMultiPhotoGrid();
-  }
-};
-
-window.rechosePhoto = function(){
-  _multiPhotos = [];
-  _croppedPhotoData = null;
-  var dropZone = document.getElementById('multiPhotoDropZone');
-  var grid = document.getElementById('multiPhotoPreviewGrid');
-  if(dropZone) dropZone.style.display = 'block';
-  if(grid){ grid.style.display = 'none'; grid.innerHTML = ''; }
-  document.getElementById('photoFile').click();
-};
 </script>
+
+<!-- ════════════════════════════════════════════
+     📷 GALLERY PICKER + MIXED MEDIA
+     ════════════════════════════════════════════ -->
+<div id="galleryPickerOverlay" onclick="if(event.target===this)closeGalleryPicker()">
+  <div id="galleryPickerSheet">
+    <div class="gp-handle"></div>
+    <div class="gp-title">📷🎬 ছবি ও ভিডিও যোগ করুন</div>
+    <div class="gp-perm-notice" id="gpPermNotice" style="display:none;">
+      <b>❌ ক্যামেরা ব্লক!</b> ব্রাউজার সেটিংসে গিয়ে এই সাইটের জন্য ক্যামেরা <b>Allow</b> করুন।
+    </div>
+    <div class="gp-actions">
+      <button class="gp-action-btn camera-btn" onclick="pickFromCamera()">
+        <span class="gp-icon">📸</span>
+        <span class="gp-label">ক্যামেরা</span>
+        <span class="gp-sub">ছবি বা ভিডিও তুলুন</span>
+      </button>
+      <button class="gp-action-btn gallery-btn" onclick="pickFromGallery()">
+        <span class="gp-icon">🖼️🎬</span>
+        <span class="gp-label">গ্যালারি</span>
+        <span class="gp-sub">মিক্স সিলেক্ট করুন</span>
+      </button>
+    </div>
+    <!-- selected thumbnails -->
+    <div id="gpThumbsRow" class="gp-thumbs-row" style="display:none;"></div>
+    <!-- done button -->
+    <button class="gp-done-btn" id="gpDoneBtn" style="display:none;" onclick="gpConfirmSelection()">
+      ✅ <span id="gpDoneTxt">নির্বাচন নিশ্চিত করুন</span>
+    </button>
+  </div>
+</div>
 
 <!-- ════════════════════════════════════════════
      📱 FACEBOOK-STYLE REELS / VIDEO SCROLL PLAYER
