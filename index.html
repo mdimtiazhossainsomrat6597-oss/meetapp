@@ -1679,7 +1679,7 @@ if (typeof twemoji === 'undefined') {
         .fab-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(22,18,42,0.35);backdrop-filter:blur(4px);}
         .fab-overlay.show{display:block;animation:fadeIn 0.2s;}
         .fab-menu{
-            display:none;position:fixed;bottom:78px;left:50%;transform:translateX(-50%);
+            display:none;position:fixed;bottom:140px;left:50%;transform:translateX(-50%);
             z-index:1001;flex-direction:row;gap:10px;
             justify-content:center;flex-wrap:wrap;
             padding:0 16px;width:100%;max-width:400px;
@@ -5164,7 +5164,7 @@ function bnSwitch(tab,el){ document.querySelectorAll('.bn-item').forEach(b=>b.cl
 function bnSearch(){ const inp=document.getElementById('headerSearchInput'); if(inp){inp.focus();inp.scrollIntoView({behavior:'smooth',block:'center'});} }
 
 let fabOpen=false;
-function toggleFabMenu(){ fabOpen=!fabOpen; document.getElementById('fabOverlay').classList.toggle('show',fabOpen); document.getElementById('fabMenu').classList.toggle('show',fabOpen); const btn=document.getElementById('bnCreateBtn'); if(btn){ btn.style.background=fabOpen?'linear-gradient(135deg,#fd79a8,#fdcb6e)':'var(--grad-brand)'; btn.innerHTML=fabOpen?'<span style="font-size:22px;pointer-events:none;">✕</span>':'<span style="font-size:26px;pointer-events:none;">✚</span>'; setTimeout(function(){TwemojiLocal.parse(btn);},50); } if(fabOpen){var fm=document.getElementById('fabMenu');if(fm) setTimeout(function(){TwemojiLocal.parse(fm);},80);} }
+function toggleFabMenu(){ fabOpen=!fabOpen; document.getElementById('fabOverlay').classList.toggle('show',fabOpen); document.getElementById('fabMenu').classList.toggle('show',fabOpen); const btn=document.getElementById('bnCreateBtn'); if(btn){ btn.style.background=fabOpen?'linear-gradient(135deg,#fd79a8,#fdcb6e)':'var(--grad-brand)'; btn.innerHTML=fabOpen?'<span style="font-size:22px;pointer-events:none;">✕</span>':'<span style="font-size:26px;pointer-events:none;">✚</span>'; btn.style.transform=fabOpen?'translateY(0)':'translateY(-12px)'; setTimeout(function(){TwemojiLocal.parse(btn);},50); } if(fabOpen){var fm=document.getElementById('fabMenu');if(fm) setTimeout(function(){TwemojiLocal.parse(fm);},80);} }
 function openCreateSheet(type){ if(fabOpen) toggleFabMenu(); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); const el=document.getElementById('upload'); if(el) el.classList.add('active'); const bar=document.getElementById('fbCreateBar'); if(bar) bar.style.display='none'; selectCreateType(type); window.scrollTo({top:0,behavior:'smooth'}); }
 
 function applyDarkMode(){
@@ -8061,22 +8061,55 @@ window.closeGalleryPicker = function() {
 };
 
 window.pickFromCamera = function() {
+  // ✅ Camera input-ও dynamic করো (iOS fix)
+  function _doCameraClick() {
+    var oldCam = document.getElementById('cameraFile');
+    var newCam = document.createElement('input');
+    newCam.type = 'file';
+    newCam.id = 'cameraFile';
+    newCam.accept = 'image/*,video/*';
+    newCam.setAttribute('capture', 'environment');
+    newCam.style.display = 'none';
+    newCam.onchange = function() { previewMixedMedia(this); };
+    if(oldCam && oldCam.parentNode) {
+      oldCam.parentNode.replaceChild(newCam, oldCam);
+    } else {
+      document.body.appendChild(newCam);
+    }
+    newCam.click();
+  }
   if(navigator.permissions){
     navigator.permissions.query({name:'camera'}).then(function(r){
       if(r.state==='denied'){
         document.getElementById('gpPermNotice').style.display='block'; return;
       }
-      document.getElementById('cameraFile').click();
-    }).catch(function(){ document.getElementById('cameraFile').click(); });
+      _doCameraClick();
+    }).catch(function(){ _doCameraClick(); });
   } else {
-    document.getElementById('cameraFile').click();
+    _doCameraClick();
   }
 };
 
 window.pickFromGallery = function() {
   var total = _multiPhotos.filter(Boolean).length + _multiVideos.filter(Boolean).length;
   if(total >= 10){ showNotification('সর্বোচ্চ ১০টি মিডিয়া যোগ করা যাবে!'); return; }
-  document.getElementById('photoFile').click();
+
+  // ✅ মোবাইলে multi-select fix: প্রতিবার নতুন input তৈরি করো
+  // এতে iOS Safari ও Android উভয়তেই একাধিক ছবি সিলেক্ট কাজ করবে
+  var oldInput = document.getElementById('photoFile');
+  var newInput = document.createElement('input');
+  newInput.type = 'file';
+  newInput.id = 'photoFile';
+  newInput.accept = 'image/*,video/*';
+  newInput.multiple = true;
+  newInput.style.display = 'none';
+  newInput.onchange = function() { previewMixedMedia(this); };
+  if(oldInput && oldInput.parentNode) {
+    oldInput.parentNode.replaceChild(newInput, oldInput);
+  } else {
+    document.body.appendChild(newInput);
+  }
+  newInput.click();
 };
 
 function _gpUpdateThumbs() {
