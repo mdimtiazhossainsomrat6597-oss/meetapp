@@ -47,74 +47,116 @@
         measurementId: "G-YCT4B00WMY"
       };
 
-      // Firebase initialize করুন
+      // Firebase initialize
       const app = initializeApp(firebaseConfig);
       const messaging = getMessaging(app);
 
       const VAPID_KEY = "BldCB-cSazYOR31KMiwNwhRfy6tHLjhkBHMwhSEBfIPnP_ydCDLOwDQSl6uZngcITW89hasLZBpqJudlNeK4bpE";
 
+      // ✅ FIX 1: FCM Token DB-তে সেভ করার helper — db/currentUser রেডি না থাকলে retry করে
+      function saveFCMTokenToDb(token) {
+        var maxTry = 10, count = 0;
+        function tryNow() {
+          if (typeof db !== "undefined" && db &&
+              typeof currentUser !== "undefined" && currentUser && currentUser.uid) {
+            db.ref("fcmTokens/" + currentUser.uid).set({ token: token, updatedAt: Date.now() });
+            console.log("✅ FCM Token DB-তে সেভ হয়েছে:", currentUser.uid);
+          } else if (count++ < maxTry) {
+            setTimeout(tryNow, 1500); // ১.৫ সেকেন্ড পর আবার চেষ্টা
+          } else {
+            console.warn("⚠️ DB/User রেডি না থাকায় FCM Token সেভ হয়নি।");
+          }
+        }
+        tryNow();
+      }
+
+      // ✅ FIX 2: Service Worker এর path relative করা — GitHub Pages-এ কাজ করবে
+      async function getFCMServiceWorkerReg() {
+        try {
+          // আগে existing registrations চেক করো
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const r of regs) {
+            if (r.active && r.active.scriptURL && r.active.scriptURL.includes('firebase-messaging-sw')) {
+              return r;
+            }
+          }
+          // ✅ Relative path ব্যবহার — GitHub Pages সাবডিরেক্টরিতেও কাজ করবে
+          const swPath = './firebase-messaging-sw.js';
+          const reg = await navigator.serviceWorker.register(swPath);
+          // Active হওয়া পর্যন্ত অপেক্ষা করো
+          if (reg.installing) {
+            await new Promise(resolve => {
+              reg.installing.addEventListener('statechange', e => {
+                if (e.target.state === 'activated') resolve();
+              });
+            });
+          }
+          console.log("✅ FCM Service Worker রেজিস্টার হয়েছে:", reg.scope);
+          return reg;
+        } catch (e) {
+          console.warn("⚠️ FCM SW রেজিস্ট্রেশন ব্যর্থ:", e.message);
+          return null;
+        }
+      }
+
       // ব্যবহারকারীর অনুমতি নিয়ে FCM Token সংগ্রহ
       async function requestNotificationPermission() {
         try {
-          // Service Worker রেজিস্ট্রেশন চেক করো
-          if (!('serviceWorker' in navigator)) {
-            console.warn("⚠️ Service Worker সাপোর্ট নেই এই ব্রাউজারে।");
+          if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+            console.warn("⚠️ এই ব্রাউজারে Push Notification সাপোর্ট নেই।");
             return;
           }
 
-          // firebase-messaging-sw.js রেজিস্টার করো (না থাকলে)
-          let swReg = null;
-          try {
-            swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            console.log("✅ Service Worker রেজিস্টার হয়েছে:", swReg.scope);
-          } catch (swErr) {
-            console.warn("⚠️ Service Worker রেজিস্ট্রেশন ব্যর্থ:", swErr.message);
-            // SW ছাড়াও চালিয়ে যাও (foreground-only mode)
-          }
-
-          // আগে থেকে permission থাকলে আর dialog দেখাবে না
+          // Permission চেক/চাওয়া
           const permission = Notification.permission === "default"
             ? await Notification.requestPermission()
             : Notification.permission;
 
-          if (permission === "granted") {
-            const tokenOptions = { vapidKey: VAPID_KEY };
-            if (swReg) tokenOptions.serviceWorkerRegistration = swReg;
-            const token = await getToken(messaging, tokenOptions);
-            if (token) {
-              console.log("✅ FCM Token:", token);
-              // Firebase Realtime DB তে token সেভ করুন
-              if (typeof db !== "undefined" && typeof currentUser !== "undefined" && currentUser) {
-                db.ref("fcmTokens/" + currentUser.uid).set({ token: token, updatedAt: Date.now() });
-              }
-            } else {
-              console.warn("⚠️ FCM Token পাওয়া যায়নি। Service Worker চেক করুন।");
-            }
-          } else {
+          if (permission !== "granted") {
             console.warn("⚠️ নোটিফিকেশনের অনুমতি দেননি।");
+            return;
+          }
+
+          // Service Worker রেজিস্টার
+          const swReg = await getFCMServiceWorkerReg();
+
+          // FCM Token নিন
+          const tokenOptions = { vapidKey: VAPID_KEY };
+          if (swReg) tokenOptions.serviceWorkerRegistration = swReg;
+
+          const token = await getToken(messaging, tokenOptions);
+          if (token) {
+            console.log("✅ FCM Token পাওয়া গেছে:", token);
+            saveFCMTokenToDb(token); // ✅ Retry-সহ সেভ
+          } else {
+            console.warn("⚠️ FCM Token পাওয়া যায়নি। firebase-messaging-sw.js ফাইল আছে কিনা চেক করুন।");
           }
         } catch (err) {
-          console.error("❌ FCM Token Error:", err);
+          console.error("❌ FCM Error:", err.message || err);
         }
       }
 
-      // Foreground নোটিফিকেশন হ্যান্ডেল করুন (অ্যাপ খোলা থাকলে)
+      // ✅ Foreground নোটিফিকেশন — অ্যাপ খোলা থাকলে
       onMessage(messaging, (payload) => {
-        console.log("📩 নোটিফিকেশন পেয়েছি:", payload);
-        const { title, body } = payload.notification || {};
-        if (title) {
-          // অ্যাপের ভেতরে নোটিফিকেশন দেখান
-          if (typeof showNotification === "function") {
-            showNotification("🔔 " + title + (body ? ": " + body : ""));
-          }
-          // Browser নোটিফিকেশনও দেখান
-          new Notification(title, { body: body || "", icon: "/icon.png" });
+        console.log("📩 Foreground নোটিফিকেশন:", payload);
+        const notif = payload.notification || {};
+        const title = notif.title || payload.data?.title || '';
+        const body  = notif.body  || payload.data?.body  || '';
+        const icon  = notif.icon  || './icon.png';
+
+        // অ্যাপের টোস্ট
+        if (title && typeof showNotification === "function") {
+          showNotification("🔔 " + title + (body ? ": " + body : ""));
+        }
+        // Browser নোটিফিকেশন
+        if (title && Notification.permission === "granted") {
+          new Notification(title, { body, icon });
         }
       });
 
-      // পেজ লোড হলে অনুমতি চান
+      // ✅ পেজ লোড হলে সেটআপ
       window.addEventListener("load", () => {
-        // ✅ Notification click থেকে sound বাজাও (App বন্ধ থাকলেও কাজ করবে)
+        // Notification click থেকে sound বাজাও
         const _params = new URLSearchParams(window.location.search);
         const _soundEmoji = _params.get('sound');
         if (_soundEmoji) {
@@ -124,33 +166,35 @@
             } else if (typeof SoundFX !== 'undefined') {
               SoundFX.notify();
             }
-            // URL পরিষ্কার করো
             window.history.replaceState({}, '', window.location.pathname);
           }, 500);
         }
 
-        // ব্যবহারকারী লগইন করার পর token নিন
+        // Global access — login-এর পর ডাকা যাবে: window._fcmRequestPermission()
         window._fcmRequestPermission = requestNotificationPermission;
-        // ৩ সেকেন্ড পর অটোমেটিক চেষ্টা
+
+        // ✅ FIX 3: ৫ সেকেন্ড দেরি — currentUser লোড হওয়ার সময় দেওয়া
         setTimeout(() => {
           if (typeof currentUser !== "undefined" && currentUser) {
             requestNotificationPermission();
           }
-        }, 3000);
+        }, 5000);
 
-        // ✅ Service Worker থেকে sound বাজানোর message শোনো
-        navigator.serviceWorker.addEventListener('message', function(event) {
-          if (event.data && event.data.type === 'PLAY_NOTIFICATION_SOUND') {
-            try {
-              const emoji = event.data.emoji || '🔔';
-              if (typeof playSoundByEmoji === 'function') {
-                playSoundByEmoji(emoji);
-              } else if (typeof SoundFX !== 'undefined') {
-                SoundFX.notify();
-              }
-            } catch(e) {}
-          }
-        });
+        // Service Worker থেকে sound message শোনো
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'PLAY_NOTIFICATION_SOUND') {
+              try {
+                const emoji = event.data.emoji || '🔔';
+                if (typeof playSoundByEmoji === 'function') {
+                  playSoundByEmoji(emoji);
+                } else if (typeof SoundFX !== 'undefined') {
+                  SoundFX.notify();
+                }
+              } catch(e) {}
+            }
+          });
+        }
       });
     </script>
     <script>

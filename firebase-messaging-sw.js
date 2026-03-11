@@ -1,10 +1,10 @@
-// MeetApp Firebase Messaging Service Worker
-// ✅ Push notification + Sound + Vibration support
-// ✅ App বন্ধ থাকলেও notification, click করলে sound বাজবে
+// ✅ firebase-messaging-sw.js
+// এই ফাইলটি index.html-এর পাশে (root/public ফোল্ডারে) রাখুন
 
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
+// ✅ আপনার Firebase Config (index.html-এর মতোই)
 firebase.initializeApp({
   apiKey: "AIzaSyBkV5DJpMwedW1ZbPYil4NBZL1GP_4BMz8",
   authDomain: "photo-share-app-c65fd.firebaseapp.com",
@@ -12,92 +12,69 @@ firebase.initializeApp({
   projectId: "photo-share-app-c65fd",
   storageBucket: "photo-share-app-c65fd.firebasestorage.app",
   messagingSenderId: "585105127605",
-  appId: "1:585105127605:web:cc948af7e01cef8c39e6fc"
+  appId: "1:585105127605:web:cc948af7e01cef8c39e6fc",
+  measurementId: "G-YCT4B00WMY"
 });
 
 const messaging = firebase.messaging();
 
-// ══════════════════════════════════════════════════════
-// Background push notification হ্যান্ডেল করুন
-// ══════════════════════════════════════════════════════
+// ✅ Background নোটিফিকেশন হ্যান্ডেল (অ্যাপ বন্ধ/মিনিমাইজ থাকলে)
 messaging.onBackgroundMessage(function(payload) {
-  console.log('📩 Background message:', payload);
+  console.log('[SW] Background নোটিফিকেশন পেয়েছি:', payload);
 
-  const { title, body, icon } = payload.notification || {};
-  const data = payload.data || {};
+  const notif    = payload.notification || {};
+  const data     = payload.data || {};
+  const title    = notif.title || data.title || 'MeetApp';
+  const body     = notif.body  || data.body  || '';
+  const icon     = notif.icon  || data.icon  || './icon.png';
+  const clickUrl = data.url    || notif.click_action || './';
+  const emoji    = data.emoji  || '🔔';
 
-  // ✅ App খোলা থাকলে sound বাজাও (foreground client আছে কিনা চেক)
-  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
-    if (clients.length > 0) {
-      // App খোলা আছে — sound বাজাও
-      clients.forEach(client => {
-        client.postMessage({
-          type: 'PLAY_NOTIFICATION_SOUND',
-          emoji: data.emoji || '🔔'
-        });
-      });
-    }
-    // App বন্ধ থাকলে — sound বাজানো সম্ভব না (browser security)
-    // তবে notification দেখাবে, click করলে sound বাজবে ✅
-  });
-
-  // ✅ Notification দেখাও
-  return self.registration.showNotification(title || 'MeetApp 🔔', {
-    body: body || '',
-    icon: icon || 'https://ui-avatars.com/api/?name=MA&size=192&background=1877f2&color=ffffff&bold=true',
-    badge: 'https://ui-avatars.com/api/?name=MA&size=96&background=1877f2&color=ffffff&bold=true',
-    vibrate: [300, 100, 300, 100, 300], // ✅ ভাইব্রেট (সব সময় কাজ করে)
-    tag: 'meetapp-' + Date.now(),
+  const options = {
+    body: body,
+    icon: icon,
+    badge: './icon.png',
+    tag: data.tag || 'meetapp-notification',
     renotify: true,
-    requireInteraction: false,
     data: {
-      url: data.url || '/meetapp/',   // ✅ FIX: GitHub Pages সঠিক path
-      emoji: data.emoji || '🔔',
-      playSound: true                 // ✅ click করলে sound বাজানোর flag
-    }
-  });
+      url: clickUrl,
+      emoji: emoji
+    },
+    actions: [
+      { action: 'open', title: '📖 খুলুন' },
+      { action: 'close', title: '❌ বন্ধ করুন' }
+    ]
+  };
+
+  return self.registration.showNotification(title, options);
 });
 
-// ══════════════════════════════════════════════════════
-// Notification ক্লিক করলে অ্যাপ খুলবে + Sound বাজবে
-// ══════════════════════════════════════════════════════
+// ✅ Notification ক্লিক হ্যান্ডেল
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
 
   const notifData = event.notification.data || {};
-  const url = notifData.url || '/meetapp/';   // ✅ FIX: GitHub Pages সঠিক path
-  const emoji = notifData.emoji || '🔔';
-  const playSound = notifData.playSound || false;
+  const targetUrl = notifData.url || './';
+  const emoji     = notifData.emoji || '🔔';
+
+  if (event.action === 'close') return;
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
-
-      // ✅ App আগে থেকে খোলা থাকলে — focus করো + sound বাজাও
-      for (const client of clients) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          if (playSound) {
-            client.postMessage({
-              type: 'PLAY_NOTIFICATION_SOUND',
-              emoji: emoji
-            });
-          }
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      // ✅ Sound বাজানোর জন্য open window-কে message পাঠাও
+      for (var i = 0; i < clientList.length; i++) {
+        var client = clientList[i];
+        client.postMessage({ type: 'PLAY_NOTIFICATION_SOUND', emoji: emoji });
+        // আগে খোলা ট্যাব থাকলে সেটা focus করো
+        if ('focus' in client) {
+          client.navigate(targetUrl);
           return client.focus();
         }
       }
-
-      // ✅ App বন্ধ থাকলে — নতুন window খোলো, URL-এ sound param দাও
-      const openUrl = playSound
-        ? (url + (url.includes('?') ? '&' : '?') + 'sound=' + encodeURIComponent(emoji))
-        : url;
-      return self.clients.openWindow(openUrl);
+      // নতুন ট্যাব খোলো
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
     })
   );
-});
-
-// ══════════════════════════════════════════════════════
-// Service Worker Activate — পুরনো cache পরিষ্কার
-// ══════════════════════════════════════════════════════
-self.addEventListener('activate', function(event) {
-  event.waitUntil(self.clients.claim());
-  console.log('✅ firebase-messaging-sw.js activated');
 });
