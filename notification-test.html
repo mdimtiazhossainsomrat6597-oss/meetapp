@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Test - Vibration + Sound</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .feature-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 5px 10px 0;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+        }
+
+        .test-section h2 {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+        }
+
+        .btn-error {
+            background: linear-gradient(135deg, #eb3349, #f45c43);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f2994a, #f2c94c);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .btn-icon {
+            font-size: 24px;
+        }
+
+        .btn-label {
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-box h3 {
+            color: #3b82f6;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .support-check {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .support-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .support-yes {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .support-no {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        /* Notification Container */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            pointer-events: all;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.removing {
+            animation: slideOut 0.3s ease;
+        }
+
+        @keyframes slideOut {
+            to { transform: translateX(400px); opacity: 0; }
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .notification-close:hover {
+            background: rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            animation: progress 4s linear;
+        }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        .notification.success {
+            border-left: 4px solid #10b981;
+        }
+        .notification.success .notification-icon {
+            background: #d1fae5;
+            color: #10b981;
+        }
+        .notification.success .notification-progress {
+            background: #10b981;
+        }
+
+        .notification.error {
+            border-left: 4px solid #ef4444;
+        }
+        .notification.error .notification-icon {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .notification.error .notification-progress {
+            background: #ef4444;
+        }
+
+        .notification.warning {
+            border-left: 4px solid #f59e0b;
+        }
+        .notification.warning .notification-icon {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+        .notification.warning .notification-progress {
+            background: #f59e0b;
+        }
+
+        .notification.info {
+            border-left: 4px solid #3b82f6;
+        }
+        .notification.info .notification-icon {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+        .notification.info .notification-progress {
+            background: #3b82f6;
+        }
+
+        @media (max-width: 768px) {
+            .notification-container {
+                right: 10px;
+                left: 10px;
+                max-width: 100%;
+                top: 10px;
+            }
+            .notification {
+                min-width: auto;
+            }
+            .container {
+                padding: 20px;
+            }
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <div class="container">
+        <h1>🔔 Notification Test</h1>
+        <p class="subtitle">Vibration + Sound + Display একসাথে!</p>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <span class="feature-badge">📳 Vibration</span>
+            <span class="feature-badge">🔊 Sound</span>
+            <span class="feature-badge">📱 Display</span>
+        </div>
+
+        <div class="test-section">
+            <h2>বিভিন্ন Notification টেস্ট করুন:</h2>
+            <div class="button-group">
+                <button class="btn btn-success" onclick="testSuccess()">
+                    <span class="btn-icon">✓</span>
+                    <span class="btn-label">Success</span>
+                </button>
+                <button class="btn btn-error" onclick="testError()">
+                    <span class="btn-icon">✗</span>
+                    <span class="btn-label">Error</span>
+                </button>
+                <button class="btn btn-warning" onclick="testWarning()">
+                    <span class="btn-icon">⚠</span>
+                    <span class="btn-label">Warning</span>
+                </button>
+                <button class="btn btn-info" onclick="testInfo()">
+                    <span class="btn-icon">ℹ</span>
+                    <span class="btn-label">Info</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="support-check">
+            <h3 style="margin-bottom: 10px; font-size: 16px;">Browser Support:</h3>
+            <div class="support-item">
+                <span id="vibrateSupport">Loading...</span>
+            </div>
+            <div class="support-item">
+                <span id="audioSupport">Loading...</span>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 কি কি হবে:</h3>
+            <ul>
+                <li><strong>Display:</strong> উপরে ডানে notification দেখাবে</li>
+                <li><strong>Sound:</strong> বিপ শব্দ বাজবে (ব্রাউজার মিউট না থাকলে)</li>
+                <li><strong>Vibration:</strong> ফোন কম্পন করবে (mobile device এ)</li>
+                <li><strong>Auto-dismiss:</strong> 4 সেকেন্ড পর নিজে নিজে বন্ধ হবে</li>
+                <li><strong>Manual close:</strong> X বাটনে ক্লিক করেও বন্ধ করা যাবে</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 🔊 Sound Function
+        function playNotificationSound(type) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                const audioContext = new AudioContext();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                const soundConfig = {
+                    success: { freq: 800, duration: 150 },
+                    error: { freq: 400, duration: 200 },
+                    warning: { freq: 600, duration: 150 },
+                    info: { freq: 700, duration: 100 }
+                };
+                
+                const config = soundConfig[type] || soundConfig.info;
+                
+                oscillator.frequency.value = config.freq;
+                oscillator.type = 'sine';
+                gainNode.gain.value = 0.1;
+                
+                const now = audioContext.currentTime;
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + config.duration / 1000);
+                
+                oscillator.start(now);
+                oscillator.stop(now + config.duration / 1000);
+                
+                setTimeout(() => audioContext.close(), config.duration + 100);
+            } catch (e) {
+                console.log('Sound not available:', e.message);
+            }
+        }
+
+        // 📳 Vibration Function
+        function vibrateForNotification(type) {
+            try {
+                if (!navigator.vibrate) return;
+                
+                const vibrationPatterns = {
+                    success: [100, 50, 100],
+                    error: [200, 100, 200, 100, 200],
+                    warning: [150, 100, 150],
+                    info: [100]
+                };
+                
+                const pattern = vibrationPatterns[type] || vibrationPatterns.info;
+                navigator.vibrate(pattern);
+            } catch (e) {
+                console.log('Vibration not available:', e.message);
+            }
+        }
+
+        // Main Notification Function
+        function showNotificationAdvanced(type, title, message, duration = 4000) {
+            const container = document.getElementById('notificationContainer');
+            if (!container) return;
+            
+            playNotificationSound(type);
+            vibrateForNotification(type);
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            
+            notification.innerHTML = `
+                <div class="notification-icon">${icons[type] || 'ℹ'}</div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close" onclick="removeNotification(this)">×</button>
+                <div class="notification-progress"></div>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                removeNotification(notification.querySelector('.notification-close'));
+            }, duration);
+        }
+
+        function removeNotification(closeButton) {
+            if (!closeButton) return;
+            const notification = closeButton.closest('.notification');
+            if (!notification) return;
+            
+            notification.classList.add('removing');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }
+
+        // Test Functions
+        function testSuccess() {
+            showNotificationAdvanced('success', 'সফল!', 'আপনার কাজ সফলভাবে সম্পন্ন হয়েছে ✅');
+        }
+
+        function testError() {
+            showNotificationAdvanced('error', 'ত্রুটি!', 'কিছু একটা ভুল হয়ে গেছে ❌');
+        }
+
+        function testWarning() {
+            showNotificationAdvanced('warning', 'সতর্কতা!', 'অনুগ্রহ করে মনোযোগ দিন ⚠️');
+        }
+
+        function testInfo() {
+            showNotificationAdvanced('info', 'তথ্য', 'আপনার কাছে নতুন বার্তা এসেছে 💬');
+        }
+
+        // Check Browser Support
+        window.addEventListener('load', function() {
+            // Check Vibration Support
+            const vibrateEl = document.getElementById('vibrateSupport');
+            if ('vibrate' in navigator) {
+                vibrateEl.innerHTML = '<span class="support-yes">✓ Vibration সাপোর্ট করে</span>';
+            } else {
+                vibrateEl.innerHTML = '<span class="support-no">✗ Vibration সাপোর্ট করে না (ডেস্কটপে normal)</span>';
+            }
+
+            // Check Audio Support
+            const audioEl = document.getElementById('audioSupport');
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                audioEl.innerHTML = '<span class="support-yes">✓ Sound সাপোর্ট করে</span>';
+            } else {
+                audioEl.innerHTML = '<span class="support-no">✗ Sound সাপোর্ট করে না</span>';
+            }
+        });
+    </script>
+</body>
+</html>

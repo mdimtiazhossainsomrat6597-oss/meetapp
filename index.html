@@ -19,6 +19,186 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1877f2">
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
+    
+    <!-- ✅ Notification System CSS -->
+    <style>
+        /* Notification Container */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        /* Notification Styles */
+        .notification {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            pointer-events: all;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.removing {
+            animation: slideOut 0.3s ease;
+        }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .notification-close:hover {
+            background: rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        /* Progress Bar */
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            animation: progress 4s linear;
+        }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Success Type */
+        .notification.success {
+            border-left: 4px solid #10b981;
+        }
+        .notification.success .notification-icon {
+            background: #d1fae5;
+            color: #10b981;
+        }
+        .notification.success .notification-progress {
+            background: #10b981;
+        }
+
+        /* Error Type */
+        .notification.error {
+            border-left: 4px solid #ef4444;
+        }
+        .notification.error .notification-icon {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .notification.error .notification-progress {
+            background: #ef4444;
+        }
+
+        /* Warning Type */
+        .notification.warning {
+            border-left: 4px solid #f59e0b;
+        }
+        .notification.warning .notification-icon {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+        .notification.warning .notification-progress {
+            background: #f59e0b;
+        }
+
+        /* Info Type */
+        .notification.info {
+            border-left: 4px solid #3b82f6;
+        }
+        .notification.info .notification-icon {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+        .notification.info .notification-progress {
+            background: #3b82f6;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .notification-container {
+                right: 10px;
+                left: 10px;
+                max-width: 100%;
+                top: 10px;
+            }
+            .notification {
+                min-width: auto;
+            }
+        }
+    </style>
+    
     <!-- Firebase Cloud Messaging (FCM) -->
     <!-- App Shell SW — অফলাইন সাপোর্ট (GitHub Pages compatible) -->
     <script>
@@ -1857,6 +2037,8 @@ if (typeof twemoji === 'undefined') {
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+<!-- ✅ Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
 
 <div id="splashScreen">
     <!-- Ramadan decoration (only visible with ramadan theme via CSS) -->
@@ -9017,6 +9199,166 @@ document.addEventListener('keydown', function(e){
   }
 });
 </script>
-<script src="notification-helper.js"></script>
+<!-- ✅ Notification System JavaScript with Vibration & Sound -->
+<script>
+// 🔊 Notification Sound Player - Web Audio API দিয়ে
+function playNotificationSound(type) {
+    try {
+        // Check if Web Audio API is supported
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        
+        const audioContext = new AudioContext();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Different sounds for different types
+        const soundConfig = {
+            success: { freq: 800, duration: 150 },
+            error: { freq: 400, duration: 200 },
+            warning: { freq: 600, duration: 150 },
+            info: { freq: 700, duration: 100 }
+        };
+        
+        const config = soundConfig[type] || soundConfig.info;
+        
+        oscillator.frequency.value = config.freq;
+        oscillator.type = 'sine';
+        gainNode.gain.value = 0.1; // Volume (0.0 to 1.0)
+        
+        const now = audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0.1, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + config.duration / 1000);
+        
+        oscillator.start(now);
+        oscillator.stop(now + config.duration / 1000);
+        
+        // Cleanup
+        setTimeout(() => {
+            audioContext.close();
+        }, config.duration + 100);
+    } catch (e) {
+        console.log('Sound not available:', e.message);
+    }
+}
+
+// 📳 Notification Vibration - Vibration API দিয়ে
+function vibrateForNotification(type) {
+    try {
+        if (!navigator.vibrate) return;
+        
+        // Different vibration patterns for different types
+        const vibrationPatterns = {
+            success: [100, 50, 100],           // দুইবার ছোট vibrate
+            error: [200, 100, 200, 100, 200],  // তিনবার লম্বা vibrate
+            warning: [150, 100, 150],          // দুইবার মাঝারি vibrate
+            info: [100]                        // একবার ছোট vibrate
+        };
+        
+        const pattern = vibrationPatterns[type] || vibrationPatterns.info;
+        navigator.vibrate(pattern);
+    } catch (e) {
+        console.log('Vibration not available:', e.message);
+    }
+}
+
+// মূল নোটিফিকেশন ফাংশন - আপনার সমস্ত কোডে ব্যবহৃত
+function showNotification(message, duration = 4000) {
+    // Auto-detect type from message
+    let type = 'info';
+    let title = '';
+    let msg = message;
+    
+    // Extract emoji and determine type
+    if (message.includes('✅') || message.includes('সফল')) {
+        type = 'success';
+        title = message.includes('সফল') ? 'সফল!' : 'Success!';
+    } else if (message.includes('❌') || message.includes('ত্রুটি') || message.includes('ভুল')) {
+        type = 'error';
+        title = message.includes('ত্রুটি') ? 'ত্রুটি!' : 'Error!';
+    } else if (message.includes('⚠️') || message.includes('সতর্ক')) {
+        type = 'warning';
+        title = message.includes('সতর্ক') ? 'সতর্কতা!' : 'Warning!';
+    } else if (message.includes('💬') || message.includes('🔔') || message.includes('ℹ')) {
+        type = 'info';
+        title = message.includes('মন্তব্য') ? 'মন্তব্য' : 'Info';
+    }
+    
+    // Show the notification
+    showNotificationAdvanced(type, title, message, duration);
+}
+
+// Advanced notification function with full control
+function showNotificationAdvanced(type, title, message, duration = 4000) {
+    const container = document.getElementById('notificationContainer');
+    if (!container) {
+        console.warn('Notification container not found');
+        return;
+    }
+    
+    // 🔊 Play Sound
+    playNotificationSound(type);
+    
+    // 📳 Vibrate
+    vibrateForNotification(type);
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const icons = {
+        success: '✓',
+        error: '✗',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    // Clean message from HTML if needed (keep HTML for rich content)
+    const messageContent = message.replace(/<b>/g, '<strong>').replace(/<\/b>/g, '</strong>');
+    
+    notification.innerHTML = `
+        <div class="notification-icon">${icons[type] || 'ℹ'}</div>
+        <div class="notification-content">
+            ${title ? `<div class="notification-title">${title}</div>` : ''}
+            <div class="notification-message">${messageContent}</div>
+        </div>
+        <button class="notification-close" onclick="removeNotification(this)">×</button>
+        <div class="notification-progress"></div>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Auto remove after duration
+    setTimeout(() => {
+        removeNotification(notification.querySelector('.notification-close'));
+    }, duration);
+}
+
+// Remove notification
+function removeNotification(closeButton) {
+    if (!closeButton) return;
+    const notification = closeButton.closest('.notification');
+    if (!notification) return;
+    
+    notification.classList.add('removing');
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 300);
+}
+
+// Optional: Clear all notifications
+function clearAllNotifications() {
+    const container = document.getElementById('notificationContainer');
+    if (container) {
+        container.innerHTML = '';
+    }
+}
+
+console.log('✅ Notification System loaded successfully!');
+</script>
 </body>
 </html>

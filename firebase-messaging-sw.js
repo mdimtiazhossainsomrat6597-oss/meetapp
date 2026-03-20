@@ -1,11 +1,11 @@
-// ✅ firebase-messaging-sw.js
-// এই ফাইলটি index.html-এর পাশে (root/public ফোল্ডারে) রাখুন
+// Firebase Cloud Messaging Service Worker
+// এই ফাইলটি root directory তে থাকতে হবে (index.html এর পাশে)
 
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
-// ✅ আপনার Firebase Config (index.html-এর মতোই)
-firebase.initializeApp({
+// Firebase Config
+const firebaseConfig = {
   apiKey: "AIzaSyBkV5DJpMwedW1ZbPYil4NBZL1GP_4BMz8",
   authDomain: "photo-share-app-c65fd.firebaseapp.com",
   databaseURL: "https://photo-share-app-c65fd-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -14,67 +14,110 @@ firebase.initializeApp({
   messagingSenderId: "585105127605",
   appId: "1:585105127605:web:cc948af7e01cef8c39e6fc",
   measurementId: "G-YCT4B00WMY"
-});
+};
 
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// ✅ Background নোটিফিকেশন হ্যান্ডেল (অ্যাপ বন্ধ/মিনিমাইজ থাকলে)
-messaging.onBackgroundMessage(function(payload) {
-  console.log('[SW] Background নোটিফিকেশন পেয়েছি:', payload);
-
-  const notif    = payload.notification || {};
-  const data     = payload.data || {};
-  const title    = notif.title || data.title || 'MeetApp';
-  const body     = notif.body  || data.body  || '';
-  const icon     = notif.icon  || data.icon  || './icon.png';
-  const clickUrl = data.url    || notif.click_action || './';
-  const emoji    = data.emoji  || '🔔';
-
-  const options = {
-    body: body,
-    icon: icon,
-    badge: './icon.png',
-    tag: data.tag || 'meetapp-notification',
-    renotify: true,
+// ✅ Background Message Handler - App বন্ধ থাকলে এটা কাজ করবে
+messaging.onBackgroundMessage((payload) => {
+  console.log('📩 Background notification received:', payload);
+  
+  const notificationData = payload.notification || {};
+  const customData = payload.data || {};
+  
+  // Notification Title & Body
+  const notificationTitle = notificationData.title || customData.title || 'MeetApp';
+  const notificationBody = notificationData.body || customData.body || 'নতুন বার্তা';
+  
+  // Icon & Badge
+  const notificationIcon = notificationData.icon || customData.icon || '/icon.png';
+  const notificationBadge = '/icon.png';
+  
+  // Notification Options
+  const notificationOptions = {
+    body: notificationBody,
+    icon: notificationIcon,
+    badge: notificationBadge,
+    tag: customData.tag || 'meetapp-notification',
+    requireInteraction: false, // Auto-dismiss after a while
+    vibrate: [200, 100, 200, 100, 200], // Vibration pattern - তিনবার লম্বা
     data: {
-      url: clickUrl,
-      emoji: emoji
+      url: customData.url || '/',
+      clickAction: customData.click_action || '/',
+      soundEmoji: customData.sound || '🔔'
     },
     actions: [
-      { action: 'open', title: '📖 খুলুন' },
-      { action: 'close', title: '❌ বন্ধ করুন' }
+      {
+        action: 'open',
+        title: 'খুলুন',
+        icon: '/icon.png'
+      },
+      {
+        action: 'close',
+        title: 'বন্ধ করুন'
+      }
     ]
   };
-
-  return self.registration.showNotification(title, options);
+  
+  // ✅ Show Notification
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// ✅ Notification ক্লিক হ্যান্ডেল
-self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
-
-  const notifData = event.notification.data || {};
-  const targetUrl = notifData.url || './';
-  const emoji     = notifData.emoji || '🔔';
-
-  if (event.action === 'close') return;
-
+// ✅ Notification Click Handler - User notification এ click করলে
+self.addEventListener('notificationclick', (event) => {
+  console.log('🔔 Notification clicked:', event);
+  
+  event.notification.close(); // Notification close করো
+  
+  // Handle different actions
+  if (event.action === 'close') {
+    return; // Just close, do nothing
+  }
+  
+  // Get URL from notification data
+  const urlToOpen = event.notification.data?.url || event.notification.data?.clickAction || '/';
+  
+  // ✅ App খোলো বা focus করো
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      // ✅ Sound বাজানোর জন্য open window-কে message পাঠাও
-      for (var i = 0; i < clientList.length; i++) {
-        var client = clientList[i];
-        client.postMessage({ type: 'PLAY_NOTIFICATION_SOUND', emoji: emoji });
-        // আগে খোলা ট্যাব থাকলে সেটা focus করো
-        if ('focus' in client) {
-          client.navigate(targetUrl);
-          return client.focus();
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // যদি app already open থাকে, তাহলে focus করো
+        for (const client of clientList) {
+          if (client.url.includes(self.registration.scope) && 'focus' in client) {
+            return client.focus().then(client => {
+              // ✅ Sound play করার জন্য message পাঠাও
+              if (client.postMessage) {
+                client.postMessage({
+                  type: 'PLAY_NOTIFICATION_SOUND',
+                  emoji: event.notification.data?.soundEmoji || '🔔'
+                });
+              }
+              // Navigate to URL if needed
+              if (urlToOpen !== '/' && client.navigate) {
+                return client.navigate(urlToOpen);
+              }
+              return client;
+            });
+          }
         }
-      }
-      // নতুন ট্যাব খোলো
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
-    })
+        
+        // যদি app open না থাকে, নতুন window খোলো
+        const fullUrl = new URL(urlToOpen, self.location.origin).href;
+        return clients.openWindow(fullUrl);
+      })
   );
+});
+
+// ✅ Service Worker Activation
+self.addEventListener('activate', (event) => {
+  console.log('✅ Firebase Messaging SW activated');
+  event.waitUntil(self.clients.claim());
+});
+
+// ✅ Service Worker Installation
+self.addEventListener('install', (event) => {
+  console.log('✅ Firebase Messaging SW installed');
+  self.skipWaiting();
 });
