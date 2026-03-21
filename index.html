@@ -20,7 +20,7 @@
     <meta name="theme-color" content="#1877f2">
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
     
-   <!-- ✅ Notification System CSS -->
+ <!-- ✅ Notification System CSS -->
     <style>
         .notification-container {
             position: fixed;
@@ -81,123 +81,6 @@
             color: #ef4444;
         }
     </style>
-    
-    <!-- Firebase Cloud Messaging (FCM) -->
-    <!-- App Shell SW — অফলাইন সাপোর্ট (GitHub Pages compatible) -->
-    <script>
-    if('serviceWorker' in navigator){
-      window.addEventListener('load', function(){
-        // GitHub Pages-এ relative path ব্যবহার করি
-        var swUrl = './sw.js';
-        navigator.serviceWorker.register(swUrl)
-          .then(function(r){ console.log('✅ App SW registered:', r.scope); })
-          .catch(function(e){ console.warn('⚠️ App SW failed:', e); });
-      });
-    }
-    </script>
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-      import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBkV5DJpMwedW1ZbPYil4NBZL1GP_4BMz8",
-        authDomain: "photo-share-app-c65fd.firebaseapp.com",
-        databaseURL: "https://photo-share-app-c65fd-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "photo-share-app-c65fd",
-        storageBucket: "photo-share-app-c65fd.firebasestorage.app",
-        messagingSenderId: "585105127605",
-        appId: "1:585105127605:web:cc948af7e01cef8c39e6fc",
-        measurementId: "G-YCT4B00WMY"
-      };
-
-      // Firebase initialize
-      const app = initializeApp(firebaseConfig);
-      const messaging = getMessaging(app);
-
-      const VAPID_KEY = "BLodI2nd4Ukn_iWP5jIKCYHSPZiYskP9hu2U6m-eT8H9J_4sGL_VhuJWiTwFnlWeJ2lbzYqZpzSv1c3puQwkJfk";
-
-      // ✅ FIX 1: FCM Token DB-তে সেভ করার helper — db/currentUser রেডি না থাকলে retry করে
-      function saveFCMTokenToDb(token) {
-        var maxTry = 10, count = 0;
-        function tryNow() {
-          if (typeof db !== "undefined" && db &&
-              typeof currentUser !== "undefined" && currentUser && currentUser.uid) {
-            db.ref("fcmTokens/" + currentUser.uid).set({ token: token, updatedAt: Date.now() });
-            console.log("✅ FCM Token DB-তে সেভ হয়েছে:", currentUser.uid);
-          } else if (count++ < maxTry) {
-            setTimeout(tryNow, 1500); // ১.৫ সেকেন্ড পর আবার চেষ্টা
-          } else {
-            console.warn("⚠️ DB/User রেডি না থাকায় FCM Token সেভ হয়নি।");
-          }
-        }
-        tryNow();
-      }
-
-      // ✅ FIX 2: Service Worker এর path relative করা — GitHub Pages-এ কাজ করবে
-      async function getFCMServiceWorkerReg() {
-        try {
-          // আগে existing registrations চেক করো
-          const regs = await navigator.serviceWorker.getRegistrations();
-          for (const r of regs) {
-            if (r.active && r.active.scriptURL && r.active.scriptURL.includes('firebase-messaging-sw')) {
-              return r;
-            }
-          }
-          // ✅ Relative path ব্যবহার — GitHub Pages সাবডিরেক্টরিতেও কাজ করবে
-          const swPath = './firebase-messaging-sw.js';
-          const reg = await navigator.serviceWorker.register(swPath);
-          // Active হওয়া পর্যন্ত অপেক্ষা করো
-          if (reg.installing) {
-            await new Promise(resolve => {
-              reg.installing.addEventListener('statechange', e => {
-                if (e.target.state === 'activated') resolve();
-              });
-            });
-          }
-          console.log("✅ FCM Service Worker রেজিস্টার হয়েছে:", reg.scope);
-          return reg;
-        } catch (e) {
-          console.warn("⚠️ FCM SW রেজিস্ট্রেশন ব্যর্থ:", e.message);
-          return null;
-        }
-      }
-
-      // ব্যবহারকারীর অনুমতি নিয়ে FCM Token সংগ্রহ
-      async function requestNotificationPermission() {
-        try {
-          if (!('serviceWorker' in navigator) || !('Notification' in window)) {
-            console.warn("⚠️ এই ব্রাউজারে Push Notification সাপোর্ট নেই।");
-            return;
-          }
-
-          // Permission চেক/চাওয়া
-          const permission = Notification.permission === "default"
-            ? await Notification.requestPermission()
-            : Notification.permission;
-
-          if (permission !== "granted") {
-            console.warn("⚠️ নোটিফিকেশনের অনুমতি দেননি।");
-            return;
-          }
-
-          // Service Worker রেজিস্টার
-          const swReg = await getFCMServiceWorkerReg();
-
-          // FCM Token নিন
-          const tokenOptions = { vapidKey: VAPID_KEY };
-          if (swReg) tokenOptions.serviceWorkerRegistration = swReg;
-
-          const token = await getToken(messaging, tokenOptions);
-          if (token) {
-            console.log("✅ FCM Token পাওয়া গেছে:", token);
-            saveFCMTokenToDb(token); // ✅ Retry-সহ সেভ
-          } else {
-            console.warn("⚠️ FCM Token পাওয়া যায়নি। firebase-messaging-sw.js ফাইল আছে কিনা চেক করুন।");
-          }
-        } catch (err) {
-          console.error("❌ FCM Error:", err.message || err);
-        }
-      }
 
       // ✅ Foreground নোটিফিকেশন — অ্যাপ খোলা থাকলে
       onMessage(messaging, (payload) => {
