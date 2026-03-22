@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>if(location.hostname.includes('github.io')){location.replace('https://meetapp-zeta.vercel.app'+location.pathname.replace('/meetapp','')+(location.search||'')+(location.hash||''));}</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
@@ -415,7 +415,11 @@
         }
         // Browser নোটিফিকেশন
         if (title && Notification.permission === "granted") {
-          new Notification(title, { body, icon });
+          new Notification(title, { body, icon, silent: false });
+        }
+        // Extra vibration — foreground-এ
+        if ('vibrate' in navigator) {
+          navigator.vibrate([150, 80, 150, 80, 250]);
         }
       });
 
@@ -3740,7 +3744,7 @@ function showNotification(msg, duration = 5000) {
     
     // Vibrate (mobile)
     if ('vibrate' in navigator) {
-        navigator.vibrate([100, 50, 100]);
+        navigator.vibrate([150, 80, 150, 80, 250]);
     }
     
     // Auto remove
