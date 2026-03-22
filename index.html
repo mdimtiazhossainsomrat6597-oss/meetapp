@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>if(location.hostname.includes('github.io')){location.replace('https://meetapp-zeta.vercel.app'+location.pathname.replace('/meetapp','')+(location.search||'')+(location.hash||''));}</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
@@ -3713,17 +3714,28 @@ function showNotification(msg, duration = 5000) {
     // Add to container
     container.appendChild(notif);
     
-    // Play sound
+    // Play attention-grabbing notification sound
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.frequency.value = 800;
-        gainNode.gain.value = 0.1;
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.15);
+        const notes = [
+            {freq:830,  start:0,    dur:0.13, type:'sine',     vol:0.35},
+            {freq:1050, start:0.10, dur:0.13, type:'sine',     vol:0.38},
+            {freq:1320, start:0.20, dur:0.13, type:'triangle', vol:0.32},
+            {freq:1050, start:0.30, dur:0.22, type:'sine',     vol:0.28},
+        ];
+        notes.forEach(({freq, start, dur, type, vol}) => {
+            const osc  = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime + start);
+            gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + start + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + start + dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(audioCtx.currentTime + start);
+            osc.stop(audioCtx.currentTime + start + dur + 0.05);
+        });
     } catch(e) {}
     
     // Vibrate (mobile)
@@ -3741,58 +3753,63 @@ function showNotification(msg, duration = 5000) {
 // ✅ Send Push Notification via OneSignal (through Vercel serverless function)
 async function sendPushNotification(targetUserIds, title, message, data = {}) {
     try {
-        // ✅ UPDATED: Use Vercel serverless function to avoid CORS
-        // Replace this URL after deploying to Vercel!
-        const VERCEL_API_URL = 'https://meetapp-zeta.vercel.app//api/send-notification';
-        
-        // Collect player IDs if sending to specific users
-        const playerIds = [];
-        
-        if (targetUserIds !== 'ALL' && db && Array.isArray(targetUserIds)) {
-            for (const userId of targetUserIds) {
-                try {
-                    const snapshot = await db.ref(`oneSignalIds/${userId}`).once('value');
-                    const playerData = snapshot.val();
-                    if (playerData && playerData.playerId) {
-                        playerIds.push(playerData.playerId);
-                    }
-                } catch (e) {
-                    console.warn(`Could not get player ID for user ${userId}`);
+        const VERCEL_API_URL = 'https://meetapp-zeta.vercel.app/api/send-notification';
+
+        let finalPlayerIds = [];
+
+        if (targetUserIds === 'ALL') {
+            finalPlayerIds = 'ALL';
+        } else if (db && Array.isArray(targetUserIds) && targetUserIds.length > 0) {
+            // ✅ সব user-এর ID একসাথে (parallel) খোঁজো — faster!
+            const snapshots = await Promise.all(
+                targetUserIds.map(uid =>
+                    Promise.race([
+                        db.ref(`oneSignalIds/${uid}`).once('value'),
+                        new Promise((_,r) => setTimeout(() => r(null), 3000)) // 3s timeout
+                    ]).catch(() => null)
+                )
+            );
+            snapshots.forEach(snap => {
+                if (snap && snap.val() && snap.val().playerId) {
+                    finalPlayerIds.push(snap.val().playerId);
                 }
-            }
-            
-            if (playerIds.length === 0) {
-                console.log('No player IDs found for notification');
+            });
+            if (finalPlayerIds.length === 0) {
+                console.log('No player IDs found');
                 return;
             }
+        } else {
+            return;
         }
-        
-        // Call Vercel serverless function
+
+        // ✅ Vercel API call — timeout 8s
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 8000);
+
         const response = await fetch(VERCEL_API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                playerIds: targetUserIds === 'ALL' ? 'ALL' : playerIds,
-                title: title,
-                message: message,
-                data: data
-            })
+                playerIds: finalPlayerIds,
+                title:     title,
+                message:   message,
+                data:      data
+            }),
+            signal: controller.signal
         });
-        
+        clearTimeout(timer);
+
         const result = await response.json();
-        
         if (response.ok && result.success) {
-            console.log(`✅ Push notification sent! Recipients: ${result.recipients || 'unknown'}`);
+            console.log(`✅ Push sent! Recipients: ${result.recipients || '?'}`);
         } else {
-            console.error('❌ Failed to send push notification:', result.error);
+            console.error('❌ Push failed:', result.error);
         }
     } catch (error) {
-        console.error('❌ Push notification error:', error);
-        // If Vercel function not deployed yet, show helpful message
-        if (error.message.includes('fetch')) {
-            console.warn('💡 Vercel function not deployed yet. Follow VERCEL-DEPLOYMENT-GUIDE.md to set up!');
+        if (error.name === 'AbortError') {
+            console.warn('⏱️ Push notification timeout');
+        } else {
+            console.error('❌ Push error:', error);
         }
     }
 }
@@ -5690,26 +5707,33 @@ const SoundFX = (function(){
       {freq:1500, start:0.22, dur:0.18, type:'sine',     vol:0.18},
     ]),
 
-    // 👤 ফলো — ascending chime
+    // 👤 ফলো — warm ascending melody
     follow: ()=> playTone([
-      {freq:440, start:0,    dur:0.2,  type:'sine', vol:0.28},
-      {freq:550, start:0.1,  dur:0.2,  type:'sine', vol:0.28},
-      {freq:660, start:0.2,  dur:0.2,  type:'sine', vol:0.28},
-      {freq:880, start:0.3,  dur:0.3,  type:'sine', vol:0.3},
+      {freq:392,  start:0,    dur:0.15, type:'sine', vol:0.30},
+      {freq:523,  start:0.12, dur:0.15, type:'sine', vol:0.32},
+      {freq:659,  start:0.24, dur:0.15, type:'sine', vol:0.32},
+      {freq:784,  start:0.36, dur:0.15, type:'sine', vol:0.34},
+      {freq:1047, start:0.48, dur:0.30, type:'sine', vol:0.36},
     ]),
 
-    // 🔔 সাধারণ নোটিফিকেশন — gentle bell
+    // 🔔 সাধারণ নোটিফিকেশন — attention chime (ding-ding-up)
     notify: ()=> playTone([
-      {freq:740, start:0,    dur:0.25, type:'sine',     vol:0.28},
-      {freq:1110,start:0.05, dur:0.35, type:'triangle', vol:0.22},
+      {freq:523,  start:0,    dur:0.14, type:'sine',     vol:0.32},
+      {freq:784,  start:0.11, dur:0.14, type:'sine',     vol:0.35},
+      {freq:1047, start:0.22, dur:0.14, type:'triangle', vol:0.32},
+      {freq:1318, start:0.33, dur:0.28, type:'sine',     vol:0.38},
+      {freq:1047, start:0.48, dur:0.22, type:'sine',     vol:0.25},
     ]),
 
-    // 📩 মেনশন / বিশেষ — alert
+    // 📩 মেনশন / বিশেষ — strong 3-pulse alert
     mention: ()=> playTone([
-      {freq:600,  start:0,    dur:0.12, type:'square',   vol:0.15},
-      {freq:900,  start:0.1,  dur:0.12, type:'sine',     vol:0.25},
-      {freq:1200, start:0.2,  dur:0.12, type:'sine',     vol:0.25},
-      {freq:900,  start:0.3,  dur:0.2,  type:'sine',     vol:0.2},
+      {freq:880,  start:0,    dur:0.12, type:'sine',   vol:0.38},
+      {freq:1100, start:0.09, dur:0.12, type:'sine',   vol:0.40},
+      {freq:1320, start:0.18, dur:0.12, type:'sine',   vol:0.40},
+      {freq:880,  start:0.32, dur:0.12, type:'sine',   vol:0.35},
+      {freq:1100, start:0.41, dur:0.12, type:'sine',   vol:0.38},
+      {freq:1320, start:0.50, dur:0.12, type:'sine',   vol:0.38},
+      {freq:1568, start:0.64, dur:0.30, type:'triangle',vol:0.35},
     ]),
 
     // ✅ সাফল্য — success jingle
