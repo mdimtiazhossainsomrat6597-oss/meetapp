@@ -1,5 +1,5 @@
 const ONESIGNAL_APP_ID = "81132740-4821-41ec-a750-d0433b5e6660";
-const ONESIGNAL_API_KEY = "os_v2_app_qejsoqciefa6zj2q2bbtwxtgmcrrrkp5ysyuih4p3adq6bfhvahh5g6twsvytedgoxwozuvh733tksbaq66f3vkkijwbmm2ezc2bbua";
+const ONESIGNAL_API_KEY = "os_v2_app_qejsoqciefa6zj2q2bbtwxtgmcedum4ttgveihvxhxhehfeioo7rl2krutv6wpuhzyl667uijdf2x3opqwks74hst4botearhlc6qgq";
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
