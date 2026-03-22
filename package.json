@@ -1,0 +1,16 @@
+{
+  "name": "meetapp-notifications",
+  "version": "1.0.0",
+  "description": "MeetApp OneSignal Push Notification Server",
+  "main": "api/send-notification.js",
+  "scripts": {
+    "test": "echo \"No tests\" && exit 0"
+  },
+  "keywords": [
+    "onesignal",
+    "push-notifications",
+    "meetapp"
+  ],
+  "author": "MD Imtiaz Hossain Somrat",
+  "license": "MIT"
+}
