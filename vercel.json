@@ -31,12 +31,7 @@
       ]
     }
   ],
-  "routes": [
-    { "src": "/api/send-notification", "dest": "/api/send-notification.js" },
-    { "src": "/sw.js", "dest": "/sw.js" },
-    { "src": "/firebase-messaging-sw.js", "dest": "/firebase-messaging-sw.js" },
-    { "src": "/manifest.json", "dest": "/manifest.json" },
-    { "src": "/icon.png", "dest": "/icon.png" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
