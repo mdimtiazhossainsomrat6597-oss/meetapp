@@ -4029,6 +4029,21 @@ function canDelete(post){ if(!currentUser) return false; return currentUser.uid=
 function isAdmin(){ if(!currentUser) return false; return currentUser.username==='imtiaz'||currentUser.username==='meetapp'||currentUser.adminVerified===true; }
 function isSuperAdmin(){ return currentUser&&(currentUser.username==='imtiaz'||currentUser.username==='meetapp'); }
 
+// ── Admin Restricted User Check ──
+// যদি admin কোনো user কে private করে দেয়, সে শুধু Super Admin-দের পোস্ট/activity দেখতে পারবে
+// Events সবসময় দেখতে পারবে
+function isCurrentUserRestricted(){
+  if(!currentUser) return false;
+  if(isAdmin()) return false; // admin নিজে restricted হয় না
+  var myData = allUsers[currentUser.uid] || currentUser;
+  return !!myData.privateAccount;
+}
+// কোনো UID Super Admin কিনা check করে
+function isUidSuperAdmin(uid){
+  var u = allUsers[uid] || {};
+  return u.username==='imtiaz' || u.username==='meetapp';
+}
+
 // Super Admin জোড়া — partner UID খুঁজে দেয়
 function getSuperAdminPartnerUid(){
   if(!currentUser) return null;
@@ -4220,7 +4235,7 @@ function adminManagePrivateAccess(targetUid, targetName){
     </div>`;
   }).join('');
   document.getElementById('modalMedia').innerHTML='';
-  document.getElementById('modalBody').innerHTML=`<div style="padding:4px 0 10px;"><div style="font-size:17px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">👁️ Access ম্যানেজমেন্ট</div><div style="color:var(--text-muted-light);font-size:13px;margin-bottom:14px;">🔒 <b>${targetName}</b> — কারা দেখতে পাবে এবং যাদের পোস্ট/স্টোরি দেখতে পাবে</div>${list.length?rows:'<div style="text-align:center;color:var(--text-muted-light);padding:20px;">কোনো ব্যবহারকারী নেই</div>'}</div>`;
+  document.getElementById('modalBody').innerHTML=`<div style="padding:4px 0 10px;"><div style="font-size:17px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">👁️ Access ম্যানেজমেন্ট</div><div style="color:var(--text-muted-light);font-size:13px;margin-bottom:14px;">🔒 <b>${targetName}</b> — কে দেখতে পাবে?</div>${list.length?rows:'<div style="text-align:center;color:var(--text-muted-light);padding:20px;">কোনো ব্যবহারকারী নেই</div>'}</div>`;
   document.getElementById('modalOverlay').classList.add('show');
 }
 
@@ -4771,11 +4786,7 @@ function displayPosts(){
       if(currentUser && currentUser.privateAccount && !isAdmin()){
         const poster = allUsers[p.uid];
         if(!poster) return false;
-        // ✅ Super Admin (imtiaz + meetapp) সবসময় দেখা যাবে
-        if(poster.username === 'imtiaz' || poster.username === 'meetapp') return true;
-        // ✅ Super Admin যাদের access দিয়েছে তাদের পোস্ট দেখা যাবে (bidirectional)
-        const myData = allUsers[currentUser.uid] || currentUser;
-        return !!(myData.privateAccess && myData.privateAccess[p.uid]);
+        return poster.username === 'imtiaz';
       }
       return true;
     })
@@ -5833,12 +5844,13 @@ function initStoryBar(){
       if(isAdmin()) return true;
       if(currentUser.uid === uid) return true;
       if(currentUser.privateAccount){
-        const storyOwner = allUsers[uid] || {};
-        // ✅ Super Admin (imtiaz + meetapp) এর স্টোরি সবসময় দেখা যাবে
-        if(storyOwner.username === 'imtiaz' || storyOwner.username === 'meetapp') return true;
-        // ✅ Super Admin যাদের access দিয়েছে শুধু তাদের স্টোরি দেখা যাবে
+        // approved ইউজার হলে সব দেখবে
         const myData = allUsers[currentUser.uid] || currentUser;
-        return !!(myData.privateAccess && myData.privateAccess[uid]);
+        const isApproved = myData.privateAccess && Object.keys(myData.privateAccess).length > 0;
+        if(isApproved) return true;
+        // approved না হলে শুধু Admin এর স্টোরি
+        const storyOwner = allUsers[uid] || {};
+        return storyOwner.username === 'imtiaz' || storyOwner.adminVerified === true;
       }
       return true;
     }
