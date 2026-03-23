@@ -1618,10 +1618,15 @@ if (typeof twemoji === 'undefined') {
 
         /* ══ 5. CREATE BUTTON UPGRADE ══ */
         .bn-create-btn::after{
-          content:'✚';position:absolute;font-size:24px;color:white;
+          content:'';position:absolute;font-size:24px;color:white;
           transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;
         }
-        .bn-create-btn>span{transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;}
+        .bn-create-btn>span{
+          transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s,font-size 0.2s;
+          display:flex;align-items:center;justify-content:center;
+          position:relative;z-index:1;
+          font-family:inherit;line-height:1;font-weight:300;
+        }
         .bn-create-btn.open>span{transform:rotate(45deg);}
         .bn-create-btn::before{
           content:'';position:absolute;inset:0;border-radius:50%;
@@ -1992,10 +1997,12 @@ if (typeof twemoji === 'undefined') {
         .fab-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(22,18,42,0.35);backdrop-filter:blur(4px);}
         .fab-overlay.show{display:block;animation:fadeIn 0.2s;}
         .fab-menu{
-            display:none;position:fixed;bottom:140px;left:50%;transform:translateX(-50%);
+            display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
             z-index:1001;flex-direction:row;gap:10px;
             justify-content:center;flex-wrap:wrap;
-            padding:0 16px;width:100%;max-width:400px;
+            padding:12px 16px;width:auto;max-width:400px;
+            background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);
+            border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.15);
         }
         .fab-menu.show{display:flex;}
         /* প্রতিটি option staggered করে উপরে উঠে আসে */
@@ -2568,7 +2575,7 @@ if (typeof twemoji === 'undefined') {
             </button>
             <!-- মাঝখানে: + বোতাম (একদম center) -->
             <div class="bn-create">
-                <button class="bn-create-btn" id="bnCreateBtn" onclick="toggleFabMenu()"><span style="font-size:24px;line-height:1;pointer-events:none;">✚</span></button>
+                <button class="bn-create-btn" id="bnCreateBtn" onclick="toggleFabMenu()"><span style="font-size:26px;line-height:1;pointer-events:none;display:flex;align-items:center;justify-content:center;">+</span></button>
             </div>
             <!-- ডান দিক: ৩টি আইটেম -->
             <button class="bn-item" id="bnProfile" onclick="bnSwitch('profile',this)">
@@ -4213,7 +4220,7 @@ function adminManagePrivateAccess(targetUid, targetName){
     </div>`;
   }).join('');
   document.getElementById('modalMedia').innerHTML='';
-  document.getElementById('modalBody').innerHTML=`<div style="padding:4px 0 10px;"><div style="font-size:17px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">👁️ Access ম্যানেজমেন্ট</div><div style="color:var(--text-muted-light);font-size:13px;margin-bottom:14px;">🔒 <b>${targetName}</b> — কে দেখতে পাবে?</div>${list.length?rows:'<div style="text-align:center;color:var(--text-muted-light);padding:20px;">কোনো ব্যবহারকারী নেই</div>'}</div>`;
+  document.getElementById('modalBody').innerHTML=`<div style="padding:4px 0 10px;"><div style="font-size:17px;font-weight:800;color:var(--text-primary);margin-bottom:4px;">👁️ Access ম্যানেজমেন্ট</div><div style="color:var(--text-muted-light);font-size:13px;margin-bottom:14px;">🔒 <b>${targetName}</b> — কারা দেখতে পাবে এবং যাদের পোস্ট/স্টোরি দেখতে পাবে</div>${list.length?rows:'<div style="text-align:center;color:var(--text-muted-light);padding:20px;">কোনো ব্যবহারকারী নেই</div>'}</div>`;
   document.getElementById('modalOverlay').classList.add('show');
 }
 
@@ -4764,7 +4771,11 @@ function displayPosts(){
       if(currentUser && currentUser.privateAccount && !isAdmin()){
         const poster = allUsers[p.uid];
         if(!poster) return false;
-        return poster.username === 'imtiaz';
+        // ✅ Super Admin (imtiaz + meetapp) সবসময় দেখা যাবে
+        if(poster.username === 'imtiaz' || poster.username === 'meetapp') return true;
+        // ✅ Super Admin যাদের access দিয়েছে তাদের পোস্ট দেখা যাবে (bidirectional)
+        const myData = allUsers[currentUser.uid] || currentUser;
+        return !!(myData.privateAccess && myData.privateAccess[p.uid]);
       }
       return true;
     })
@@ -5615,7 +5626,7 @@ function bnSwitch(tab,el){ document.querySelectorAll('.bn-item').forEach(b=>b.cl
 function bnSearch(){ const inp=document.getElementById('headerSearchInput'); if(inp){inp.focus();inp.scrollIntoView({behavior:'smooth',block:'center'});} }
 
 let fabOpen=false;
-function toggleFabMenu(){ fabOpen=!fabOpen; document.getElementById('fabOverlay').classList.toggle('show',fabOpen); document.getElementById('fabMenu').classList.toggle('show',fabOpen); const btn=document.getElementById('bnCreateBtn'); if(btn){ btn.style.background=fabOpen?'linear-gradient(135deg,#fd79a8,#fdcb6e)':'var(--grad-brand)'; btn.innerHTML=fabOpen?'<span style="font-size:22px;pointer-events:none;">✕</span>':'<span style="font-size:26px;pointer-events:none;">✚</span>'; btn.style.transform=fabOpen?'translateY(0)':'translateY(-12px)'; setTimeout(function(){TwemojiLocal.parse(btn);},50); } if(fabOpen){var fm=document.getElementById('fabMenu');if(fm) setTimeout(function(){TwemojiLocal.parse(fm);},80);} }
+function toggleFabMenu(){ fabOpen=!fabOpen; document.getElementById("fabOverlay").classList.toggle("show",fabOpen); document.getElementById("fabMenu").classList.toggle("show",fabOpen); const btn=document.getElementById("bnCreateBtn"); if(btn){ btn.style.background=fabOpen?"linear-gradient(135deg,#fd79a8,#fdcb6e)":"var(--grad-brand)"; var sp=btn.querySelector("span"); if(sp){ sp.style.transform=fabOpen?"rotate(45deg)":"rotate(0deg)"; sp.style.fontSize=fabOpen?"28px":"26px"; } btn.style.transform=fabOpen?"translateY(0)":"translateY(-12px)"; } if(fabOpen){var fm=document.getElementById("fabMenu");if(fm) setTimeout(function(){TwemojiLocal.parse(fm);},80);} }
 function openCreateSheet(type){ if(fabOpen) toggleFabMenu(); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); const el=document.getElementById('upload'); if(el) el.classList.add('active'); const bar=document.getElementById('fbCreateBar'); if(bar) bar.style.display='none'; selectCreateType(type); window.scrollTo({top:0,behavior:'smooth'}); }
 
 function applyDarkMode(){
@@ -5822,13 +5833,12 @@ function initStoryBar(){
       if(isAdmin()) return true;
       if(currentUser.uid === uid) return true;
       if(currentUser.privateAccount){
-        // approved ইউজার হলে সব দেখবে
-        const myData = allUsers[currentUser.uid] || currentUser;
-        const isApproved = myData.privateAccess && Object.keys(myData.privateAccess).length > 0;
-        if(isApproved) return true;
-        // approved না হলে শুধু Admin এর স্টোরি
         const storyOwner = allUsers[uid] || {};
-        return storyOwner.username === 'imtiaz' || storyOwner.adminVerified === true;
+        // ✅ Super Admin (imtiaz + meetapp) এর স্টোরি সবসময় দেখা যাবে
+        if(storyOwner.username === 'imtiaz' || storyOwner.username === 'meetapp') return true;
+        // ✅ Super Admin যাদের access দিয়েছে শুধু তাদের স্টোরি দেখা যাবে
+        const myData = allUsers[currentUser.uid] || currentUser;
+        return !!(myData.privateAccess && myData.privateAccess[uid]);
       }
       return true;
     }
