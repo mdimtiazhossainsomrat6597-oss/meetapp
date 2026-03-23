@@ -1,9 +1,9 @@
 const ONESIGNAL_APP_ID = "81132740-4821-41ec-a750-d0433b5e6660";
-const ONESIGNAL_API_KEY = "os_v2_app_qejsoqciefa6zj2q2bbtwxtgmcsecmoiu3wugqmaokje4d4ws7mqf7jsdnqolelomrrforzc3hpuubyttqvabqh5tifk3r2jzpk6fzy";
+const ONESIGNAL_API_KEY = "os_v2_app_qejsoqciefa6zj2q2bbtwxtgmako77xovx3uu2vzi3xgtaxty6rjz6dhd34qqv2xjcbo7gfevnh3wr6fylsxrv4rahenskn5vytxexq";
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -36,9 +36,12 @@ export default async function handler(req, res) {
     });
 
     const result = await response.json();
+    console.log('OneSignal response:', JSON.stringify(result));
+    
     if (!response.ok) return res.status(response.status).json({ error: 'OneSignal API error', details: result });
     return res.status(200).json({ success: true, id: result.id, recipients: result.recipients });
   } catch (error) {
+    console.error('Error:', error.message);
     return res.status(500).json({ error: 'Server error', message: error.message });
   }
 }
