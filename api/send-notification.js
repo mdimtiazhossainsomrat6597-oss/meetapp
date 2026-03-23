@@ -1,4 +1,4 @@
-const ONESIGNAL_APP_ID = "81132740-4821-41ec-a750-d0433b5e6660";
+const ONESIGNAL_APP_ID = "df8597d9-1032-4b6f-8634-43ca9f24f308";
 const ONESIGNAL_API_KEY = process.env.ONESIGNAL_API_KEY;
 
 export default async function handler(req, res) {
