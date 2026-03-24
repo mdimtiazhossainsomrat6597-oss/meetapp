@@ -1326,8 +1326,10 @@ if (typeof twemoji === 'undefined') {
         .login-input::placeholder{color:rgba(255,255,255,0.28);}
         .login-action-btn{width:100%;padding:11px;margin-top:4px;background:var(--grad-brand);border:none;border-radius:var(--r-md);color:white;font-size:14px;font-weight:700;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;cursor:pointer;box-shadow:var(--shadow-btn);transition:all 0.3s;letter-spacing:0.3px;}
         .login-action-btn:active{transform:scale(0.97);opacity:0.9;}
-        .login-error{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.35);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;color:#ff9999;font-size:13px;display:none;}
+        .login-error{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.35);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;color:#ff9999;font-size:13px;display:none;line-height:1.5;}
         .login-error.show{display:block;animation:fadeIn 0.3s;}
+        .login-error button{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#ffb3b3;padding:4px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:4px;vertical-align:middle;transition:background 0.2s;}
+        .login-error button:hover{background:rgba(255,255,255,0.25);}
         .login-success{background:rgba(0,206,201,0.12);border:1px solid rgba(0,206,201,0.35);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;color:#00cec9;font-size:13px;display:none;}
         .login-success.show{display:block;animation:fadeIn 0.3s;}
         .login-divider{display:flex;align-items:center;gap:10px;margin:10px 0;}
@@ -2000,9 +2002,9 @@ if (typeof twemoji === 'undefined') {
             display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
             z-index:1001;flex-direction:row;gap:10px;
             justify-content:center;flex-wrap:wrap;
-            padding:12px 16px;width:auto;max-width:400px;
-            background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);
-            border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.15);
+            padding:14px 16px;width:auto;max-width:400px;
+            background:transparent;
+            border-radius:20px;
         }
         .fab-menu.show{display:flex;}
         /* প্রতিটি option staggered করে উপরে উঠে আসে */
@@ -2024,24 +2026,26 @@ if (typeof twemoji === 'undefined') {
         }
         .fab-option{
             display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
-            background:rgba(255,255,255,0.80);
-            backdrop-filter:blur(20px) saturate(180%);
-            -webkit-backdrop-filter:blur(20px) saturate(180%);
-            border:1.5px solid rgba(255,255,255,0.9);
-            border-radius:20px;padding:14px 18px;
+            /* iPhone Control Center style glass */
+            background:rgba(255,255,255,0.18);
+            backdrop-filter:blur(40px) saturate(200%) brightness(1.18);
+            -webkit-backdrop-filter:blur(40px) saturate(200%) brightness(1.18);
+            border:1px solid rgba(255,255,255,0.45);
+            border-radius:22px;padding:14px 18px;
             box-shadow:
-                0 8px 24px rgba(108,92,231,0.14),
-                0 2px 6px rgba(0,0,0,0.06),
-                inset 0 1px 0 rgba(255,255,255,1);
-            transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+                0 4px 16px rgba(0,0,0,0.12),
+                0 1px 4px rgba(0,0,0,0.08),
+                inset 0 1.5px 0 rgba(255,255,255,0.65),
+                inset 0 -1px 0 rgba(0,0,0,0.04);
+            transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, background 0.2s;
             min-width:78px;
         }
         body.dark-mode .fab-option{
-            background:rgba(30,24,55,0.82);
-            border-color:rgba(162,155,254,0.18);
-            box-shadow:0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.07);
+            background:rgba(28,28,30,0.55);
+            border-color:rgba(255,255,255,0.12);
+            box-shadow:0 4px 20px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
         }
-        .fab-option:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 14px 32px rgba(108,92,231,0.22);}
+        .fab-option:hover{transform:translateY(-4px) scale(1.05);background:rgba(255,255,255,0.28);box-shadow:0 12px 28px rgba(0,0,0,0.16), inset 0 1.5px 0 rgba(255,255,255,0.7);}
         .fab-option:active{
             animation:fabTap 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
         }
@@ -2984,30 +2988,43 @@ const firebaseConfig = {
     appId:"1:585105127605:web:cc948af7e01cef8c39e6fc"
 };
 let db;
+var _dbConnected = false;
 try {
     firebase.initializeApp(firebaseConfig);
     db=firebase.database();
     try { db.ref('photos').keepSynced(true); db.ref('videos').keepSynced(true); db.ref('textPosts').keepSynced(true); db.ref('users').keepSynced(true); } catch(e){}
     // Realtime DB offline: ডেটা auto-cache হয়, reconnect হলে sync হবে
-    // Connection status — প্রথম load-এ false আসে তাই delay দিয়ে দেখাই
     var _offlineTimer = null;
     var _hasEverConnected = false;
+    var _reconnectAttempts = 0;
     db.ref('.info/connected').on('value', function(snap){
         var isOnline = snap.val() === true;
+        _dbConnected = isOnline;
         if(isOnline){
             _hasEverConnected = true;
+            _reconnectAttempts = 0;
             if(_offlineTimer){ clearTimeout(_offlineTimer); _offlineTimer = null; }
         } else {
             var delay = _hasEverConnected ? 4000 : 7000;
             if(_offlineTimer) clearTimeout(_offlineTimer);
             _offlineTimer = setTimeout(function(){
                 db.ref('.info/connected').once('value', function(s){
-                    if(s.val() !== true && typeof setNetState === 'function') setNetState('offline');
+                    if(s.val() !== true){
+                        if(typeof setNetState === 'function') setNetState('offline');
+                        // Auto-reconnect: goOffline/goOnline trick
+                        if(_reconnectAttempts < 3){
+                            _reconnectAttempts++;
+                            try{ firebase.database().goOffline(); } catch(e){}
+                            setTimeout(function(){
+                                try{ firebase.database().goOnline(); } catch(e){}
+                            }, 1000 * _reconnectAttempts);
+                        }
+                    }
                 });
             }, delay);
         }
     });
-} catch(e) { console.error('Firebase init error:',e); db=null; }
+} catch(e) { console.error('Firebase init error:',e); db=null; _dbConnected=false; }
 
 // Firebase থেকে Splash Icon load এবং sync করা
 function initSplashIconSync() {
@@ -3418,39 +3435,69 @@ async function doLogin(){
     const username=document.getElementById('loginUsername').value.trim();
     const password=document.getElementById('loginPassword').value;
     if(!username||!password) return showLoginError(t('fillAllFields'));
-    showLoginLoading();
+    clearLoginMsgs();
+    showLoginLoading(currentLanguage==='bn'?'লগিন হচ্ছে...':'Logging in...');
 
-    // ── অফলাইন মোড: db নেই → cache থেকে লগিন ──
-    const isOfflineMode = !db;
-    if(isOfflineMode){
-        const cachedUsers = loadCache(_offlineCacheKey.users) || {};
-        let userData = null;
-        Object.values(cachedUsers).forEach(u => { if(u.username === username) userData = u; });
+    // ── ধাপ ১: Cache-এ ইউজার খোঁজো (instant) ──
+    const cachedUsers = loadCache(_offlineCacheKey.users) || {};
+    let cachedUserData = null;
+    Object.values(cachedUsers).forEach(function(u){ if(u.username===username) cachedUserData=u; });
+
+    // ── ধাপ ২: Offline mode (db নেই) ──
+    if(!db){
         hideLoginLoading();
-        if(!userData){
+        if(!cachedUserData){
             return showLoginError(currentLanguage==='bn'
-                ? '📡 অফলাইন মোড — এই ডিভাইসে আগে লগিন করা অ্যাকাউন্ট খুঁজে পাওয়া যায়নি।'
-                : '📡 Offline mode — This account was not found in local cache.');
+                ? '📡 অফলাইন — এই ডিভাইসে আগে লগিন করা অ্যাকাউন্ট পাওয়া যায়নি।'
+                : '📡 Offline — Account not found in local cache.');
         }
-        if(userData.password !== hashPassword(password)){
+        if(cachedUserData.password !== hashPassword(password)){
             return showLoginError(t('wrongPassword'));
         }
-        completeLogin(userData);
+        completeLogin(cachedUserData);
         showNotification(currentLanguage==='bn' ? '📡 অফলাইন মোডে লগিন হয়েছে' : '📡 Logged in (offline mode)');
         return;
     }
 
+    // ── ধাপ ৩: Firebase থেকে লগিন (timeout কমিয়ে ১০s, fail হলে cache fallback) ──
     try{
-        const queryPromise = db.ref('users').once('value');
-        const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error(currentLanguage==='bn'?'সার্ভার রেসপন্স করছে না, পরে আবার চেষ্টা করুন':'Server not responding, try again later')),20000));
+        const queryPromise = db.ref('users').orderByChild('username').equalTo(username).once('value');
+        const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('__TIMEOUT__')),10000));
         const snap = await Promise.race([queryPromise, timeoutPromise]);
         let userData=null;
-        if(snap.exists()) snap.forEach(c=>{ const u=c.val(); if(u.username===username) userData=u; });
+        if(snap.exists()) snap.forEach(function(c){ userData=c.val(); });
         hideLoginLoading();
         if(!userData) return showLoginError(t('usernameNotFound'));
         if(userData.password!==hashPassword(password)) return showLoginError(t('wrongPassword'));
         completeLogin(userData);
-    }catch(e){hideLoginLoading();showLoginError((currentLanguage==='bn'?'❌ ত্রুটি: ':'❌ Error: ')+e.message);}
+    } catch(e) {
+        hideLoginLoading();
+
+        // Timeout হলে cache থেকে login চেষ্টা করো
+        if(e.message==='__TIMEOUT__' || e.message.includes('not responding')){
+            if(cachedUserData){
+                if(cachedUserData.password!==hashPassword(password)){
+                    return showLoginError(t('wrongPassword'));
+                }
+                completeLogin(cachedUserData);
+                showNotification(currentLanguage==='bn'
+                    ? '📡 সার্ভার ধীর — ক্যাশ থেকে লগিন হয়েছে'
+                    : '📡 Server slow — logged in from cache');
+                return;
+            }
+            // Cache-ও নেই → retry বাটন দেখাও
+            const errEl = document.getElementById('loginError');
+            errEl.innerHTML = (currentLanguage==='bn'
+                ? '📡 সার্ভার রেসপন্স করছে না।'
+                : '📡 Server not responding.') +
+                ' <button onclick="doLogin()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:inherit;padding:3px 10px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:6px;">🔄 ' +
+                (currentLanguage==='bn'?'আবার চেষ্টা':'Retry') + '</button>';
+            errEl.classList.add('show');
+            document.getElementById('loginSuccessMsg').classList.remove('show');
+        } else {
+            showLoginError((currentLanguage==='bn'?'❌ ত্রুটি: ':'❌ Error: ')+e.message);
+        }
+    }
 }
 
 // ══════════════════════════════════════════════
