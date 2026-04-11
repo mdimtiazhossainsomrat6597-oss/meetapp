@@ -19,7 +19,7 @@
     </script>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1877f2">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
     
     <!-- ✅ OneSignal Push Notification SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -253,6 +253,25 @@
             color: #666;
             line-height: 1.4;
         }
+
+        /* ══ Notification Permission Popup ══ */
+        #notifPermOverlay{position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;justify-content:center;padding:0 0 20px 0;opacity:0;pointer-events:none;transition:opacity 0.35s ease;}
+        #notifPermOverlay.show{opacity:1;pointer-events:all;}
+        #notifPermBox{background:#1a1433;border-radius:24px 24px 20px 20px;max-width:360px;width:94%;overflow:hidden;transform:translateY(60px);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 -4px 40px rgba(0,0,0,0.5);}
+        #notifPermOverlay.show #notifPermBox{transform:translateY(0);}
+        .np-header{background:linear-gradient(135deg,#6c5ce7,#fd79a8);padding:26px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+        .np-icon-wrap{width:62px;height:62px;border-radius:18px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;}
+        .np-title{color:#fff;font-size:17px;font-weight:700;margin:0;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
+        .np-sub{color:rgba(255,255,255,0.75);font-size:12px;margin:0;text-align:center;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
+        .np-body{padding:18px 16px;}
+        .np-feature{display:flex;align-items:center;gap:12px;padding:11px 12px;background:rgba(255,255,255,0.05);border-radius:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.07);}
+        .np-feat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+        .np-feat-title{font-size:13px;font-weight:700;color:rgba(240,236,251,0.95);margin:0 0 2px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
+        .np-feat-desc{font-size:11px;color:rgba(240,236,251,0.5);margin:0;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
+        .np-allow-btn{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#6c5ce7,#fd79a8);color:white;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;transition:opacity 0.2s,transform 0.1s;}
+        .np-allow-btn:active{transform:scale(0.97);}
+        .np-skip-btn{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(240,236,251,0.45);font-size:13px;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
+        .np-already{text-align:center;font-size:12px;color:rgba(240,236,251,0.35);padding:4px 0 8px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;}
     </style>
     
     <!-- Firebase Cloud Messaging (FCM) -->
@@ -2183,7 +2202,41 @@ if (typeof twemoji === 'undefined') {
     <div class="splash-loader">
         <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
         <div class="splash-status" id="splashStatusText">একটু অপেক্ষা করো...</div>
-        <div style="margin-top:10px;font-size:12px;color:rgba(240,236,251,0.45);text-align:center;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;letter-spacing:0.2px;">⬅️ লোড হতে দেরি হলে অ্যাপ থেকে ব্যাক করে আবার আসুন</div>
+        <!-- 🔊 Splash Sound Button -->
+    <div style="margin-top:14px;display:flex;justify-content:center;align-items:center;">
+        <iframe width="110" height="200" src="https://www.myinstants.com/instant/fahhh-42300/embed/" frameborder="0" scrolling="no"></iframe>
+    </div>
+    <!-- Auto-play sound on splash load -->
+    <audio id="splashSound" src="fahhh_KcgAXfs.mp3" preload="auto"></audio>
+    <script>
+    (function(){
+        function playSplashSound(){
+            var audio = document.getElementById('splashSound');
+            if(audio){
+                audio.volume = 0.7;
+                audio.play().catch(function(){
+                    // Autoplay blocked — silently ignore
+                });
+            }
+        }
+        // Try immediately, fallback on first user interaction
+        if(document.readyState === 'loading'){
+            document.addEventListener('DOMContentLoaded', playSplashSound);
+        } else {
+            playSplashSound();
+        }
+        // Fallback: play on first touch/click if autoplay was blocked
+        document.addEventListener('click', function onFirstClick(){
+            playSplashSound();
+            document.removeEventListener('click', onFirstClick);
+        }, {once: true});
+        document.addEventListener('touchstart', function onFirstTouch(){
+            playSplashSound();
+            document.removeEventListener('touchstart', onFirstTouch);
+        }, {once: true});
+    })();
+    </script>
+    <div style="margin-top:10px;font-size:12px;color:rgba(240,236,251,0.45);text-align:center;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;letter-spacing:0.2px;">⬅️ লোড হতে দেরি হলে অ্যাপ থেকে ব্যাক করে আবার আসুন</div>
         <div style="margin-top:8px;font-size:11px;color:rgba(240,236,251,0.35);text-align:center;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">📶 অ্যাপটি ভালোভাবে ব্যবহার করতে একটি ভালো ইন্টারনেট কানেকশন প্রয়োজন</div>
 <script>
 (function(){
@@ -9660,6 +9713,108 @@ function clearAllNotifications() {
 }
 
 console.log('✅ Notification System loaded successfully!');
+</script>
+</body>
+</html>
+<!-- ══ Notification Permission Popup ══ -->
+<div id="notifPermOverlay" style="display:none;">
+  <div id="notifPermBox">
+    <div class="np-header">
+      <div class="np-icon-wrap">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </div>
+      <p class="np-title">নোটিফিকেশন চালু করুন</p>
+      <p class="np-sub">MeetApp-এর সকল আপডেট সবার আগে পান</p>
+    </div>
+    <div class="np-body">
+      <div class="np-feature">
+        <div class="np-feat-icon" style="background:rgba(108,92,231,0.18);">💬</div>
+        <div><p class="np-feat-title">নতুন মেসেজ</p><p class="np-feat-desc">কেউ মেসেজ পাঠালে সাথে সাথে জানুন</p></div>
+      </div>
+      <div class="np-feature">
+        <div class="np-feat-icon" style="background:rgba(99,153,34,0.18);">❤️</div>
+        <div><p class="np-feat-title">লাইক ও কমেন্ট</p><p class="np-feat-desc">পোস্টে রিঅ্যাকশন হলে নোটিফাই হন</p></div>
+      </div>
+      <div class="np-feature">
+        <div class="np-feat-icon" style="background:rgba(186,117,23,0.18);">⏰</div>
+        <div><p class="np-feat-title">ইভেন্ট রিমাইন্ডার</p><p class="np-feat-desc">ইভেন্ট শুরুর আগে মনে করিয়ে দেবে</p></div>
+      </div>
+      <button class="np-allow-btn" id="npAllowBtn" onclick="handleNotifPermission()">🔔 অনুমতি দিন</button>
+      <button class="np-skip-btn" onclick="closeNotifPerm(true)">এখন না</button>
+      <p class="np-already" id="npStatusText"></p>
+    </div>
+  </div>
+</div>
+<script>
+function showNotifPerm(){
+    var asked=localStorage.getItem('meetapp_notif_asked');
+    if(asked==='granted'||asked==='denied') return;
+    if(asked && Date.now()<parseInt(asked)) return;
+    if(!('Notification' in window)) return;
+    if(Notification.permission==='granted'||Notification.permission==='denied') return;
+    var o=document.getElementById('notifPermOverlay');
+    if(!o) return;
+    o.style.display='flex';
+    setTimeout(function(){ o.classList.add('show'); },80);
+}
+function closeNotifPerm(skipped){
+    var o=document.getElementById('notifPermOverlay');
+    if(!o) return;
+    o.classList.remove('show');
+    setTimeout(function(){ o.style.display='none'; },350);
+    if(skipped) localStorage.setItem('meetapp_notif_asked', String(Date.now()+7*24*60*60*1000));
+}
+async function handleNotifPermission(){
+    var btn=document.getElementById('npAllowBtn');
+    var st=document.getElementById('npStatusText');
+    btn.disabled=true;
+    btn.textContent='⏳ অপেক্ষা করুন...';
+    try{
+        var result=await Notification.requestPermission();
+        if(result==='granted'){
+            btn.textContent='✅ সফলভাবে চালু হয়েছে!';
+            btn.style.background='linear-gradient(135deg,#00b09b,#96c93d)';
+            st.textContent='এখন থেকে সব নোটিফিকেশন পাবেন 🎉';
+            localStorage.setItem('meetapp_notif_asked','granted');
+            if(window.OneSignal){ try{ await OneSignal.User.PushSubscription.optIn(); }catch(e){} }
+            if(typeof requestNotificationPermission==='function') setTimeout(requestNotificationPermission,500);
+            setTimeout(function(){ closeNotifPerm(false); },1800);
+        } else if(result==='denied'){
+            btn.textContent='❌ অনুমতি দেননি';
+            btn.style.background='rgba(255,71,87,0.3)';
+            st.textContent='ফোনের সেটিংস থেকে পরে চালু করতে পারবেন';
+            localStorage.setItem('meetapp_notif_asked','denied');
+            setTimeout(function(){ closeNotifPerm(false); },2200);
+        } else {
+            btn.disabled=false;
+            btn.textContent='🔔 অনুমতি দিন';
+        }
+    } catch(e){
+        btn.disabled=false;
+        btn.textContent='🔔 অনুমতি দিন';
+        st.textContent='সমস্যা হয়েছে, আবার চেষ্টা করুন';
+    }
+}
+(function(){
+    var _t;
+    function waitForSplash(){
+        var splash=document.getElementById('splashScreen');
+        if(!splash){ _t=setTimeout(showNotifPerm,4000); return; }
+        var obs=new MutationObserver(function(){
+            if(splash.style.display==='none'||splash.classList.contains('hide')){
+                obs.disconnect(); clearTimeout(_t);
+                _t=setTimeout(showNotifPerm,2000);
+            }
+        });
+        obs.observe(splash,{attributes:true,attributeFilter:['style','class']});
+        _t=setTimeout(showNotifPerm,7000);
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',waitForSplash);
+    else waitForSplash();
+})();
 </script>
 </body>
 </html>
