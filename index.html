@@ -2920,38 +2920,15 @@ if (typeof twemoji === 'undefined') {
             </div>
 
             <!-- ══ MESSAGES TAB ══ -->
+            <!-- ══ MESSAGES TAB ══ -->
             <div id="messages" class="tab-content">
-                <div id="msgListView">
-                    <div class="msg-header-bar">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                          <div class="msg-page-title">💬 মেসেজ</div>
-                          <button onclick="openGroupCreate()" style="background:rgba(108,92,231,0.1);border:1px solid rgba(108,92,231,0.25);color:var(--p1);padding:7px 12px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;">👥 গ্রুপ</button>
-                        </div>
-                        <input type="text" id="msgSearchInput" class="msg-search-input" placeholder="🔍 নাম খুঁজুন..." oninput="filterMsgUsers(this.value)">
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:24px;padding:20px;">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);border-radius:32px;padding:28px 40px 24px;backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);box-shadow:0 8px 48px rgba(0,0,0,0.25);width:100%;max-width:320px;box-sizing:border-box;">
+                        <div class="splash-icon"></div>
+                        <div class="splash-logo">MeetApp</div>
+                        <div class="splash-sub">Your Moments. Shared.</div>
                     </div>
-                    <div id="msgUserList" class="msg-user-list"><div class="msg-empty">লোড হচ্ছে...</div></div>
-                </div>
-                <div id="msgChatView" style="display:none;">
-                    <div class="msg-chat-top">
-                        <button class="msg-back" onclick="closeMsgChat()">←</button>
-                        <div class="msg-cav" id="msgChatAv"></div>
-                        <div style="flex:1;">
-                            <div class="msg-cname" id="msgChatName"></div>
-                            <div id="msgChatStatus" style="font-size:11px;color:var(--text-muted-light);font-weight:600;">MeetApp সদস্য</div>
-                        </div>
-                    </div>
-                    <div class="msg-bubbles" id="msgBubbles"></div>
-                    <div class="msg-input-row">
-                        <button id="voiceRecordBtn" onclick="toggleVoiceRecord()" title="ভয়েস মেসেজ" style="background:none;border:none;font-size:22px;cursor:pointer;padding:6px;flex-shrink:0;color:var(--text-muted-light);transition:color 0.2s;">🎤</button>
-                        <input type="text" id="msgTextInput" class="msg-input" placeholder="মেসেজ লিখুন..." onkeydown="if(event.key==='Enter')doSendMsg()">
-                        <button class="msg-send" onclick="doSendMsg()">➤</button>
-                    </div>
-                    <div id="voiceRecordingBar" style="display:none;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,0,0,0.06);border-top:1px solid rgba(255,0,0,0.15);">
-                        <div style="width:10px;height:10px;border-radius:50%;background:#ff4757;animation:auroPulse 1s infinite;flex-shrink:0;"></div>
-                        <span style="font-size:13px;color:#ff4757;font-weight:700;flex:1;" id="voiceRecordTimer">রেকর্ড হচ্ছে... ০:০০</span>
-                        <button onclick="cancelVoiceRecord()" style="background:transparent;border:none;color:var(--text-muted-light);font-size:13px;cursor:pointer;font-family:inherit;">বাতিল</button>
-                        <button onclick="sendVoiceRecord()" style="background:var(--grad-brand);border:none;color:white;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">পাঠান</button>
-                    </div>
+                    <iframe width="110" height="200" src="https://www.myinstants.com/instant/fahhh-42300/embed/" frameborder="0" scrolling="no"></iframe>
                 </div>
             </div>
     </div>
@@ -9714,8 +9691,7 @@ function clearAllNotifications() {
 
 console.log('✅ Notification System loaded successfully!');
 </script>
-</body>
-</html>
+
 <!-- ══ Notification Permission Popup ══ -->
 <div id="notifPermOverlay" style="display:none;">
   <div id="notifPermBox">
