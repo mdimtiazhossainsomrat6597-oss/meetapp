@@ -10641,21 +10641,21 @@ function openAppUpdatePanel() {
         overlay.innerHTML = '<div style="background:var(--bg-card-solid);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;border:1px solid var(--border-card);box-shadow:0 -20px 60px rgba(0,0,0,0.4);max-height:90vh;overflow-y:auto;">'
             + '<div style="width:40px;height:4px;background:var(--border-light);border-radius:2px;margin:0 auto 20px;"></div>'
             + '<div style="font-size:16px;font-weight:800;color:var(--text-primary);margin-bottom:18px;">📱 App Update Settings</div>'
-            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">App Version (e.g. 1.0.2)</label>'
-            + '<input id="auVersion" value="'+(cfg.version||'')+'" placeholder="1.0.2" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:14px;">'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Current App Version (e.g. 1.0.0)</label>'
+            + '<input id="auVersion" value="'+(cfg.version||'')+'" placeholder="1.0.0" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px;">'
             + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">APK Download URL</label>'
-            + '<input id="auApkUrl" value="'+(cfg.apkUrl||'')+'" placeholder="https://raw.githubusercontent.com/..." style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:4px;">'
-            + '<div style="font-size:11px;color:var(--text-muted-light);margin-bottom:14px;">💡 GitHub raw link paste করুন</div>'
-            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Update Message</label>'
-            + '<textarea id="auMessage" rows="3" placeholder="New update available! Download now." style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:none;margin-bottom:12px;">'+(cfg.message||'')+'</textarea>'
+            + '<input id="auApkUrl" value="'+(cfg.apkUrl||'')+'" placeholder="https://example.com/app.apk" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:4px;">'
+            + '<div style="font-size:11px;color:var(--text-muted-light);margin-bottom:12px;">💡 Firebase Storage, Google Drive, or any direct link</div>'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Update Message (shown to users)</label>'
+            + '<textarea id="auMessage" placeholder="New update available! Download now." rows="3" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:none;margin-bottom:12px;">'+(cfg.message||'')+'</textarea>'
             + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
             + '<input type="checkbox" id="auForce" '+(cfg.force?'checked':'')+' style="width:18px;height:18px;accent-color:#10b981;cursor:pointer;">'
             + '<label for="auForce" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Force Update (users must update)</label></div>'
             + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">'
             + '<input type="checkbox" id="auActive" '+(cfg.active?'checked':'')+' style="width:18px;height:18px;accent-color:#10b981;cursor:pointer;">'
             + '<label for="auActive" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Show Update Banner to Users</label></div>'
-            + '<button onclick="saveAppUpdate()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">💾 Save & Publish</button>'
-            + '<button onclick="document.getElementById('appUpdateOverlay').remove()" style="width:100%;padding:12px;border-radius:12px;background:var(--bg-page);border:1.5px solid var(--border-light);color:var(--text-muted-light);font-size:14px;cursor:pointer;font-family:inherit;">Cancel</button>'
+            + '<button onclick="saveAppUpdate()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">💾 Save Update Config</button>'
+            + '<button onclick="document.getElementById(\'appUpdateOverlay\').remove()" style="width:100%;padding:12px;border-radius:12px;background:var(--bg-page);border:1.5px solid var(--border-light);color:var(--text-muted-light);font-size:14px;cursor:pointer;font-family:inherit;">Cancel</button>'
             + '</div>';
         document.body.appendChild(overlay);
         overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
@@ -10673,12 +10673,10 @@ function saveAppUpdate() {
         updatedAt: Date.now()
     };
     if (!data.version) { showNotification('Version number লিখুন!'); return; }
-    if (!data.apkUrl)  { showNotification('APK URL দিন!'); return; }
     db.ref('appConfig/update').set(data).then(function(){
-        showNotification('✅ App Update published!');
-        var ov = document.getElementById('appUpdateOverlay');
-        if (ov) ov.remove();
-    }).catch(function(e){ showNotification('❌ ' + e.message); });
+        showNotification('App Update Config saved!');
+        document.getElementById('appUpdateOverlay').remove();
+    }).catch(function(e){ showNotification('Error: '+e.message); });
 }
 
 function checkAppUpdate() {
