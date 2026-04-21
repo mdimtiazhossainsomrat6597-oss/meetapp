@@ -10616,12 +10616,186 @@ function renderSettingsAdminSection(){
         html += '<button onclick="openThemeManager()" style="'+btnStyle+'background:linear-gradient(135deg,rgba(108,92,231,0.12),rgba(249,168,37,0.1));border:1.5px solid rgba(108,92,231,0.3);color:var(--p1);">🎨 '+(bn?'অ্যাপ থিম ম্যানেজমেন্ট':'App Theme Management')+'</button>';
         html += '<button onclick="sendAdminNotification()" style="'+btnStyle+'background:linear-gradient(135deg,rgba(108,99,255,0.12),rgba(167,139,250,0.1));border:1.5px solid rgba(108,99,255,0.35);color:#6c63ff;">🔔 '+(bn?'সবাইকে নোটিফিকেশন পাঠান':'Send Notification to All')+'</button>';
         html += '<button onclick="openAdminAlarmPanel()" style="'+btnStyle+'background:linear-gradient(135deg,rgba(255,107,107,0.15),rgba(255,107,107,0.08));border:1.5px solid rgba(255,107,107,0.4);color:#ff6b6b;">📢 '+(bn?'সবাইকে অ্যালার্ম পাঠান':'Send Alarm to All')+'</button>';
+        html += '<button onclick="openAppUpdatePanel()" style="'+btnStyle+'background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.1));border:1.5px solid rgba(16,185,129,0.35);color:#10b981;">📱 App Update Settings</button>';
+        html += '<button onclick="openAdminMessagePanel()" style="'+btnStyle+'background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(249,115,22,0.1));border:1.5px solid rgba(245,158,11,0.35);color:#f59e0b;">📣 Admin Message Control</button>';
     }
 
     html += '</div>';
     sec.innerHTML = html;
 }
 
+
+
+// ══════════════════════════════════════════════════════════════════
+//  📱 APP UPDATE PANEL
+// ══════════════════════════════════════════════════════════════════
+
+function openAppUpdatePanel() {
+    if (!isSuperAdmin()) return;
+    if (document.getElementById('appUpdateOverlay')) return;
+    db.ref('appConfig/update').once('value', function(snap) {
+        var cfg = snap.val() || {};
+        var overlay = document.createElement('div');
+        overlay.id = 'appUpdateOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';
+        overlay.innerHTML = '<div style="background:var(--bg-card-solid);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;border:1px solid var(--border-card);box-shadow:0 -20px 60px rgba(0,0,0,0.4);max-height:90vh;overflow-y:auto;">'
+            + '<div style="width:40px;height:4px;background:var(--border-light);border-radius:2px;margin:0 auto 20px;"></div>'
+            + '<div style="font-size:16px;font-weight:800;color:var(--text-primary);margin-bottom:18px;">📱 App Update Settings</div>'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">App Version (e.g. 1.0.2)</label>'
+            + '<input id="auVersion" value="'+(cfg.version||'')+'" placeholder="1.0.2" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:14px;">'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">APK Download URL</label>'
+            + '<input id="auApkUrl" value="'+(cfg.apkUrl||'')+'" placeholder="https://raw.githubusercontent.com/..." style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:4px;">'
+            + '<div style="font-size:11px;color:var(--text-muted-light);margin-bottom:14px;">💡 GitHub raw link paste করুন</div>'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Update Message</label>'
+            + '<textarea id="auMessage" rows="3" placeholder="New update available! Download now." style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:none;margin-bottom:12px;">'+(cfg.message||'')+'</textarea>'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+            + '<input type="checkbox" id="auForce" '+(cfg.force?'checked':'')+' style="width:18px;height:18px;accent-color:#10b981;cursor:pointer;">'
+            + '<label for="auForce" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Force Update (users must update)</label></div>'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">'
+            + '<input type="checkbox" id="auActive" '+(cfg.active?'checked':'')+' style="width:18px;height:18px;accent-color:#10b981;cursor:pointer;">'
+            + '<label for="auActive" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Show Update Banner to Users</label></div>'
+            + '<button onclick="saveAppUpdate()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">💾 Save & Publish</button>'
+            + '<button onclick="document.getElementById('appUpdateOverlay').remove()" style="width:100%;padding:12px;border-radius:12px;background:var(--bg-page);border:1.5px solid var(--border-light);color:var(--text-muted-light);font-size:14px;cursor:pointer;font-family:inherit;">Cancel</button>'
+            + '</div>';
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+    });
+}
+
+function saveAppUpdate() {
+    if (!isSuperAdmin() || !db) return;
+    var data = {
+        version:  (document.getElementById('auVersion')||{}).value.trim(),
+        apkUrl:   (document.getElementById('auApkUrl')||{}).value.trim(),
+        message:  (document.getElementById('auMessage')||{}).value.trim(),
+        force:    !!(document.getElementById('auForce')||{}).checked,
+        active:   !!(document.getElementById('auActive')||{}).checked,
+        updatedAt: Date.now()
+    };
+    if (!data.version) { showNotification('Version number লিখুন!'); return; }
+    if (!data.apkUrl)  { showNotification('APK URL দিন!'); return; }
+    db.ref('appConfig/update').set(data).then(function(){
+        showNotification('✅ App Update published!');
+        var ov = document.getElementById('appUpdateOverlay');
+        if (ov) ov.remove();
+    }).catch(function(e){ showNotification('❌ ' + e.message); });
+}
+
+function checkAppUpdate() {
+    if (!db) return;
+    db.ref('appConfig/update').on('value', function(snap) {
+        var old = document.getElementById('appUpdateBanner');
+        if (old) old.remove();
+        var cfg = snap.val();
+        if (!cfg || !cfg.active || !cfg.apkUrl) return;
+        var banner = document.createElement('div');
+        banner.id = 'appUpdateBanner';
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:88888;background:linear-gradient(135deg,#10b981,#06b6d4);padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(16,185,129,0.4);';
+        banner.innerHTML = '<span style="font-size:18px;">📱</span>'
+            + '<div style="flex:1;">'
+            + '<div style="font-size:13px;font-weight:700;color:#fff;">'+(cfg.version ? 'v'+cfg.version+' Available' : 'Update Available')+'</div>'
+            + '<div style="font-size:11px;color:rgba(255,255,255,0.85);">'+(cfg.message||'New update is ready to download.')+'</div>'
+            + '</div>'
+            + '<a href="'+cfg.apkUrl+'" target="_blank" download style="background:rgba(255,255,255,0.25);border:1.5px solid rgba(255,255,255,0.5);color:#fff;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;">Download APK</a>'
+            + (cfg.force ? '' : '<button onclick="document.getElementById(\'appUpdateBanner\').remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer;padding:0 4px;">x</button>');
+        document.body.insertBefore(banner, document.body.firstChild);
+    });
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  📣 ADMIN MESSAGE PANEL
+// ══════════════════════════════════════════════════════════════════
+
+function openAdminMessagePanel() {
+    if (!isSuperAdmin()) return;
+    if (document.getElementById('adminMsgOverlay')) return;
+    db.ref('appConfig/adminMessage').once('value', function(snap) {
+        var cfg = snap.val() || {};
+        var overlay = document.createElement('div');
+        overlay.id = 'adminMsgOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';
+        var typeOptions = ['info','warning','success','error'].map(function(t){
+            var icons = {info:'Info',warning:'Warning',success:'Success',error:'Error'};
+            return '<option value="'+t+'" '+(cfg.type===t?'selected':'')+'>'+icons[t]+'</option>';
+        }).join('');
+        overlay.innerHTML = '<div style="background:var(--bg-card-solid);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;border:1px solid var(--border-card);box-shadow:0 -20px 60px rgba(0,0,0,0.4);max-height:90vh;overflow-y:auto;">'
+            + '<div style="width:40px;height:4px;background:var(--border-light);border-radius:2px;margin:0 auto 20px;"></div>'
+            + '<div style="font-size:16px;font-weight:800;color:var(--text-primary);margin-bottom:18px;">Admin Message Control</div>'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Message Title</label>'
+            + '<input id="amTitle" value="'+(cfg.title||'')+'" placeholder="Important Notice" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px;">'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Message Body</label>'
+            + '<textarea id="amBody" rows="4" placeholder="Write your message to all users..." style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:none;margin-bottom:12px;">'+(cfg.body||'')+'</textarea>'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Message Type</label>'
+            + '<select id="amType" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border-light);background:var(--bg-page);color:var(--text-primary);font-family:inherit;font-size:13px;margin-bottom:12px;">'+typeOptions+'</select>'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Link (optional)</label>'
+            + '<input id="amLink" value="'+(cfg.link||'')+'" placeholder="https://..." style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:14px;">'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">'
+            + '<input type="checkbox" id="amActive" '+(cfg.active?'checked':'')+' style="width:18px;height:18px;accent-color:#f59e0b;cursor:pointer;">'
+            + '<label for="amActive" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Show Message to All Users</label></div>'
+            + '<button onclick="saveAdminMessage()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">Publish Message</button>'
+            + '<button onclick="clearAdminMessage()" style="width:100%;padding:12px;border-radius:12px;background:rgba(239,68,68,0.1);border:1.5px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:10px;">Clear Message</button>'
+            + '<button onclick="document.getElementById(\'adminMsgOverlay\').remove()" style="width:100%;padding:12px;border-radius:12px;background:var(--bg-page);border:1.5px solid var(--border-light);color:var(--text-muted-light);font-size:13px;cursor:pointer;font-family:inherit;">Cancel</button>'
+            + '</div>';
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+    });
+}
+
+function saveAdminMessage() {
+    if (!isSuperAdmin() || !db) return;
+    var data = {
+        title:  (document.getElementById('amTitle')||{}).value.trim(),
+        body:   (document.getElementById('amBody')||{}).value.trim(),
+        type:   (document.getElementById('amType')||{}).value || 'info',
+        link:   (document.getElementById('amLink')||{}).value.trim(),
+        active: !!(document.getElementById('amActive')||{}).checked,
+        postedAt: Date.now()
+    };
+    if (!data.title || !data.body) { showNotification('Title ও Message লিখুন!'); return; }
+    db.ref('appConfig/adminMessage').set(data).then(function(){
+        showNotification('Message published!');
+        document.getElementById('adminMsgOverlay').remove();
+    }).catch(function(e){ showNotification('Error: '+e.message); });
+}
+
+function clearAdminMessage() {
+    if (!isSuperAdmin() || !db) return;
+    db.ref('appConfig/adminMessage').remove().then(function(){
+        showNotification('Message cleared!');
+        document.getElementById('adminMsgOverlay').remove();
+    });
+}
+
+function checkAdminMessage() {
+    if (!db) return;
+    db.ref('appConfig/adminMessage').on('value', function(snap) {
+        var old = document.getElementById('adminMsgBanner');
+        if (old) old.remove();
+        var cfg = snap.val();
+        if (!cfg || !cfg.active || !cfg.title) return;
+        var key = String(cfg.postedAt || '');
+        if (sessionStorage.getItem('adminMsgDismissed') === key) return;
+        var typeColors = {info:'#3b82f6',warning:'#f59e0b',success:'#10b981',error:'#ef4444'};
+        var typeBg     = {info:'rgba(59,130,246,0.1)',warning:'rgba(245,158,11,0.1)',success:'rgba(16,185,129,0.1)',error:'rgba(239,68,68,0.1)'};
+        var typeIcons  = {info:'INFO',warning:'WARNING',success:'SUCCESS',error:'ALERT'};
+        var t = cfg.type || 'info';
+        var color = typeColors[t]||typeColors.info;
+        var bg = typeBg[t]||typeBg.info;
+        var banner = document.createElement('div');
+        banner.id = 'adminMsgBanner';
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:88887;background:'+bg+';border-bottom:2px solid '+color+';padding:12px 16px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);backdrop-filter:blur(8px);';
+        banner.innerHTML = '<div style="flex-shrink:0;padding:3px 7px;border-radius:6px;background:'+color+';color:#fff;font-size:10px;font-weight:800;margin-top:1px;">'+typeIcons[t]+'</div>'
+            + '<div style="flex:1;">'
+            + '<div style="font-size:13px;font-weight:700;color:'+color+';">'+cfg.title+'</div>'
+            + '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.5;">'+cfg.body+'</div>'
+            + (cfg.link ? '<a href="'+cfg.link+'" target="_blank" style="font-size:12px;color:'+color+';font-weight:600;text-decoration:underline;display:inline-block;margin-top:4px;">Learn more</a>' : '')
+            + '</div>'
+            + '<button onclick="(function(){sessionStorage.setItem(\'adminMsgDismissed\',\''+key+'\');document.getElementById(\'adminMsgBanner\').remove();})()" style="background:none;border:none;color:var(--text-muted-light);font-size:22px;cursor:pointer;padding:0 4px;flex-shrink:0;line-height:1;">x</button>';
+        var updateBanner = document.getElementById('appUpdateBanner');
+        if (updateBanner) updateBanner.after(banner);
+        else document.body.insertBefore(banner, document.body.firstChild);
+    });
+}
 
 // ══════════════════════════════════════════════════════════════════
 //  🏆 TOP USERS + 🔥 TRENDING POSTS SYSTEM
@@ -10631,122 +10805,24 @@ var _topUsersData = []; // [{uid, goal}]
 
 // ── Goal definitions ──────────────────────────────────────────────
 var TOP_USER_GOALS = {
-    'star':     { label:'⭐ Star',       emoji:'⭐', ring:'#f59e0b', bg:'rgba(245,158,11,0.15)', color:'#f59e0b', border:'rgba(245,158,11,0.3)' },
-    'popular':  { label:'🔥 Popular',    emoji:'🔥', ring:'#ef4444', bg:'rgba(239,68,68,0.12)',  color:'#ef4444', border:'rgba(239,68,68,0.3)' },
-    'creative': { label:'🎨 Creative',   emoji:'🎨', ring:'#8b5cf6', bg:'rgba(139,92,246,0.15)', color:'#8b5cf6', border:'rgba(139,92,246,0.3)' },
-    'active':   { label:'⚡ Active',     emoji:'⚡', ring:'#06b6d4', bg:'rgba(6,182,212,0.13)',  color:'#06b6d4', border:'rgba(6,182,212,0.3)' },
-    'friend':   { label:'💚 Friendly',   emoji:'💚', ring:'#10b981', bg:'rgba(16,185,129,0.13)', color:'#10b981', border:'rgba(16,185,129,0.3)' },
-    'legend':   { label:'👑 Legend',     emoji:'👑', ring:'#f59e0b', bg:'rgba(245,158,11,0.2)',  color:'#d97706', border:'rgba(245,158,11,0.5)' },
-    'newbie':   { label:'🌱 Newbie',     emoji:'🌱', ring:'#84cc16', bg:'rgba(132,204,22,0.13)', color:'#65a30d', border:'rgba(132,204,22,0.3)' },
-    'cool':     { label:'😎 Cool',       emoji:'😎', ring:'#3b82f6', bg:'rgba(59,130,246,0.13)', color:'#3b82f6', border:'rgba(59,130,246,0.3)' },
+    'star':     { label:'⭐ স্টার',         emoji:'⭐', ring:'#f59e0b', bg:'rgba(245,158,11,0.15)', color:'#f59e0b', border:'rgba(245,158,11,0.3)' },
+    'popular':  { label:'🔥 পপুলার',        emoji:'🔥', ring:'#ef4444', bg:'rgba(239,68,68,0.12)',  color:'#ef4444', border:'rgba(239,68,68,0.3)' },
+    'creative': { label:'🎨 ক্রিয়েটিভ',     emoji:'🎨', ring:'#8b5cf6', bg:'rgba(139,92,246,0.15)', color:'#8b5cf6', border:'rgba(139,92,246,0.3)' },
+    'active':   { label:'⚡ সক্রিয়',         emoji:'⚡', ring:'#06b6d4', bg:'rgba(6,182,212,0.13)',  color:'#06b6d4', border:'rgba(6,182,212,0.3)' },
+    'friend':   { label:'💚 ফ্রেন্ডলি',      emoji:'💚', ring:'#10b981', bg:'rgba(16,185,129,0.13)', color:'#10b981', border:'rgba(16,185,129,0.3)' },
+    'legend':   { label:'👑 লিজেন্ড',        emoji:'👑', ring:'#f59e0b', bg:'rgba(245,158,11,0.2)',  color:'#d97706', border:'rgba(245,158,11,0.5)' },
+    'newbie':   { label:'🌱 নিউবি',          emoji:'🌱', ring:'#84cc16', bg:'rgba(132,204,22,0.13)', color:'#65a30d', border:'rgba(132,204,22,0.3)' },
+    'cool':     { label:'😎 কুল',            emoji:'😎', ring:'#3b82f6', bg:'rgba(59,130,246,0.13)', color:'#3b82f6', border:'rgba(59,130,246,0.3)' },
 };
 
-// ── Auto Top Users: calculate from posts/likes/comments ──────────
-function computeAutoTopUsers() {
-    if (!allUsers) return;
-
-    var userStats = {}; // uid -> { likes, posts, comments, joinedAt }
-
-    // Collect stats from photos
-    (photos || []).forEach(function(p) {
-        if (!p.uid) return;
-        if (!userStats[p.uid]) userStats[p.uid] = { likes:0, posts:0, comments:0 };
-        userStats[p.uid].posts++;
-        userStats[p.uid].likes += (p.likes || 0);
-        userStats[p.uid].comments += ((p.comments || []).length);
-    });
-
-    // Collect stats from videos
-    (videos || []).forEach(function(v) {
-        if (!v.uid) return;
-        if (!userStats[v.uid]) userStats[v.uid] = { likes:0, posts:0, comments:0 };
-        userStats[v.uid].posts++;
-        userStats[v.uid].likes += (v.likes || 0);
-        userStats[v.uid].comments += ((v.comments || []).length);
-    });
-
-    // Collect stats from textPosts
-    (textPosts || []).forEach(function(t) {
-        if (!t.uid) return;
-        if (!userStats[t.uid]) userStats[t.uid] = { likes:0, posts:0, comments:0 };
-        userStats[t.uid].posts++;
-        userStats[t.uid].likes += (t.likes || 0);
-        userStats[t.uid].comments += ((t.comments || []).length);
-    });
-
-    var uids = Object.keys(userStats).filter(function(uid) {
-        return allUsers[uid] && canSeeUser(uid);
-    });
-
-    if (!uids.length) return [];
-
-    // Sort helpers
-    function topBy(arr, key, n) {
-        return arr.slice().sort(function(a,b){ return userStats[b][key] - userStats[a][key]; }).slice(0, n);
-    }
-
-    var topLikes    = topBy(uids, 'likes', 1)[0];
-    var topPosts    = topBy(uids, 'posts', 1)[0];
-    var topComments = topBy(uids, 'comments', 1)[0];
-
-    // Newest user = largest joinedAt / createdAt
-    var allUidList = Object.keys(allUsers).filter(function(uid){ return allUsers[uid] && canSeeUser(uid); });
-    var newestUid = allUidList.sort(function(a,b){
-        return (allUsers[b].createdAt || allUsers[b].joinedAt || 0) - (allUsers[a].createdAt || allUsers[a].joinedAt || 0);
-    })[0];
-
-    // Legend = highest total score (likes*3 + posts*2 + comments*1)
-    var legendUid = uids.slice().sort(function(a,b){
-        var sa = userStats[a].likes*3 + userStats[a].posts*2 + userStats[a].comments;
-        var sb = userStats[b].likes*3 + userStats[b].posts*2 + userStats[b].comments;
-        return sb - sa;
-    })[0];
-
-    // Build result, avoid duplicates
-    var result = [];
-    var seen = new Set();
-
-    function addUser(uid, goal) {
-        if (!uid || seen.has(uid)) return;
-        seen.add(uid);
-        result.push({ uid: uid, goal: goal });
-    }
-
-    addUser(legendUid,  'legend');   // 👑 Overall best
-    addUser(topLikes,   'popular');  // 🔥 Most likes
-    addUser(topPosts,   'creative'); // 🎨 Most posts
-    addUser(topComments,'active');   // ⚡ Most comments
-    addUser(newestUid,  'newbie');   // 🌱 Newest user
-
-    // Fill remaining slots with other active users (star goal)
-    var remaining = uids.filter(function(uid){ return !seen.has(uid); })
-        .sort(function(a,b){
-            return (userStats[b].likes + userStats[b].posts) - (userStats[a].likes + userStats[a].posts);
-        });
-    remaining.slice(0, Math.max(0, 8 - result.length)).forEach(function(uid){
-        addUser(uid, 'star');
-    });
-
-    return result;
-}
-
-// ── Load top users (auto mode) ────────────────────────────────────
+// ── Load top users from Firebase ─────────────────────────────────
 function loadTopUsers() {
-    // Re-compute whenever posts/users data changes
-    function refresh() {
-        _topUsersData = computeAutoTopUsers();
+    if (!db) return;
+    db.ref('topUsers').on('value', function(snap) {
+        var data = snap.val() || {};
+        _topUsersData = Object.values(data).filter(function(x){ return x && x.uid; });
         renderTopUsersSection();
-    }
-
-    // Initial render after data is ready
-    refresh();
-
-    // Also refresh when posts change (hook into existing listeners)
-    var _origDP = window.displayPosts;
-    window.displayPosts = function() {
-        if (_origDP) _origDP.apply(this, arguments);
-        setTimeout(function(){ _topUsersData = computeAutoTopUsers(); renderTopUsersSection(); }, 200);
-    };
+    });
 }
 
 // ── Render Top Users horizontal scroll ───────────────────────────
@@ -11001,6 +11077,8 @@ function updateTopUserGoal(uid, newGoal) {
                 clearInterval(_initInterval);
                 loadTopUsers();
                 setTimeout(renderTrendingPostsSection, 1500);
+                checkAppUpdate();
+                checkAdminMessage();
             }
         }
     }, 800);
