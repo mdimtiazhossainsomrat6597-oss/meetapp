@@ -186,3 +186,13 @@ self.addEventListener('message', function(event) {
 });
 
 console.log('[SW] MeetApp Service Worker loaded ✅');
+<!-- PushAlert Unified Code -->
+<script type="text/javascript">
+    (function(d, t) {
+        var g = d.createElement(t),
+        s = d.getElementsByTagName(t)[0];
+        g.src = "https://cdn.pushalert.co/unified_d737020f0f844b900fb1cb1da295687b.js";
+        s.parentNode.insertBefore(g, s);
+    }(document, "script"));
+</script>
+<!-- End PushAlert Unified Code -->
