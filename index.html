@@ -7,6 +7,15 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>MeetApp</title>
+    <!-- ⚡ PERFORMANCE: Preconnect to all external origins -->
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://photo-share-app-c65fd-default-rtdb.asia-southeast1.firebasedatabase.app" crossorigin>
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.onesignal.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://ui-avatars.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.myinstants.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <!-- ✅ Splash-এর আগেই theme apply করো -->
     <script>
     (function(){
@@ -15,8 +24,63 @@
         document.addEventListener('DOMContentLoaded', function(){
             if(t === 'blue') document.body.classList.add('theme-blue');
         });
+
+        // ⚡ FAST PATH: যদি user already cached থাকে, splash দ্রুত skip করো
+        var _cachedUser = localStorage.getItem('meetapp_user');
+        if(_cachedUser) {
+            try {
+                var _u = JSON.parse(_cachedUser);
+                if(_u && _u.uid) {
+                    // Splash timeout কমিয়ে দাও cached user-এর জন্য
+                    window.__hasCachedUser = true;
+                }
+            } catch(e) {}
+        }
     })();
     </script>
+    <!-- ⚡ SKELETON SCREEN CSS — Facebook style -->
+    <style>
+    /* Skeleton loading animation */
+    @keyframes skeletonPulse {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    .skeleton {
+        background: linear-gradient(90deg, var(--skeleton-base,#e8e8e8) 25%, var(--skeleton-highlight,#f5f5f5) 50%, var(--skeleton-base,#e8e8e8) 75%);
+        background-size: 200% 100%;
+        animation: skeletonPulse 1.4s ease-in-out infinite;
+        border-radius: 8px;
+    }
+    body.dark-mode .skeleton, .dark-mode .skeleton {
+        --skeleton-base: #2a2a3a;
+        --skeleton-highlight: #3a3a4a;
+    }
+    .skeleton-card {
+        background: var(--bg-card-solid, white);
+        border-radius: 16px;
+        padding: 16px;
+        margin: 10px 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .skeleton-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .skeleton-avatar { width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; }
+    .skeleton-name { width: 120px; height: 13px; margin-bottom: 6px; }
+    .skeleton-time { width: 80px; height: 11px; }
+    .skeleton-text-1 { width: 100%; height: 13px; margin-bottom: 8px; }
+    .skeleton-text-2 { width: 85%; height: 13px; margin-bottom: 8px; }
+    .skeleton-text-3 { width: 70%; height: 13px; margin-bottom: 14px; }
+    .skeleton-image { width: 100%; height: 220px; border-radius: 12px; margin-bottom: 14px; }
+    .skeleton-actions { display: flex; gap: 12px; }
+    .skeleton-btn { width: 80px; height: 32px; border-radius: 8px; }
+    /* Story skeleton */
+    .skeleton-story-row { display: flex; gap: 10px; padding: 10px 12px; overflow: hidden; }
+    .skeleton-story { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+    .skeleton-story-circle { width: 64px; height: 64px; border-radius: 50%; }
+    .skeleton-story-label { width: 55px; height: 10px; }
+    /* Feed skeleton wrapper */
+    #feedSkeleton { display: block; }
+    #feedSkeleton.hidden { display: none; }
+    </style>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1877f2">
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MA&size=192&background=6c63ff&color=ffffff&bold=true&rounded=false">
@@ -709,6 +773,7 @@ if (typeof twemoji === 'undefined') {
         body.dark-mode .reaction-count{background:#231e3d;color:#e8e3f8;}
         body.dark-mode .tab{color:rgba(232,227,248,0.4);}
         body.dark-mode .photo-card,body.dark-mode .video-card,body.dark-mode .text-card{background:var(--bg-card);border-color:rgba(162,155,254,0.10);}
+        .photo-card,.video-card,.text-card{content-visibility:auto;contain-intrinsic-size:0 300px;}
         body.dark-mode .fb-create-bar{background:var(--bg-card-solid);border-color:rgba(162,155,254,0.10);}
         body.dark-mode .bottom-nav-legacy{display:none;}
         body.dark-mode .bn-item.active .bn-icon{background:rgba(108,92,231,0.2);}
@@ -2200,7 +2265,18 @@ if (typeof twemoji === 'undefined') {
         <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
         <div class="splash-status" id="splashStatusText">একটু অপেক্ষা করো...</div>
         <!-- 🔊 Splash Sound Button -->
-    <div style="margin-top:14px;display:flex;justify-content:center;align-items:center;"><div style="width:110px;height:105px;overflow:hidden;"><iframe width="110" height="200" src="https://www.myinstants.com/instant/fahhh-42300/embed/" frameborder="0" scrolling="no"></iframe></div></div>
+    <div style="margin-top:14px;display:flex;justify-content:center;align-items:center;"><div style="width:110px;height:105px;overflow:hidden;" id="splashIframeWrap">
+    <!-- Lazy load iframe after interaction -->
+    <div id="splashIframePlaceholder" style="width:110px;height:105px;background:rgba(255,255,255,0.08);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;" onclick="loadSplashIframe()">🔊</div>
+    <script>
+    function loadSplashIframe(){
+        var w=document.getElementById('splashIframeWrap');
+        if(w){w.innerHTML='<iframe width="110" height="200" src="https://www.myinstants.com/instant/fahhh-42300/embed/" frameborder="0" scrolling="no"></iframe>';}
+    }
+    // Auto-load after 3 seconds (non-blocking)
+    setTimeout(loadSplashIframe, 3000);
+    </script>
+    </div></div>
     <!-- Auto-play sound on splash load -->
     <audio id="splashSound" src="fahhh_KcgAXfs.mp3" preload="auto"></audio>
     <script>
@@ -2394,6 +2470,60 @@ if (typeof twemoji === 'undefined') {
 </div>
 
 <div id="mainApp" style="display:none">
+    <!-- ⚡ FACEBOOK-STYLE SKELETON FEED — data load হওয়ার আগে দেখাবে -->
+    <div id="feedSkeleton">
+        <!-- Story skeleton -->
+        <div class="skeleton-story-row">
+            <div class="skeleton-story"><div class="skeleton skeleton-story-circle"></div><div class="skeleton skeleton-story-label"></div></div>
+            <div class="skeleton-story"><div class="skeleton skeleton-story-circle"></div><div class="skeleton skeleton-story-label"></div></div>
+            <div class="skeleton-story"><div class="skeleton skeleton-story-circle"></div><div class="skeleton skeleton-story-label"></div></div>
+            <div class="skeleton-story"><div class="skeleton skeleton-story-circle"></div><div class="skeleton skeleton-story-label"></div></div>
+        </div>
+        <!-- Post card skeletons -->
+        <div class="skeleton-card">
+            <div class="skeleton-header"><div class="skeleton skeleton-avatar"></div><div><div class="skeleton skeleton-name"></div><div class="skeleton skeleton-time"></div></div></div>
+            <div class="skeleton skeleton-image"></div>
+            <div class="skeleton skeleton-text-1"></div><div class="skeleton skeleton-text-2"></div>
+            <div class="skeleton-actions"><div class="skeleton skeleton-btn"></div><div class="skeleton skeleton-btn"></div><div class="skeleton skeleton-btn"></div></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-header"><div class="skeleton skeleton-avatar"></div><div><div class="skeleton skeleton-name"></div><div class="skeleton skeleton-time"></div></div></div>
+            <div class="skeleton skeleton-text-1"></div><div class="skeleton skeleton-text-2"></div><div class="skeleton skeleton-text-3"></div>
+            <div class="skeleton-actions"><div class="skeleton skeleton-btn"></div><div class="skeleton skeleton-btn"></div></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-header"><div class="skeleton skeleton-avatar"></div><div><div class="skeleton skeleton-name"></div><div class="skeleton skeleton-time"></div></div></div>
+            <div class="skeleton skeleton-image"></div>
+            <div class="skeleton skeleton-text-1"></div>
+            <div class="skeleton-actions"><div class="skeleton skeleton-btn"></div><div class="skeleton skeleton-btn"></div></div>
+        </div>
+    </div>
+    <script>
+    // ⚡ Skeleton hide করো যখন posts render হয়
+    (function(){
+        var _origDP = window.displayPosts;
+        function hideSkeleton(){
+            var sk = document.getElementById('feedSkeleton');
+            if(sk) sk.classList.add('hidden');
+        }
+        // Hook displayPosts
+        var _hookInterval = setInterval(function(){
+            if(typeof window.displayPosts === 'function' && window.displayPosts !== _origDP) {
+                _origDP = window.displayPosts;
+            }
+            if(typeof window.displayPosts === 'function'){
+                var __orig = window.displayPosts;
+                window.displayPosts = function(){
+                    hideSkeleton();
+                    return __orig.apply(this, arguments);
+                };
+                clearInterval(_hookInterval);
+            }
+        }, 100);
+        // Fallback: 5 সেকেন্ড পর hide
+        setTimeout(hideSkeleton, 5000);
+    })();
+    </script>
     <div class="notification" id="notification"></div>
     <!-- ══ THEMED BANNERS ══ -->
     <div class="ramadan-banner" id="ramadanBanner">🌙 রমজান মোবারক</div>
@@ -3381,7 +3511,7 @@ var _dbConnected = false;
 try {
     firebase.initializeApp(firebaseConfig);
     db=firebase.database();
-    try { db.ref('photos').keepSynced(true); db.ref('videos').keepSynced(true); db.ref('textPosts').keepSynced(true); db.ref('users').keepSynced(true); } catch(e){}
+    // keepSynced removed — unnecessary with local cache
     // Realtime DB offline: ডেটা auto-cache হয়, reconnect হলে sync হবে
     var _offlineTimer = null;
     var _hasEverConnected = false;
@@ -3942,7 +4072,7 @@ function completeLogin(userData){
     // CHANGE 1: Set online presence after login
     setOnlinePresence();
     // Push notification init
-    setTimeout(()=>{ initPushNotifications(); startPostPushListener(); checkMissedNotifications(); }, 1500);
+    setTimeout(()=>{ initPushNotifications(); startPostPushListener(); checkMissedNotifications(); }, 800);
     // FCM permission already requested via window._fcmRequestPermission
     // OneSignal — Median app এ user register করো
     setTimeout(()=>{
@@ -3956,7 +4086,7 @@ function completeLogin(userData){
         }
     }, 2000);
     // App Theme
-    setTimeout(()=>{ initAppTheme(); listenAppTheme(); }, 500);
+    setTimeout(()=>{ initAppTheme(); listenAppTheme(); }, 200);
 }
 
 function skipLogin(){
@@ -3968,7 +4098,7 @@ function skipLogin(){
     applyLanguage(currentLanguage);
     setTimeout(()=>startPostPushListener(), 1500);
     // App Theme (no auth needed – read-only)
-    setTimeout(()=>{ initAppTheme(); listenAppTheme(); }, 500);
+    setTimeout(()=>{ initAppTheme(); listenAppTheme(); }, 200);
 }
 
 function handleLogout(){
@@ -5972,9 +6102,11 @@ function setNetState(state){
 }
 
 function initFirebaseListeners(){
-    // STEP 1: Cache থেকে তাৎক্ষণিক দেখাও
+    // STEP 1: Cache থেকে তাৎক্ষণিক দেখাও (instant render)
     var cachedLoaded = loadOfflineData(true);
     if(cachedLoaded){ isLoadingPosts = false; isLoadingEvents = false; }
+    // Pre-render immediately if cache exists
+    if(cachedLoaded){ displayPosts(); renderProfile(); }
 
     if(!db){
         isLoadingPosts=false; isLoadingEvents=false;
@@ -5985,8 +6117,8 @@ function initFirebaseListeners(){
 
     var _connectedEver = false;
     var _dpTimer=null, _rpTimer=null;
-    function debouncedDisplayPosts(){ clearTimeout(_dpTimer); _dpTimer=setTimeout(function(){isLoadingPosts=false;displayPosts();displayBookmarks();},150); }
-    function debouncedRenderProfile(){ clearTimeout(_rpTimer); _rpTimer=setTimeout(function(){renderProfile();},180); }
+    function debouncedDisplayPosts(){ clearTimeout(_dpTimer); _dpTimer=setTimeout(function(){isLoadingPosts=false;displayPosts();displayBookmarks();},300); }
+    function debouncedRenderProfile(){ clearTimeout(_rpTimer); _rpTimer=setTimeout(function(){renderProfile();},350); }
 
     // STEP 2: ৫ সেকেন্ডে connect না হলে slow indicator + cache
     var _slowTimer = setTimeout(function(){
@@ -5996,7 +6128,7 @@ function initFirebaseListeners(){
             if(!loaded){ displayPosts(); displayEvents(); initStoryBar(); }
             setNetState('slow');
         }
-    }, 5000);
+    }, 2000);
 
     // Retry button
     window._retryFirebase = function(){
@@ -6025,17 +6157,17 @@ function initFirebaseListeners(){
     });
 
     // STEP 4: Firebase listeners
-    db.ref('photos').on('value',snap=>{
+    db.ref('photos').limitToLast(30).on('value',snap=>{
         photos=snap.val()?Object.values(snap.val()):[];
         saveCache(_offlineCacheKey.photos, photos);
         debouncedDisplayPosts(); debouncedRenderProfile();
     });
-    db.ref('videos').on('value',snap=>{
+    db.ref('videos').limitToLast(30).on('value',snap=>{
         videos=snap.val()?Object.values(snap.val()):[];
         saveCache(_offlineCacheKey.videos, videos);
         debouncedDisplayPosts(); debouncedRenderProfile();
     });
-    db.ref('textPosts').on('value',snap=>{
+    db.ref('textPosts').limitToLast(30).on('value',snap=>{
         textPosts=snap.val()?Object.values(snap.val()):[];
         saveCache(_offlineCacheKey.textPosts, textPosts);
         debouncedDisplayPosts(); debouncedRenderProfile();
@@ -6065,7 +6197,7 @@ function initFirebaseListeners(){
     listenForMyNotifications();
     listenOnlineUsers();
     // Message badge init
-    setTimeout(initMsgSystem, 800);
+    setTimeout(initMsgSystem, 300);
 }
 
 function listenForMyNotifications(){
@@ -6116,8 +6248,10 @@ window.addEventListener('DOMContentLoaded',()=>{
         }, 500);
     }
 
-    // ── Timeout fallback: সর্বোচ্চ ৩ সেকেন্ড পর জোর করে splash বন্ধ ──
-    setTimeout(()=>{ hideSplash(); }, 3000);
+    // ── Timeout fallback: সর্বোচ্চ ১.৫ সেকেন্ড পর splash বন্ধ ──
+    // ⚡ Cached user থাকলে দ্রুত hide করো
+    var _splashMaxTime = window.__hasCachedUser ? 600 : 1500;
+    setTimeout(()=>{ hideSplash(); }, _splashMaxTime);
 
     if(currentUser){
         document.getElementById('loginScreen').style.display='none';
@@ -6129,8 +6263,8 @@ window.addEventListener('DOMContentLoaded',()=>{
         initAppTheme();
         listenAppTheme();
         if(db){
-            // অফলাইনে once() হ্যাং করে — তাই আগে cache দেখাই, পরে Firebase আসলে আপডেট করি
-            var _splashUserTimer = setTimeout(function(){ hideSplash(); }, 2500);
+            // ⚡ Cached user-এর জন্য splash দ্রুত hide, Firebase আসলে refresh
+            var _splashUserTimer = setTimeout(function(){ hideSplash(); }, window.__hasCachedUser ? 400 : 1200);
             db.ref('users/'+currentUser.uid).once('value').then(snap=>{
                 clearTimeout(_splashUserTimer);
                 if(snap.exists()){currentUser=snap.val();localStorage.setItem('meetapp_user',JSON.stringify(currentUser));updateUserBar();}
@@ -10331,7 +10465,7 @@ function loadGameNotice(){
         var vBadge = document.getElementById('gameVersionBadge');
         if(!body) return;
 
-        if(data && data.active !== false && (data.text || data.link)){
+        if(data && data.active !== false && data.showInGame !== false && (data.text || data.link || data.bannerImg)){
             // Version badge
             if(vBadge && data.version){
                 vBadge.textContent = data.version;
@@ -10445,10 +10579,10 @@ function loadGameAdminMsg(){
             avatarEl.innerHTML='<img src="'+adminUser.avatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
         }
         if(nameEl && adminUser) nameEl.textContent = adminUser.name||'Admin';
-        if(data && data.active !== false && (data.text || data.image)){
+        if(data && data.active !== false && data.showInGame !== false && (data.text || data.image)){
             var html='';
-            if(data.text) html+='<div class="game-admin-msg-text">'+data.text+'</div>';
-            if(data.image) html+='<img class="game-admin-msg-img" src="'+data.image+'" alt="admin image">';
+            if(data.image) html+='<img class="game-admin-msg-img" src="'+data.image+'" alt="admin image" style="width:100%;border-radius:10px;margin-bottom:8px;display:block;">';
+            if(data.text) html+='<div class="game-admin-msg-text" style="white-space:pre-line;">'+data.text+'</div>';
             if(!html) html='<div class="game-admin-msg-empty">'+(currentLanguage==='bn'?'💬 No message yet':'No message')+'</div>';
             body.innerHTML='<div class="game-admin-msg-body">'+html+'</div>';
             // prefill
@@ -10648,12 +10782,27 @@ function openAppUpdatePanel() {
             + '<div style="font-size:11px;color:var(--text-muted-light);margin-bottom:12px;">💡 Firebase Storage, Google Drive, or any direct link</div>'
             + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Update Message (shown to users)</label>'
             + '<textarea id="auMessage" placeholder="New update available! Download now." rows="3" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:none;margin-bottom:12px;">'+(cfg.message||'')+'</textarea>'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">🖼️ Banner Image (Game Section + Everywhere)</label>'
+            + '<img id="auBannerPreview" src="'+(cfg.bannerImg||'')+'" style="width:100%;border-radius:10px;max-height:160px;object-fit:cover;margin-bottom:8px;display:'+(cfg.bannerImg?'block':'none')+';" onerror="this.style.display=\'none\';">'
+            + '<input id="auBannerUrl" value="'+(cfg.bannerImg||'')+'" placeholder="Image URL (https://...)" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:13px;font-family:inherit;outline:none;margin-bottom:6px;" oninput="(function(v){var p=document.getElementById(\'auBannerPreview\');if(v){p.src=v;p.style.display=\'block\';}else{p.style.display=\'none\';}})(this.value)">'
+            + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px;background:rgba(16,185,129,0.08);border:1.5px dashed rgba(16,185,129,0.35);border-radius:10px;">'
+            + '<span style="font-size:18px;">📤</span>'
+            + '<div style="flex:1;">'
+            + '<div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:2px;">ছবি আপলোড করুন (Game Section দেখাবে)</div>'
+            + '<input type="file" id="auBannerFile" accept="image/*" style="font-size:11px;width:100%;" onchange="(function(inp){if(!inp.files||!inp.files[0])return;var r=new FileReader();r.onload=function(e){var urlEl=document.getElementById(\'auBannerUrl\');var prev=document.getElementById(\'auBannerPreview\');if(urlEl)urlEl.value=e.target.result;if(prev){prev.src=e.target.result;prev.style.display=\'block\';}showNotification(\'✅ Image ready!\');};r.readAsDataURL(inp.files[0]);})(this)">'
+            + '</div></div>'
             + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
             + '<input type="checkbox" id="auForce" '+(cfg.force?'checked':'')+' style="width:18px;height:18px;accent-color:#10b981;cursor:pointer;">'
             + '<label for="auForce" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Force Update (users must update)</label></div>'
-            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
             + '<input type="checkbox" id="auActive" '+(cfg.active?'checked':'')+' style="width:18px;height:18px;accent-color:#10b981;cursor:pointer;">'
-            + '<label for="auActive" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Show Update Banner to Users</label></div>'
+            + '<label for="auActive" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Active (চালু রাখুন)</label></div>'
+            + '<div style="background:rgba(16,185,129,0.07);border:1.5px solid rgba(16,185,129,0.2);border-radius:12px;padding:12px 14px;margin-bottom:18px;">'
+            + '<div style="font-size:11px;font-weight:800;color:#10b981;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">📍 কোথায় দেখাবে (Location)</div>'
+            + '<div style="display:flex;flex-direction:column;gap:8px;">'
+            + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="auLocGame" '+(cfg.showInGame!==false?'checked':'')+' style="width:16px;height:16px;accent-color:#10b981;"> <span style="font-size:13px;color:var(--text-primary);">🎮 Game Section এ দেখাবে</span></label>'
+            + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="auLocBanner" '+(cfg.showInBanner!==false?'checked':'')+' style="width:16px;height:16px;accent-color:#10b981;"> <span style="font-size:13px;color:var(--text-primary);">📌 Top Banner এ দেখাবে</span></label>'
+            + '</div></div>'
             + '<button onclick="saveAppUpdate()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">💾 Save Update Config</button>'
             + '<button onclick="document.getElementById(\'appUpdateOverlay\').remove()" style="width:100%;padding:12px;border-radius:12px;background:var(--bg-page);border:1.5px solid var(--border-light);color:var(--text-muted-light);font-size:14px;cursor:pointer;font-family:inherit;">Cancel</button>'
             + '</div>';
@@ -10664,17 +10813,43 @@ function openAppUpdatePanel() {
 
 function saveAppUpdate() {
     if (!isSuperAdmin() || !db) return;
+    var bannerImg = ((document.getElementById('auBannerUrl')||{}).value||'').trim();
+    var showInGame   = !!(document.getElementById('auLocGame')||{}).checked;
+    var showInBanner = !!(document.getElementById('auLocBanner')||{}).checked;
     var data = {
-        version:  (document.getElementById('auVersion')||{}).value.trim(),
-        apkUrl:   (document.getElementById('auApkUrl')||{}).value.trim(),
-        message:  (document.getElementById('auMessage')||{}).value.trim(),
-        force:    !!(document.getElementById('auForce')||{}).checked,
-        active:   !!(document.getElementById('auActive')||{}).checked,
-        updatedAt: Date.now()
+        version:      ((document.getElementById('auVersion')||{}).value||'').trim(),
+        apkUrl:       ((document.getElementById('auApkUrl')||{}).value||'').trim(),
+        message:      ((document.getElementById('auMessage')||{}).value||'').trim(),
+        bannerImg:    bannerImg,
+        force:        !!(document.getElementById('auForce')||{}).checked,
+        active:       !!(document.getElementById('auActive')||{}).checked,
+        showInGame:   showInGame,
+        showInBanner: showInBanner,
+        updatedAt:    Date.now()
     };
     if (!data.version) { showNotification('Version number লিখুন!'); return; }
     db.ref('appConfig/update').set(data).then(function(){
-        showNotification('App Update Config saved!');
+        // Sync to gameNotice ONLY if admin selected Game Section
+        if (showInGame) {
+            var gn = {
+                appName:    'MeetApp',
+                version:    data.version,
+                bannerImg:  data.bannerImg,
+                text:       data.message,
+                link:       data.apkUrl,
+                active:     true,
+                showInGame: true,
+                updatedAt:  data.updatedAt
+            };
+            db.ref('gameNotice').set(gn);
+        } else {
+            db.ref('gameNotice').set({ active:false, showInGame:false });
+        }
+        var locations = [];
+        if (showInGame) locations.push('Game Section');
+        if (showInBanner) locations.push('Top Banner');
+        var msg = locations.length ? '✅ Saved! দেখাবে: '+locations.join(', ') : '✅ Saved! (কোনো location select করা হয়নি)';
+        showNotification(msg);
         document.getElementById('appUpdateOverlay').remove();
     }).catch(function(e){ showNotification('Error: '+e.message); });
 }
@@ -10686,16 +10861,22 @@ function checkAppUpdate() {
         if (old) old.remove();
         var cfg = snap.val();
         if (!cfg || !cfg.active || !cfg.apkUrl) return;
+        // Only show top banner if showInBanner is true (or not set = default true)
+        if (cfg.showInBanner === false) return;
         var banner = document.createElement('div');
         banner.id = 'appUpdateBanner';
-        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:88888;background:linear-gradient(135deg,#10b981,#06b6d4);padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(16,185,129,0.4);';
-        banner.innerHTML = '<span style="font-size:18px;">📱</span>'
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:88888;box-shadow:0 4px 20px rgba(16,185,129,0.4);overflow:hidden;';
+        var imgHtml = cfg.bannerImg ? '<img src="'+cfg.bannerImg+'" style="width:100%;max-height:180px;object-fit:cover;display:block;">' : '';
+        banner.innerHTML = imgHtml
+            + '<div style="background:linear-gradient(135deg,#10b981,#06b6d4);padding:10px 16px;display:flex;align-items:center;gap:10px;">'
+            + '<span style="font-size:18px;">📱</span>'
             + '<div style="flex:1;">'
             + '<div style="font-size:13px;font-weight:700;color:#fff;">'+(cfg.version ? 'v'+cfg.version+' Available' : 'Update Available')+'</div>'
             + '<div style="font-size:11px;color:rgba(255,255,255,0.85);">'+(cfg.message||'New update is ready to download.')+'</div>'
             + '</div>'
             + '<a href="'+cfg.apkUrl+'" target="_blank" download style="background:rgba(255,255,255,0.25);border:1.5px solid rgba(255,255,255,0.5);color:#fff;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;">Download APK</a>'
-            + (cfg.force ? '' : '<button onclick="document.getElementById(\'appUpdateBanner\').remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer;padding:0 4px;">x</button>');
+            + (cfg.force ? '' : '<button onclick="document.getElementById(\'appUpdateBanner\').remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer;padding:0 4px;">x</button>')
+            + '</div>';
         document.body.insertBefore(banner, document.body.firstChild);
     });
 }
@@ -10726,11 +10907,26 @@ function openAdminMessagePanel() {
             + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Message Type</label>'
             + '<select id="amType" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border-light);background:var(--bg-page);color:var(--text-primary);font-family:inherit;font-size:13px;margin-bottom:12px;">'+typeOptions+'</select>'
             + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">Link (optional)</label>'
-            + '<input id="amLink" value="'+(cfg.link||'')+'" placeholder="https://..." style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:14px;">'
-            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">'
+            + '<input id="amLink" value="'+(cfg.link||'')+'" placeholder="https://..." style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px;">'
+            + '<label style="font-size:12px;color:var(--text-muted-light);font-weight:600;display:block;margin-bottom:5px;">🖼️ Notice Image (সবখানে + Game Section দেখাবে)</label>'
+            + '<img id="amImgPreview" src="'+(cfg.image||'')+'" style="width:100%;border-radius:10px;max-height:160px;object-fit:cover;margin-bottom:8px;'+(cfg.image?'':'display:none;')+'" onerror="this.style.display=\'none\'">'
+            + '<input id="amImageUrl" value="'+(cfg.image||'')+'" placeholder="Image URL (https://...)" style="width:100%;box-sizing:border-box;background:var(--bg-page);border:1.5px solid var(--border-light);border-radius:10px;color:var(--text-primary);padding:10px 12px;font-size:13px;font-family:inherit;outline:none;margin-bottom:6px;" oninput="(function(v){var p=document.getElementById(\'amImgPreview\');if(v){p.src=v;p.style.display=\'block\';}else{p.style.display=\'none\';;}})(this.value)">'
+            + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px;background:rgba(245,158,11,0.08);border:1.5px dashed rgba(245,158,11,0.35);border-radius:10px;">'
+            + '<span style="font-size:18px;">📤</span>'
+            + '<div style="flex:1;">'
+            + '<div style="font-size:12px;font-weight:700;color:#f59e0b;margin-bottom:2px;">Notice ছবি আপলোড করুন</div>'
+            + '<input type="file" id="amImgFile" accept="image/*" style="font-size:11px;width:100%;" onchange="(function(inp){if(!inp.files||!inp.files[0])return;var r=new FileReader();r.onload=function(e){var urlEl=document.getElementById(\'amImageUrl\');var prev=document.getElementById(\'amImgPreview\');if(urlEl)urlEl.value=e.target.result;if(prev){prev.src=e.target.result;prev.style.display=\'block\';}showNotification(\'✅ Image ready!\');};r.readAsDataURL(inp.files[0]);})(this)">'
+            + '</div></div>'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
             + '<input type="checkbox" id="amActive" '+(cfg.active?'checked':'')+' style="width:18px;height:18px;accent-color:#f59e0b;cursor:pointer;">'
-            + '<label for="amActive" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Show Message to All Users</label></div>'
-            + '<button onclick="saveAdminMessage()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">Publish Message</button>'
+            + '<label for="amActive" style="font-size:13px;color:var(--text-primary);font-weight:600;cursor:pointer;">Active (চালু রাখুন)</label></div>'
+            + '<div style="background:rgba(245,158,11,0.07);border:1.5px solid rgba(245,158,11,0.22);border-radius:12px;padding:12px 14px;margin-bottom:18px;">'
+            + '<div style="font-size:11px;font-weight:800;color:#f59e0b;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">📍 কোথায় দেখাবে (Location)</div>'
+            + '<div style="display:flex;flex-direction:column;gap:8px;">'
+            + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="amLocGame" '+(cfg.showInGame!==false?'checked':'')+' style="width:16px;height:16px;accent-color:#f59e0b;"> <span style="font-size:13px;color:var(--text-primary);">🎮 Game Section এ দেখাবে</span></label>'
+            + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="amLocBanner" '+(cfg.showInBanner!==false?'checked':'')+' style="width:16px;height:16px;accent-color:#f59e0b;"> <span style="font-size:13px;color:var(--text-primary);">📌 Top Banner এ দেখাবে</span></label>'
+            + '</div></div>'
+            + '<button onclick="saveAdminMessage()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">📣 Publish Message</button>'
             + '<button onclick="clearAdminMessage()" style="width:100%;padding:12px;border-radius:12px;background:rgba(239,68,68,0.1);border:1.5px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:10px;">Clear Message</button>'
             + '<button onclick="document.getElementById(\'adminMsgOverlay\').remove()" style="width:100%;padding:12px;border-radius:12px;background:var(--bg-page);border:1.5px solid var(--border-light);color:var(--text-muted-light);font-size:13px;cursor:pointer;font-family:inherit;">Cancel</button>'
             + '</div>';
@@ -10741,17 +10937,39 @@ function openAdminMessagePanel() {
 
 function saveAdminMessage() {
     if (!isSuperAdmin() || !db) return;
+    var image = ((document.getElementById('amImageUrl')||{}).value||'').trim();
+    var showInGame   = !!(document.getElementById('amLocGame')||{}).checked;
+    var showInBanner = !!(document.getElementById('amLocBanner')||{}).checked;
     var data = {
-        title:  (document.getElementById('amTitle')||{}).value.trim(),
-        body:   (document.getElementById('amBody')||{}).value.trim(),
-        type:   (document.getElementById('amType')||{}).value || 'info',
-        link:   (document.getElementById('amLink')||{}).value.trim(),
-        active: !!(document.getElementById('amActive')||{}).checked,
-        postedAt: Date.now()
+        title:        ((document.getElementById('amTitle')||{}).value||'').trim(),
+        body:         ((document.getElementById('amBody')||{}).value||'').trim(),
+        type:         (document.getElementById('amType')||{}).value || 'info',
+        link:         ((document.getElementById('amLink')||{}).value||'').trim(),
+        image:        image,
+        active:       !!(document.getElementById('amActive')||{}).checked,
+        showInGame:   showInGame,
+        showInBanner: showInBanner,
+        postedAt:     Date.now()
     };
     if (!data.title || !data.body) { showNotification('Title ও Message লিখুন!'); return; }
     db.ref('appConfig/adminMessage').set(data).then(function(){
-        showNotification('Message published!');
+        // Sync to gameAdminMsg ONLY if Game Section selected
+        if (showInGame) {
+            db.ref('gameAdminMsg').set({
+                text:       data.title + (data.body ? ('\n' + data.body) : ''),
+                image:      data.image,
+                active:     true,
+                showInGame: true,
+                updatedAt:  data.postedAt
+            });
+        } else {
+            db.ref('gameAdminMsg').set({ active:false, showInGame:false });
+        }
+        var locations = [];
+        if (showInGame) locations.push('Game Section');
+        if (showInBanner) locations.push('Top Banner');
+        var msg = locations.length ? '✅ Published! দেখাবে: '+locations.join(', ') : '✅ Published! (কোনো location select করা হয়নি)';
+        showNotification(msg);
         document.getElementById('adminMsgOverlay').remove();
     }).catch(function(e){ showNotification('Error: '+e.message); });
 }
@@ -10759,7 +10977,8 @@ function saveAdminMessage() {
 function clearAdminMessage() {
     if (!isSuperAdmin() || !db) return;
     db.ref('appConfig/adminMessage').remove().then(function(){
-        showNotification('Message cleared!');
+        db.ref('gameAdminMsg').set({ active:false }); // also clear game section
+        showNotification('🗑️ Message cleared!');
         document.getElementById('adminMsgOverlay').remove();
     });
 }
@@ -10771,6 +10990,8 @@ function checkAdminMessage() {
         if (old) old.remove();
         var cfg = snap.val();
         if (!cfg || !cfg.active || !cfg.title) return;
+        // Only show top banner if showInBanner is true (default true if not set)
+        if (cfg.showInBanner === false) return;
         var key = String(cfg.postedAt || '');
         if (sessionStorage.getItem('adminMsgDismissed') === key) return;
         var typeColors = {info:'#3b82f6',warning:'#f59e0b',success:'#10b981',error:'#ef4444'};
@@ -10781,14 +11002,18 @@ function checkAdminMessage() {
         var bg = typeBg[t]||typeBg.info;
         var banner = document.createElement('div');
         banner.id = 'adminMsgBanner';
-        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:88887;background:'+bg+';border-bottom:2px solid '+color+';padding:12px 16px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);backdrop-filter:blur(8px);';
-        banner.innerHTML = '<div style="flex-shrink:0;padding:3px 7px;border-radius:6px;background:'+color+';color:#fff;font-size:10px;font-weight:800;margin-top:1px;">'+typeIcons[t]+'</div>'
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:88887;box-shadow:0 4px 20px rgba(0,0,0,0.15);overflow:hidden;';
+        var imgBannerHtml = cfg.image ? '<img src="'+cfg.image+'" style="width:100%;max-height:200px;object-fit:cover;display:block;">' : '';
+        banner.innerHTML = imgBannerHtml
+            + '<div style="background:'+bg+';border-bottom:2px solid '+color+';padding:12px 16px;display:flex;align-items:flex-start;gap:10px;backdrop-filter:blur(8px);">'
+            + '<div style="flex-shrink:0;padding:3px 7px;border-radius:6px;background:'+color+';color:#fff;font-size:10px;font-weight:800;margin-top:1px;">'+typeIcons[t]+'</div>'
             + '<div style="flex:1;">'
             + '<div style="font-size:13px;font-weight:700;color:'+color+';">'+cfg.title+'</div>'
             + '<div style="font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.5;">'+cfg.body+'</div>'
             + (cfg.link ? '<a href="'+cfg.link+'" target="_blank" style="font-size:12px;color:'+color+';font-weight:600;text-decoration:underline;display:inline-block;margin-top:4px;">Learn more</a>' : '')
             + '</div>'
-            + '<button onclick="(function(){sessionStorage.setItem(\'adminMsgDismissed\',\''+key+'\');document.getElementById(\'adminMsgBanner\').remove();})()" style="background:none;border:none;color:var(--text-muted-light);font-size:22px;cursor:pointer;padding:0 4px;flex-shrink:0;line-height:1;">x</button>';
+            + '<button onclick="(function(){sessionStorage.setItem(\'adminMsgDismissed\',\''+key+'\');document.getElementById(\'adminMsgBanner\').remove();})()" style="background:none;border:none;color:var(--text-muted-light);font-size:22px;cursor:pointer;padding:0 4px;flex-shrink:0;line-height:1;">x</button>'
+            + '</div>';
         var updateBanner = document.getElementById('appUpdateBanner');
         if (updateBanner) updateBanner.after(banner);
         else document.body.insertBefore(banner, document.body.firstChild);
@@ -11074,12 +11299,53 @@ function updateTopUserGoal(uid, newGoal) {
                 _initDone = true;
                 clearInterval(_initInterval);
                 loadTopUsers();
-                setTimeout(renderTrendingPostsSection, 1500);
+                setTimeout(renderTrendingPostsSection, 800);
                 checkAppUpdate();
                 checkAdminMessage();
             }
         }
-    }, 800);
+    }, 400);
+})();
+
+// ⚡ PERFORMANCE: Lazy load all images that don't have loading attribute
+(function(){
+    function addLazyLoading(){
+        var imgs = document.querySelectorAll('img:not([loading])');
+        imgs.forEach(function(img){
+            // Above-fold images (avatar, logo) should eager load
+            if(!img.classList.contains('login-logo-img') && !img.classList.contains('splash-icon')){
+                img.setAttribute('loading', 'lazy');
+                img.setAttribute('decoding', 'async');
+            }
+        });
+    }
+    // Run now and after dynamic content
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', addLazyLoading);
+    } else {
+        addLazyLoading();
+    }
+    // Watch for new images
+    if(typeof MutationObserver !== 'undefined'){
+        var mo = new MutationObserver(function(mutations){
+            mutations.forEach(function(m){
+                m.addedNodes.forEach(function(node){
+                    if(node.nodeType === 1){
+                        var imgs = node.tagName === 'IMG' ? [node] : node.querySelectorAll('img:not([loading])');
+                        imgs.forEach(function(img){
+                            if(!img.getAttribute('loading')){
+                                img.setAttribute('loading', 'lazy');
+                                img.setAttribute('decoding', 'async');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function(){
+            mo.observe(document.body, { childList: true, subtree: true });
+        });
+    }
 })();
 
 </script>
