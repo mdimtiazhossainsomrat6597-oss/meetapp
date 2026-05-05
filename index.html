@@ -16,6 +16,9 @@
     <link rel="preconnect" href="https://ui-avatars.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.myinstants.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
     <!-- ✅ Splash-এর আগেই theme apply করো -->
     <script>
     (function(){
@@ -87,6 +90,83 @@
     
     <!-- ✅ OneSignal Push Notification SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+    <!-- ⚡ WEBVIEW PERFORMANCE OPTIMIZER -->
+    <script>
+    (function(){
+        // Median/WebView detect
+        var isWebView = /wv|median|gonative/i.test(navigator.userAgent) || 
+                        (typeof median !== 'undefined') ||
+                        window.matchMedia('(display-mode: standalone)').matches;
+        if(isWebView) document.documentElement.classList.add('is-webview');
+        window.__isWebView = isWebView;
+    })();
+    </script>
+    <style>
+    /* ⚡ WEBVIEW PERFORMANCE — backdrop-filter সরিয়ে GPU বাঁচাও */
+    .is-webview .bottom-nav {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(255,255,255,0.97) !important;
+        box-shadow: 0 -1px 0 rgba(0,0,0,0.08) !important;
+    }
+    .is-webview body.dark-mode .bottom-nav {
+        background: rgba(20,16,40,0.98) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    .is-webview .header {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    .is-webview .modal-overlay {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(22,18,42,0.85) !important;
+    }
+    /* ⚡ GPU Acceleration — scroll smooth করো */
+    .is-webview #mainFeed,
+    .is-webview .tab-content,
+    .is-webview .profile-scroll,
+    .is-webview .notif-list {
+        -webkit-overflow-scrolling: touch;
+        will-change: transform;
+        transform: translateZ(0);
+    }
+    /* ⚡ Bottom nav GPU layer */
+    .is-webview .bottom-nav {
+        will-change: transform;
+        transform: translateZ(0);
+    }
+    /* ⚡ Animation কমাও WebView-এ */
+    .is-webview * {
+        -webkit-tap-highlight-color: transparent;
+    }
+    .is-webview .photo-card,
+    .is-webview .video-card,
+    .is-webview .text-card {
+        transform: translateZ(0);
+        will-change: auto;
+    }
+    /* ⚡ Heavy box-shadow কমাও */
+    .is-webview .bn-create-btn {
+        box-shadow: 0 6px 16px rgba(108,92,231,0.40) !important;
+    }
+    .is-webview .bn-item.active .bn-icon {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(108,92,231,0.15) !important;
+        box-shadow: 0 2px 8px rgba(108,92,231,0.25) !important;
+    }
+    /* ⚡ Splash faster */
+    .is-webview .splash-screen {
+        will-change: opacity;
+    }
+    /* ⚡ Story ring animation শুধু দরকার হলে */
+    .is-webview .story-ring {
+        animation: none !important;
+    }
+    </style>
     
     <!-- ✅ Notification System CSS -->
     <style>
@@ -1466,7 +1546,10 @@ if (typeof twemoji === 'undefined') {
         .event-item{padding:0 56px;font-size:18px;font-weight:600;display:inline-flex;align-items:center;gap:12px;color:rgba(240,236,251,0.92);}
         .event-item::before{content:'✦';color:var(--p3);font-size:13px;}
         @keyframes slide{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
-        .container{max-width:100%;background:transparent;position:relative;z-index:1;}
+        .container{max-width:100%;background:transparent;position:relative;z-index:1;-webkit-overflow-scrolling:touch;}
+        /* ⚡ WebView scroll optimization */
+        body{-webkit-overflow-scrolling:touch;overscroll-behavior:none;}
+        .photo-card,.video-card,.text-card{content-visibility:auto;contain-intrinsic-size:0 320px;contain:layout style;}
         .header{background:var(--grad-header);color:var(--text-on-dark);padding:22px 16px 26px;text-align:center;position:relative;overflow:hidden;}
         .header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 80% at 25% 50%,rgba(108,92,231,0.35) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 80% 25%,rgba(253,121,168,0.22) 0%,transparent 55%);pointer-events:none;}
         .header::after{display:none;}
