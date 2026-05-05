@@ -16,9 +16,6 @@
     <link rel="preconnect" href="https://ui-avatars.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.myinstants.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="format-detection" content="telephone=no">
     <!-- ✅ Splash-এর আগেই theme apply করো -->
     <script>
     (function(){
@@ -90,83 +87,6 @@
     
     <!-- ✅ OneSignal Push Notification SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-
-    <!-- ⚡ WEBVIEW PERFORMANCE OPTIMIZER -->
-    <script>
-    (function(){
-        // Median/WebView detect
-        var isWebView = /wv|median|gonative/i.test(navigator.userAgent) || 
-                        (typeof median !== 'undefined') ||
-                        window.matchMedia('(display-mode: standalone)').matches;
-        if(isWebView) document.documentElement.classList.add('is-webview');
-        window.__isWebView = isWebView;
-    })();
-    </script>
-    <style>
-    /* ⚡ WEBVIEW PERFORMANCE — backdrop-filter সরিয়ে GPU বাঁচাও */
-    .is-webview .bottom-nav {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        background: rgba(255,255,255,0.97) !important;
-        box-shadow: 0 -1px 0 rgba(0,0,0,0.08) !important;
-    }
-    .is-webview body.dark-mode .bottom-nav {
-        background: rgba(20,16,40,0.98) !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-    }
-    .is-webview .header {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-    }
-    .is-webview .modal-overlay {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        background: rgba(22,18,42,0.85) !important;
-    }
-    /* ⚡ GPU Acceleration — scroll smooth করো */
-    .is-webview #mainFeed,
-    .is-webview .tab-content,
-    .is-webview .profile-scroll,
-    .is-webview .notif-list {
-        -webkit-overflow-scrolling: touch;
-        will-change: transform;
-        transform: translateZ(0);
-    }
-    /* ⚡ Bottom nav GPU layer */
-    .is-webview .bottom-nav {
-        will-change: transform;
-        transform: translateZ(0);
-    }
-    /* ⚡ Animation কমাও WebView-এ */
-    .is-webview * {
-        -webkit-tap-highlight-color: transparent;
-    }
-    .is-webview .photo-card,
-    .is-webview .video-card,
-    .is-webview .text-card {
-        transform: translateZ(0);
-        will-change: auto;
-    }
-    /* ⚡ Heavy box-shadow কমাও */
-    .is-webview .bn-create-btn {
-        box-shadow: 0 6px 16px rgba(108,92,231,0.40) !important;
-    }
-    .is-webview .bn-item.active .bn-icon {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        background: rgba(108,92,231,0.15) !important;
-        box-shadow: 0 2px 8px rgba(108,92,231,0.25) !important;
-    }
-    /* ⚡ Splash faster */
-    .is-webview .splash-screen {
-        will-change: opacity;
-    }
-    /* ⚡ Story ring animation শুধু দরকার হলে */
-    .is-webview .story-ring {
-        animation: none !important;
-    }
-    </style>
     
     <!-- ✅ Notification System CSS -->
     <style>
@@ -1546,10 +1466,7 @@ if (typeof twemoji === 'undefined') {
         .event-item{padding:0 56px;font-size:18px;font-weight:600;display:inline-flex;align-items:center;gap:12px;color:rgba(240,236,251,0.92);}
         .event-item::before{content:'✦';color:var(--p3);font-size:13px;}
         @keyframes slide{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
-        .container{max-width:100%;background:transparent;position:relative;z-index:1;-webkit-overflow-scrolling:touch;}
-        /* ⚡ WebView scroll optimization */
-        body{-webkit-overflow-scrolling:touch;overscroll-behavior:none;}
-        .photo-card,.video-card,.text-card{content-visibility:auto;contain-intrinsic-size:0 320px;contain:layout style;}
+        .container{max-width:100%;background:transparent;position:relative;z-index:1;}
         .header{background:var(--grad-header);color:var(--text-on-dark);padding:22px 16px 26px;text-align:center;position:relative;overflow:hidden;}
         .header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 80% at 25% 50%,rgba(108,92,231,0.35) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 80% 25%,rgba(253,121,168,0.22) 0%,transparent 55%);pointer-events:none;}
         .header::after{display:none;}
@@ -3179,6 +3096,24 @@ if (typeof twemoji === 'undefined') {
                         <div style="display:flex;gap:10px;">
                             <button onclick="changeLanguage('bn')" style="flex:1;padding:12px;border-radius:14px;border:2px solid var(--p1);background:rgba(108,92,231,0.1);color:var(--p1);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">🇧🇩 বাংলা</button>
                             <button onclick="changeLanguage('en')" style="flex:1;padding:12px;border-radius:14px;border:2px solid var(--border-light);background:var(--bg-glass);color:var(--text-primary);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">🇬🇧 English</button>
+                        </div>
+                    </div>
+
+                    <!-- 🔔 Notification Subscription -->
+                    <div style="background:var(--bg-card-solid);border:1px solid var(--border-card);border-radius:18px;padding:16px;margin-bottom:16px;" id="notifSettingsCard">
+                        <div style="font-size:12px;font-weight:700;color:var(--text-muted-light);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;">🔔 নোটিফিকেশন</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-light);margin-bottom:12px;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:22px;">🔔</span>
+                                <div>
+                                    <div style="font-size:14px;font-weight:600;color:var(--text-primary);" id="notifSettingsTitle">Push Notification</div>
+                                    <div style="font-size:11px;color:var(--text-muted-light);margin-top:2px;" id="notifSettingsStatus">স্ট্যাটাস চেক হচ্ছে...</div>
+                                </div>
+                            </div>
+                            <button id="notifToggleBtn" onclick="togglePushSubscription()" style="background:var(--grad-btn);border:none;color:white;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;">চালু করুন</button>
+                        </div>
+                        <div style="font-size:12px;color:var(--text-muted-light);line-height:1.5;">
+                            🔔 নোটিফিকেশন চালু রাখুন — নতুন post, comment, like এলে সাথে সাথে জানতে পারবেন।
                         </div>
                     </div>
 
@@ -11352,7 +11287,102 @@ function updateTopUserGoal(uid, newGoal) {
     db.ref('topUsers/' + uid + '/goal').set(newGoal);
 }
 
-// ── Hook into existing display functions ──────────────────────────
+// ===== NOTIFICATION SUBSCRIPTION SETTINGS =====
+async function updateNotifSettingsUI() {
+    var btn = document.getElementById('notifToggleBtn');
+    var status = document.getElementById('notifSettingsStatus');
+    var title = document.getElementById('notifSettingsTitle');
+    if (!btn || !status) return;
+
+    try {
+        if (!window.OneSignal) {
+            status.textContent = 'OneSignal লোড হয়নি';
+            btn.textContent = 'Reload করুন';
+            btn.style.background = 'rgba(255,71,87,0.15)';
+            btn.style.color = '#ff4757';
+            btn.style.border = '1.5px solid rgba(255,71,87,0.3)';
+            return;
+        }
+        var isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+        if (isSubscribed) {
+            status.innerHTML = '✅ চালু আছে — notification আসবে';
+            status.style.color = '#10b981';
+            btn.textContent = 'বন্ধ করুন';
+            btn.style.background = 'rgba(255,71,87,0.12)';
+            btn.style.color = '#ff4757';
+            btn.style.border = '1.5px solid rgba(255,71,87,0.25)';
+        } else {
+            status.innerHTML = '❌ বন্ধ আছে — notification আসছে না';
+            status.style.color = '#ff4757';
+            btn.textContent = 'চালু করুন';
+            btn.style.background = 'linear-gradient(135deg,var(--p1),var(--p2))';
+            btn.style.color = 'white';
+            btn.style.border = 'none';
+        }
+    } catch(e) {
+        status.textContent = 'স্ট্যাটাস জানা যাচ্ছে না';
+    }
+}
+
+async function togglePushSubscription() {
+    var btn = document.getElementById('notifToggleBtn');
+    if (btn) { btn.textContent = '...'; btn.disabled = true; }
+    try {
+        if (!window.OneSignal) {
+            showNotification('OneSignal লোড হয়নি, একটু পর আবার চেষ্টা করুন');
+            if (btn) { btn.disabled = false; }
+            return;
+        }
+        var isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+        if (isSubscribed) {
+            await OneSignal.User.PushSubscription.optOut();
+            if (navigator.vibrate) navigator.vibrate([50]);
+            showNotification('🔕 Notification বন্ধ করা হয়েছে');
+        } else {
+            var permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                await OneSignal.User.PushSubscription.optIn();
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                showNotification('🔔 Notification চালু হয়েছে!');
+                // Save to Firebase
+                if (db && currentUser) {
+                    var playerId = OneSignal.User.PushSubscription.id;
+                    if (playerId) db.ref('users/' + currentUser.uid + '/playerId').set(playerId);
+                }
+            } else {
+                showNotification('⚠️ Browser-এ notification permission দিন');
+                // Guide user to browser settings
+                setTimeout(function(){
+                    showNotification('Settings → Apps → Browser → Notifications → Allow');
+                }, 2000);
+            }
+        }
+    } catch(e) {
+        showNotification('সমস্যা হয়েছে: ' + e.message);
+    }
+    if (btn) btn.disabled = false;
+    setTimeout(updateNotifSettingsUI, 800);
+}
+
+// Settings tab খুললে notification status update করো
+(function(){
+    var _origBnSwitch = window.bnSwitch;
+    var _hookInterval = setInterval(function(){
+        if (typeof window.bnSwitch === 'function') {
+            clearInterval(_hookInterval);
+            var __orig = window.bnSwitch;
+            window.bnSwitch = function(tab, el) {
+                __orig.apply(this, arguments);
+                if (tab === 'settings') {
+                    setTimeout(updateNotifSettingsUI, 300);
+                }
+            };
+        }
+    }, 200);
+    // Also update on page load
+    setTimeout(updateNotifSettingsUI, 2000);
+})();
+// ===== END NOTIFICATION SUBSCRIPTION SETTINGS =====
 (function() {
     // After displayPosts, re-render trending (posts may have changed)
     var _origDisplayPosts = window.displayPosts;
