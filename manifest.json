@@ -1,11 +1,10 @@
 {
   "name": "MeetApp",
   "short_name": "MeetApp",
-  "description": "MeetApp - Connect & Share",
+  "description": "MeetApp - Connect &amp; Share",
   "start_url": "/meetapp/",
   "scope": "/meetapp/",
   "id": "/meetapp/",
-
   "display": "standalone",
   "display_override": [
     "window-controls-overlay",
@@ -13,13 +12,11 @@
     "minimal-ui",
     "browser"
   ],
-
   "background_color": "#ffffff",
   "theme_color": "#4f8cff",
   "orientation": "portrait-primary",
   "lang": "bn",
   "dir": "ltr",
-
   "prefer_related_applications": false,
   "related_applications": [
     {
@@ -28,19 +25,22 @@
       "id": "com.meetapp"
     }
   ],
-
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
-
-  "categories": ["social", "communication", "utilities"],
-
+  "categories": [
+    "entertainment",
+    "lifestyle",
+    "photo",
+    "social",
+    "utilities"
+  ],
   "edge_side_panel": {
     "preferred_width": 400
   },
-
   "scope_extensions": [
-    { "origin": "https://mdimtiazhossainsomrat6597-oss.github.io" }
+    {
+      "origin": "https://mdimtiazhossainsomrat6597-oss.github.io"
+    }
   ],
-
   "icons": [
     {
       "src": "icons/icon-72x72.png",
@@ -103,7 +103,6 @@
       "purpose": "maskable"
     }
   ],
-
   "screenshots": [
     {
       "src": "screenshots/screenshot-mobile.png",
@@ -120,7 +119,6 @@
       "label": "MeetApp — Dashboard"
     }
   ],
-
   "shortcuts": [
     {
       "name": "নতুন Meeting",
@@ -149,7 +147,6 @@
       ]
     }
   ],
-
   "widgets": [
     {
       "name": "MeetApp Widget",
