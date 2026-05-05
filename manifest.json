@@ -1,8 +1,8 @@
 {
   "id": "meetapp",
   "name": "MeetApp",
-  "short_name": "MeetApp",
-  "description": "MeetApp - Connect & Share",
+  "short_name": "Meet",
+  "description": "MeetApp - Connect &amp; Share",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -12,7 +12,10 @@
   "lang": "bn",
   "dir": "ltr",
   "gcm_sender_id": "585105127605",
-  "categories": ["social", "entertainment"],
+  "categories": [
+    "social",
+    "entertainment"
+  ],
   "icons": [
     {
       "src": "icon.png",
