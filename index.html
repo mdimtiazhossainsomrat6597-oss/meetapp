@@ -12522,30 +12522,37 @@ async function togglePushSubscription() {
     var btn = document.getElementById('notifToggleBtn');
     if (btn) { btn.textContent = '...'; btn.disabled = true; }
     try {
-        if (!window.OneSignal) {
-            showNotification('OneSignal লোড হয়নি, একটু পর আবার চেষ্টা করুন');
-            if (btn) { btn.disabled = false; }
-            return;
+        // ✅ OneSignal লোড না হলে সরাসরি browser permission দিয়ে চেষ্টা করো
+        var isSubscribed = false;
+        if (window.OneSignal) {
+            try { isSubscribed = await OneSignal.User.PushSubscription.optedIn; } catch(e) {}
         }
-        var isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+
         if (isSubscribed) {
-            await OneSignal.User.PushSubscription.optOut();
+            if (window.OneSignal) await OneSignal.User.PushSubscription.optOut();
             if (navigator.vibrate) navigator.vibrate([50]);
             showNotification('🔕 Notification বন্ধ করা হয়েছে');
         } else {
+            // ✅ সরাসরি browser permission popup দাও
             var permission = await Notification.requestPermission();
             if (permission === 'granted') {
-                await OneSignal.User.PushSubscription.optIn();
+                if (window.OneSignal) {
+                    try { await OneSignal.User.PushSubscription.optIn(); } catch(e) {}
+                    // OneSignal ID save করো
+                    setTimeout(async function(){
+                        try {
+                            var playerId = OneSignal.User.PushSubscription.id;
+                            if (playerId && db && currentUser) {
+                                db.ref('oneSignalIds/' + currentUser.uid).set({ playerId: playerId, updatedAt: Date.now() });
+                                db.ref('users/' + currentUser.uid + '/playerId').set(playerId);
+                            }
+                        } catch(e) {}
+                    }, 2000);
+                }
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 showNotification('🔔 Notification চালু হয়েছে!');
-                // Save to Firebase
-                if (db && currentUser) {
-                    var playerId = OneSignal.User.PushSubscription.id;
-                    if (playerId) db.ref('users/' + currentUser.uid + '/playerId').set(playerId);
-                }
             } else {
                 showNotification('⚠️ Browser-এ notification permission দিন');
-                // Guide user to browser settings
                 setTimeout(function(){
                     showNotification('Settings → Apps → Browser → Notifications → Allow');
                 }, 2000);
