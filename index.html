@@ -762,11 +762,19 @@
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "81132740-4821-41ec-a750-d0433b5e6660",
-          notifyButton: {
-            enable: false, // আমরা custom notification UI use করছি
-          },
-          allowLocalhostAsSecureOrigin: true // Development এর জন্য
+          notifyButton: { enable: false },
+          allowLocalhostAsSecureOrigin: true,
+          promptOptions: {
+            slidedown: {
+              prompts: [{
+                type: "push",
+                autoPrompt: false,
+              }]
+            }
+          }
         });
+        // ✅ Permission request সাথে সাথে দাও — দেরি হবে না
+        try { await OneSignal.Notifications.requestPermission(); } catch(e) {}
         
         // User subscribe করলে OneSignal ID save করো
         OneSignal.User.PushSubscription.addEventListener('change', function(event) {
