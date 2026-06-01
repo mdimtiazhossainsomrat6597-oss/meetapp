@@ -80,6 +80,391 @@
     /* Feed skeleton wrapper */
     #feedSkeleton { display: block; }
     #feedSkeleton.hidden { display: none; }
+
+    /* ── Story Bar Skeleton ── */
+    .skeleton-story-row-wrap {
+        display: flex;
+        gap: 12px;
+        padding: 10px 14px 14px;
+        overflow: hidden;
+        background: var(--bg-card-solid, white);
+    }
+    .skel-story-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+    .skel-story-circle {
+        width: 62px; height: 62px;
+        border-radius: 50%;
+    }
+    .skel-story-label {
+        width: 50px; height: 10px;
+        border-radius: 5px;
+    }
+
+    /* ── Top Users Skeleton ── */
+    .skel-top-users-wrap {
+        padding: 12px 14px 6px;
+    }
+    .skel-section-title {
+        width: 100px; height: 14px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+    }
+    .skel-top-users-scroll {
+        display: flex;
+        gap: 10px;
+        padding: 4px 0 14px;
+        overflow: hidden;
+    }
+    .skel-top-user-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+        flex-shrink: 0;
+        width: 72px;
+    }
+    .skel-top-user-av {
+        width: 52px; height: 52px;
+        border-radius: 50%;
+    }
+    .skel-top-user-name {
+        width: 55px; height: 10px;
+        border-radius: 5px;
+    }
+    .skel-top-user-badge {
+        width: 40px; height: 8px;
+        border-radius: 4px;
+    }
+
+    /* ── Trending Posts Skeleton ── */
+    .skel-trending-wrap {
+        padding: 12px 14px 6px;
+    }
+    .skel-trending-scroll {
+        display: flex;
+        gap: 10px;
+        padding: 4px 0 14px;
+        overflow: hidden;
+    }
+    .skel-trending-card {
+        flex-shrink: 0;
+        width: 130px;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .skel-trending-img {
+        width: 130px; height: 100px;
+        border-radius: 10px;
+        margin-bottom: 7px;
+    }
+    .skel-trending-line1 {
+        width: 100%; height: 11px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+    }
+    .skel-trending-line2 {
+        width: 75%; height: 9px;
+        border-radius: 4px;
+    }
+
+    /* ── Post Card Feed Skeleton ── */
+    .skel-post-card {
+        background: var(--bg-card-solid, white);
+        border-radius: 16px;
+        padding: 14px 14px 12px;
+        margin: 10px 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .skel-post-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+    .skel-post-av {
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .skel-post-meta { flex: 1; }
+    .skel-post-name {
+        width: 130px; height: 13px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+    }
+    .skel-post-time {
+        width: 85px; height: 10px;
+        border-radius: 5px;
+    }
+    .skel-post-body-line {
+        height: 12px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+    .skel-post-img {
+        width: 100%;
+        height: 200px;
+        border-radius: 12px;
+        margin: 6px 0 14px;
+    }
+    .skel-post-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .skel-post-btn {
+        height: 30px;
+        border-radius: 8px;
+        flex: 1;
+    }
+
+    /* Stagger delays for post cards */
+    .skel-post-card:nth-child(2) .skeleton { animation-delay: 0.15s; }
+    .skel-post-card:nth-child(3) .skeleton { animation-delay: 0.3s; }
+
+    /* ── Settings Page Skeleton ── */
+    .skel-settings-wrap {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .skel-settings-title {
+        width: 140px; height: 22px;
+        border-radius: 8px;
+        margin-bottom: 22px;
+    }
+    /* Profile card skeleton */
+    .skel-settings-profile-card {
+        border-radius: 18px;
+        padding: 16px;
+        margin-bottom: 16px;
+        background: var(--bg-card-solid, white);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border: 1px solid var(--border-card, #e8e8e8);
+    }
+    .skel-settings-profile-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+    .skel-settings-av {
+        width: 58px; height: 58px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .skel-settings-pname {
+        width: 140px; height: 14px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+    .skel-settings-pemail {
+        width: 180px; height: 11px;
+        border-radius: 5px;
+    }
+    .skel-settings-input {
+        width: 100%; height: 42px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    .skel-settings-input-sm {
+        width: 100%; height: 36px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    .skel-settings-save-btn {
+        width: 100%; height: 44px;
+        border-radius: 12px;
+    }
+    /* Section card skeleton */
+    .skel-settings-card {
+        border-radius: 18px;
+        padding: 16px;
+        margin-bottom: 16px;
+        background: var(--bg-card-solid, white);
+        border: 1px solid var(--border-card, #e8e8e8);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .skel-settings-section-label {
+        width: 110px; height: 11px;
+        border-radius: 5px;
+        margin-bottom: 14px;
+    }
+    /* Row inside card */
+    .skel-settings-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-light, #f0f0f0);
+        margin-bottom: 2px;
+    }
+    .skel-settings-row:last-child { border-bottom: none; }
+    .skel-settings-row-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .skel-settings-icon {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+    }
+    .skel-settings-label-wrap { flex: 1; }
+    .skel-settings-label-line {
+        width: 100px; height: 13px;
+        border-radius: 6px;
+        margin-bottom: 5px;
+    }
+    .skel-settings-sub-line {
+        width: 130px; height: 10px;
+        border-radius: 5px;
+    }
+    .skel-settings-toggle {
+        width: 60px; height: 30px;
+        border-radius: 20px;
+        flex-shrink: 0;
+    }
+    .skel-settings-btn-sm {
+        width: 75px; height: 34px;
+        border-radius: 20px;
+        flex-shrink: 0;
+    }
+    /* Theme buttons */
+    .skel-settings-theme-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 4px;
+    }
+    .skel-settings-theme-btn {
+        flex: 1; height: 42px;
+        border-radius: 14px;
+    }
+    /* Lang buttons */
+    .skel-settings-lang-row {
+        display: flex;
+        gap: 10px;
+    }
+    .skel-settings-lang-btn {
+        flex: 1; height: 44px;
+        border-radius: 14px;
+    }
+    /* Logout btn */
+    .skel-settings-logout {
+        width: 100%; height: 46px;
+        border-radius: 14px;
+        margin-top: 6px;
+    }
+    /* Stagger animation */
+    .skel-settings-card:nth-child(2) .skeleton { animation-delay: 0.1s; }
+    .skel-settings-card:nth-child(3) .skeleton { animation-delay: 0.2s; }
+    .skel-settings-card:nth-child(4) .skeleton { animation-delay: 0.3s; }
+    .skel-settings-card:nth-child(5) .skeleton { animation-delay: 0.4s; }
+    /* Show/hide */
+    #settingsSkeleton { display: block; }
+    #settingsSkeleton.hidden { display: none; }
+    #settingsRealContent { display: none; }
+    #settingsRealContent.visible { display: block; }
+
+    /* Feed Tab Bar Skeleton */
+    .skel-feed-tab-bar {
+        display: flex;
+        gap: 12px;
+        padding: 8px 14px;
+        background: white;
+        border-bottom: 1px solid var(--border-light, #e8edf2);
+    }
+    .skel-feed-tab {
+        flex: 1;
+        height: 40px;
+        border-radius: 12px;
+    }
+
+
+    /* ── Event Card Skeleton (YouTube style shimmer) ── */
+    @keyframes countPop {
+        0%  { transform:scale(0.4); opacity:0; }
+        60% { transform:scale(1.3); }
+        100%{ transform:scale(1);   opacity:1; }
+    }
+    @keyframes eventCardFadeIn {
+        from { opacity:0; transform:translateY(8px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes eventShimmer {
+        0%   { background-position: -400px 0; }
+        100% { background-position:  400px 0; }
+    }
+    .event-skel-card {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        overflow: hidden;
+    }
+    .event-skel-icon {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        flex-shrink: 0;
+        background: linear-gradient(90deg,
+            rgba(255,255,255,0.08) 25%,
+            rgba(255,255,255,0.22) 50%,
+            rgba(255,255,255,0.08) 75%);
+        background-size: 400px 100%;
+        animation: eventShimmer 1.4s ease-in-out infinite;
+    }
+    .event-skel-body { flex: 1; }
+    .event-skel-title {
+        height: 13px; border-radius: 6px;
+        width: 60%;
+        margin-bottom: 7px;
+        background: linear-gradient(90deg,
+            rgba(255,255,255,0.08) 25%,
+            rgba(255,255,255,0.22) 50%,
+            rgba(255,255,255,0.08) 75%);
+        background-size: 400px 100%;
+        animation: eventShimmer 1.4s ease-in-out infinite;
+        animation-delay: 0.1s;
+    }
+    .event-skel-sub {
+        height: 10px; border-radius: 6px;
+        width: 40%;
+        background: linear-gradient(90deg,
+            rgba(255,255,255,0.06) 25%,
+            rgba(255,255,255,0.16) 50%,
+            rgba(255,255,255,0.06) 75%);
+        background-size: 400px 100%;
+        animation: eventShimmer 1.4s ease-in-out infinite;
+        animation-delay: 0.2s;
+    }
+    .event-skel-badge {
+        width: 72px; height: 26px;
+        border-radius: 20px;
+        flex-shrink: 0;
+        background: linear-gradient(90deg,
+            rgba(255,255,255,0.08) 25%,
+            rgba(255,255,255,0.22) 50%,
+            rgba(255,255,255,0.08) 75%);
+        background-size: 400px 100%;
+        animation: eventShimmer 1.4s ease-in-out infinite;
+        animation-delay: 0.15s;
+    }
+    /* Staggered delay for each card */
+    .event-skel-card:nth-child(2) .event-skel-icon,
+    .event-skel-card:nth-child(2) .event-skel-title,
+    .event-skel-card:nth-child(2) .event-skel-sub,
+    .event-skel-card:nth-child(2) .event-skel-badge { animation-delay: 0.25s; }
+    .event-skel-card:nth-child(3) .event-skel-icon,
+    .event-skel-card:nth-child(3) .event-skel-title,
+    .event-skel-card:nth-child(3) .event-skel-sub,
+    .event-skel-card:nth-child(3) .event-skel-badge { animation-delay: 0.45s; }
     </style>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1877f2">
@@ -1664,6 +2049,159 @@ if (typeof twemoji === 'undefined') {
         white-space:nowrap;
     }
 
+    /* ══ WEEKLY TOP USERS BANNER ══ */
+    #weeklyTopBannerOverlay {
+        position:fixed;inset:0;z-index:99990;
+        background:rgba(10,8,28,0.72);
+        backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+        display:flex;align-items:flex-end;justify-content:center;
+        padding-bottom:90px;
+        animation:wtbFadeIn 0.3s ease;
+    }
+    @keyframes wtbFadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes wtbSlideUp { from{opacity:0;transform:translateY(60px) scale(0.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes wtbUserPop {
+        0%{opacity:0;transform:scale(0.5) translateY(20px)}
+        70%{transform:scale(1.08) translateY(-4px)}
+        100%{opacity:1;transform:scale(1) translateY(0)}
+    }
+    @keyframes wtbCrownBounce {
+        0%,100%{transform:translateY(0) rotate(-5deg)}
+        50%{transform:translateY(-6px) rotate(5deg)}
+    }
+    @keyframes wtbShimmer {
+        0%{background-position:-400px 0}
+        100%{background-position:400px 0}
+    }
+    @keyframes wtbPulseRing {
+        0%{box-shadow:0 0 0 0 rgba(253,203,110,0.5)}
+        70%{box-shadow:0 0 0 12px rgba(253,203,110,0)}
+        100%{box-shadow:0 0 0 0 rgba(253,203,110,0)}
+    }
+    .wtb-sheet {
+        width:min(480px,96vw);
+        background:linear-gradient(160deg,#1a0e3a 0%,#2d1b5a 40%,#16122a 100%);
+        border-radius:28px 28px 20px 20px;
+        border:1px solid rgba(255,255,255,0.14);
+        box-shadow:0 -8px 60px rgba(108,92,231,0.4),0 0 100px rgba(0,0,0,0.5);
+        overflow:hidden;
+        animation:wtbSlideUp 0.45s cubic-bezier(0.34,1.26,0.64,1) both;
+        position:relative;
+    }
+    .wtb-shimmer-bar {
+        height:3px;width:100%;
+        background:linear-gradient(90deg,transparent,rgba(253,203,110,0.8),rgba(162,155,254,1),rgba(253,121,168,0.8),transparent);
+        background-size:400px 100%;
+        animation:wtbShimmer 2s linear infinite;
+    }
+    .wtb-header {
+        padding:18px 20px 10px;
+        text-align:center;
+        position:relative;
+    }
+    .wtb-crown {
+        font-size:36px;
+        display:block;
+        animation:wtbCrownBounce 2s ease-in-out infinite;
+        margin-bottom:4px;
+    }
+    .wtb-title {
+        font-size:20px;font-weight:900;
+        background:linear-gradient(135deg,#fdcb6e,#fff,#a29bfe,#fd79a8);
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+        letter-spacing:0.5px;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;
+    }
+    .wtb-week-label {
+        font-size:11px;font-weight:700;color:rgba(255,255,255,0.55);
+        margin-top:3px;letter-spacing:0.5px;
+    }
+    .wtb-users-row {
+        display:flex;justify-content:center;align-items:flex-end;
+        gap:10px;padding:12px 16px 6px;
+        flex-wrap:wrap;
+    }
+    .wtb-user-card {
+        display:flex;flex-direction:column;align-items:center;gap:6px;
+        cursor:pointer;
+        transition:transform 0.2s;
+        position:relative;
+    }
+    .wtb-user-card:active{transform:scale(0.93);}
+    .wtb-avatar-wrap { position:relative; }
+    .wtb-avatar {
+        border-radius:50%;object-fit:cover;
+        display:flex;align-items:center;justify-content:center;
+        font-weight:800;color:white;overflow:hidden;
+        border:3px solid transparent;
+    }
+    .wtb-avatar.rank-1 {
+        width:76px;height:76px;font-size:26px;
+        box-shadow:0 0 0 3px #fdcb6e,0 0 20px rgba(253,203,110,0.6);
+        animation:wtbPulseRing 2s ease-in-out infinite;
+    }
+    .wtb-avatar.rank-2, .wtb-avatar.rank-3 {
+        width:60px;height:60px;font-size:20px;
+        box-shadow:0 0 0 2.5px rgba(255,255,255,0.4);
+    }
+    .wtb-avatar.rank-other {
+        width:50px;height:50px;font-size:16px;
+        box-shadow:0 0 0 2px rgba(255,255,255,0.25);
+    }
+    .wtb-rank-badge {
+        position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+        font-size:13px;font-weight:900;
+        padding:1px 7px;border-radius:20px;
+        background:linear-gradient(135deg,#fdcb6e,#f0c040);
+        color:#1a0e3a;letter-spacing:0.3px;
+        box-shadow:0 2px 6px rgba(253,203,110,0.5);
+        white-space:nowrap;
+    }
+    .wtb-goal-badge {
+        position:absolute;bottom:-5px;right:-5px;
+        font-size:14px;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+    }
+    .wtb-user-name {
+        font-size:11px;font-weight:700;color:rgba(255,255,255,0.9);
+        text-align:center;max-width:76px;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .wtb-goal-pill {
+        font-size:9px;font-weight:700;
+        padding:2px 7px;border-radius:20px;
+        background:rgba(255,255,255,0.12);
+        color:rgba(255,255,255,0.7);
+        border:1px solid rgba(255,255,255,0.2);
+        white-space:nowrap;
+    }
+    .wtb-footer {
+        padding:12px 16px 18px;
+        display:flex;gap:10px;align-items:center;
+        border-top:1px solid rgba(255,255,255,0.08);
+        margin-top:6px;
+    }
+    .wtb-close-btn {
+        flex:1;padding:11px;border-radius:14px;
+        background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.18);
+        color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;cursor:pointer;
+        font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;
+        transition:all 0.2s;
+    }
+    .wtb-close-btn:active{background:rgba(255,255,255,0.18);}
+    .wtb-profile-btn {
+        flex:2;padding:11px;border-radius:14px;
+        background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+        border:none;color:white;font-size:13px;font-weight:800;cursor:pointer;
+        font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;
+        box-shadow:0 4px 14px rgba(108,92,231,0.45);
+        transition:all 0.2s;
+    }
+    .wtb-profile-btn:active{transform:scale(0.97);}
+    .wtb-dont-show {
+        text-align:center;padding-bottom:6px;
+        font-size:11px;color:rgba(255,255,255,0.35);cursor:pointer;
+        text-decoration:underline;
+        font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;
+    }
     /* ══ TRENDING POSTS ══ */
     #trendingPostsScroll::-webkit-scrollbar { display:none; }
     .trending-post-card {
@@ -2060,15 +2598,17 @@ if (typeof twemoji === 'undefined') {
         .notification.show{display:block;}
         @keyframes notifPop{from{transform:translateX(-50%) translateY(-80px) scale(0.85);opacity:0}to{transform:translateX(-50%) translateY(0) scale(1);opacity:1}}
         @keyframes highlight-pulse{0%,100%{box-shadow:0 4px 20px rgba(108,92,231,0.1)}50%{box-shadow:0 8px 40px rgba(108,92,231,0.5);transform:scale(1.02)}}
-        .loading-container{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:18px;}
-        .loading-spinner{width:48px;height:48px;border:3px solid var(--border-light);border-top:3px solid var(--p1);border-radius:50%;animation:spin 1s linear infinite;}
-        .loading-dots{display:flex;gap:10px;}
-        .loading-dot{width:10px;height:10px;background:var(--grad-btn);border-radius:50%;animation:bounce 1.4s infinite ease-in-out both;}
-        .loading-dot:nth-child(1){animation-delay:-0.32s}.loading-dot:nth-child(2){animation-delay:-0.16s}
+        .loading-container{display:none;}
+        .loading-spinner{display:none;}
+        .loading-dots{display:none;}
+        .loading-dot{display:none;}
+        .loading-text{display:none;}
+        .loading-bar{display:none;}
+        .loading-bar-fill{display:none;}
         @keyframes bounce{0%,80%,100%{transform:scale(0);opacity:0.5}40%{transform:scale(1);opacity:1}}
-        .loading-text{color:var(--text-muted-light);font-size:15px;font-weight:500;}
-        .loading-bar{width:180px;height:3px;background:var(--border-light);border-radius:2px;overflow:hidden;}
-        .loading-bar-fill{height:100%;background:var(--grad-brand);border-radius:2px;animation:lprog 2s ease-in-out infinite;}
+        .loading-text{display:none!important;}
+        .loading-bar{display:none!important;}
+        .loading-bar-fill{display:none!important;}
         @keyframes lprog{0%{width:0%;margin-left:0%}50%{width:75%;margin-left:0%}100%{width:0%;margin-left:100%}}
         .empty-state{text-align:center;padding:50px 20px;}
         .empty-state h3{font-size:20px;color:var(--text-primary);margin-bottom:8px;}
@@ -2708,13 +3248,37 @@ if (typeof twemoji === 'undefined') {
                 <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.28);border-radius:40px;padding:6px 14px 6px 10px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(0,0,0,0.15);">
                     <span style="font-size:14px;">&#128197;</span>
                     <span style="color:#fff;font-size:13px;font-weight:700;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;">Upcoming Events</span>
-                    <span id="upcomingEventsCount" style="background:linear-gradient(135deg,#a29bfe,#fd79a8);color:#fff;font-size:11px;font-weight:800;min-width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;font-family:'DM Sans',sans-serif;box-shadow:0 2px 6px rgba(162,155,254,0.5);">0</span>
+                    <span id="upcomingEventsCount" style="background:rgba(255,255,255,0.25);color:#fff;font-size:11px;font-weight:800;min-width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;font-family:'DM Sans',sans-serif;box-shadow:0 2px 6px rgba(162,155,254,0.5);transition:background 0.3s;">·</span>
                 </div>
             </div>
 
             <!-- ══ Current Event Cards ══ -->
             <div id="headerEventCards" style="position:relative;z-index:1;padding:0 12px 4px;">
-                <div id="headerEventsText" style="text-align:center;color:rgba(255,255,255,0.55);font-size:13px;padding:6px 0;">কোনো আসন্ন ইভেন্ট নেই</div>
+                <!-- YouTube-style skeleton — data load হওয়া পর্যন্ত দেখাবে -->
+                <div class="event-skel-card">
+                    <div class="event-skel-icon"></div>
+                    <div class="event-skel-body">
+                        <div class="event-skel-title"></div>
+                        <div class="event-skel-sub"></div>
+                    </div>
+                    <div class="event-skel-badge"></div>
+                </div>
+                <div class="event-skel-card">
+                    <div class="event-skel-icon"></div>
+                    <div class="event-skel-body">
+                        <div class="event-skel-title" style="width:50%"></div>
+                        <div class="event-skel-sub" style="width:35%"></div>
+                    </div>
+                    <div class="event-skel-badge"></div>
+                </div>
+                <div class="event-skel-card">
+                    <div class="event-skel-icon"></div>
+                    <div class="event-skel-body">
+                        <div class="event-skel-title" style="width:70%"></div>
+                        <div class="event-skel-sub" style="width:45%"></div>
+                    </div>
+                    <div class="event-skel-badge"></div>
+                </div>
             </div>
             </div><!-- end homeHeroSection -->
 
@@ -2831,33 +3395,175 @@ if (typeof twemoji === 'undefined') {
                         <svg id="feedTabReelIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="7" y1="4" x2="7" y2="9"/><line x1="12" y1="4" x2="12" y2="9"/><line x1="17" y1="4" x2="17" y2="9"/><polygon points="10 13 10 19 16 16" fill="#9CA3AF" stroke="none"/></svg>
                     </button>
                 </div>
-                <div style="display:flex;align-items:center;background:var(--bg-card-solid,white);border-bottom:1px solid var(--border-light,#E8EDF2);">
-                    <div class="story-bar" id="storyBar" style="flex:1;border-bottom:none;"></div>
-                </div>
 
-                <!-- ══ TOP USERS SECTION ══ -->
-                <div id="topUsersSection" style="display:none;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px;">
-                        <div style="display:flex;align-items:center;gap:7px;">
-                            <span style="font-size:18px;">🏆</span>
-                            <span id="topUsersSectionTitle" style="font-size:14px;font-weight:800;color:var(--text-primary);">টপ ইউজার</span>
+                <!-- ══ HOME SKELETON (দেখাবে যতক্ষণ data load না হয়) ══ -->
+                <div id="homeSkeleton">
+
+                    <!-- Story Bar Skeleton -->
+                    <div class="skeleton-story-row-wrap" style="border-bottom:1px solid var(--border-light,#E8EDF2);">
+                        <div class="skel-story-item">
+                            <div class="skeleton skel-story-circle"></div>
+                            <div class="skeleton skel-story-label"></div>
+                        </div>
+                        <div class="skel-story-item">
+                            <div class="skeleton skel-story-circle"></div>
+                            <div class="skeleton skel-story-label"></div>
+                        </div>
+                        <div class="skel-story-item">
+                            <div class="skeleton skel-story-circle"></div>
+                            <div class="skeleton skel-story-label"></div>
+                        </div>
+                        <div class="skel-story-item">
+                            <div class="skeleton skel-story-circle"></div>
+                            <div class="skeleton skel-story-label"></div>
+                        </div>
+                        <div class="skel-story-item">
+                            <div class="skeleton skel-story-circle"></div>
+                            <div class="skeleton skel-story-label"></div>
                         </div>
                     </div>
-                    <div id="topUsersScroll" style="display:flex;gap:10px;padding:4px 14px 14px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;"></div>
-                </div>
 
-                <!-- ══ TRENDING POSTS SECTION ══ -->
-                <div id="trendingPostsSection" style="display:none;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px;">
-                        <div style="display:flex;align-items:center;gap:7px;">
-                            <span style="font-size:18px;">🔥</span>
-                            <span id="trendingPostsSectionTitle" style="font-size:14px;font-weight:800;color:var(--text-primary);">ট্রেন্ডিং পোস্ট</span>
+                    <!-- Top Users Skeleton -->
+                    <div class="skel-top-users-wrap" style="background:var(--bg-card-solid,white);border-bottom:1px solid var(--border-light,#E8EDF2);padding-bottom:0;">
+                        <div style="display:flex;align-items:center;gap:8px;padding:4px 0 8px;">
+                            <div class="skeleton" style="width:20px;height:20px;border-radius:50%;"></div>
+                            <div class="skeleton skel-section-title" style="margin-bottom:0;"></div>
+                        </div>
+                        <div class="skel-top-users-scroll">
+                            <div class="skel-top-user-card">
+                                <div class="skeleton skel-top-user-av"></div>
+                                <div class="skeleton skel-top-user-name"></div>
+                                <div class="skeleton skel-top-user-badge"></div>
+                            </div>
+                            <div class="skel-top-user-card">
+                                <div class="skeleton skel-top-user-av"></div>
+                                <div class="skeleton skel-top-user-name"></div>
+                                <div class="skeleton skel-top-user-badge"></div>
+                            </div>
+                            <div class="skel-top-user-card">
+                                <div class="skeleton skel-top-user-av"></div>
+                                <div class="skeleton skel-top-user-name"></div>
+                                <div class="skeleton skel-top-user-badge"></div>
+                            </div>
+                            <div class="skel-top-user-card">
+                                <div class="skeleton skel-top-user-av"></div>
+                                <div class="skeleton skel-top-user-name"></div>
+                                <div class="skeleton skel-top-user-badge"></div>
+                            </div>
                         </div>
                     </div>
-                    <div id="trendingPostsScroll" style="display:flex;gap:10px;padding:4px 14px 14px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;"></div>
-                </div>
 
-                <div class="photo-grid" id="postsGallery"></div>
+                    <!-- Trending Posts Skeleton -->
+                    <div class="skel-trending-wrap" style="background:var(--bg-card-solid,white);border-bottom:1px solid var(--border-light,#E8EDF2);">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                            <div class="skeleton" style="width:20px;height:20px;border-radius:50%;"></div>
+                            <div class="skeleton skel-section-title" style="margin-bottom:0;"></div>
+                        </div>
+                        <div class="skel-trending-scroll">
+                            <div class="skel-trending-card">
+                                <div class="skeleton skel-trending-img"></div>
+                                <div class="skeleton skel-trending-line1"></div>
+                                <div class="skeleton skel-trending-line2"></div>
+                            </div>
+                            <div class="skel-trending-card">
+                                <div class="skeleton skel-trending-img"></div>
+                                <div class="skeleton skel-trending-line1"></div>
+                                <div class="skeleton skel-trending-line2"></div>
+                            </div>
+                            <div class="skel-trending-card">
+                                <div class="skeleton skel-trending-img"></div>
+                                <div class="skeleton skel-trending-line1"></div>
+                                <div class="skeleton skel-trending-line2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Card Skeletons (3টা) -->
+                    <div class="skel-post-card">
+                        <div class="skel-post-header">
+                            <div class="skeleton skel-post-av"></div>
+                            <div class="skel-post-meta">
+                                <div class="skeleton skel-post-name"></div>
+                                <div class="skeleton skel-post-time"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton skel-post-body-line" style="width:100%"></div>
+                        <div class="skeleton skel-post-body-line" style="width:88%"></div>
+                        <div class="skeleton skel-post-body-line" style="width:72%"></div>
+                        <div class="skeleton skel-post-img"></div>
+                        <div class="skel-post-actions">
+                            <div class="skeleton skel-post-btn"></div>
+                            <div class="skeleton skel-post-btn"></div>
+                            <div class="skeleton skel-post-btn"></div>
+                        </div>
+                    </div>
+
+                    <div class="skel-post-card">
+                        <div class="skel-post-header">
+                            <div class="skeleton skel-post-av"></div>
+                            <div class="skel-post-meta">
+                                <div class="skeleton skel-post-name" style="width:100px;"></div>
+                                <div class="skeleton skel-post-time" style="width:60px;"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton skel-post-body-line" style="width:95%"></div>
+                        <div class="skeleton skel-post-body-line" style="width:80%"></div>
+                        <div class="skel-post-actions">
+                            <div class="skeleton skel-post-btn"></div>
+                            <div class="skeleton skel-post-btn"></div>
+                            <div class="skeleton skel-post-btn"></div>
+                        </div>
+                    </div>
+
+                    <div class="skel-post-card">
+                        <div class="skel-post-header">
+                            <div class="skeleton skel-post-av"></div>
+                            <div class="skel-post-meta">
+                                <div class="skeleton skel-post-name" style="width:150px;"></div>
+                                <div class="skeleton skel-post-time"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton skel-post-body-line" style="width:90%"></div>
+                        <div class="skeleton skel-post-img" style="height:160px;"></div>
+                        <div class="skel-post-actions">
+                            <div class="skeleton skel-post-btn"></div>
+                            <div class="skeleton skel-post-btn"></div>
+                            <div class="skeleton skel-post-btn"></div>
+                        </div>
+                    </div>
+
+                </div><!-- end #homeSkeleton -->
+
+                <!-- Real content (skeleton hide হবে এগুলো load হলে) -->
+                <div id="homeRealContent" style="display:none;">
+                    <div style="display:flex;align-items:center;background:var(--bg-card-solid,white);border-bottom:1px solid var(--border-light,#E8EDF2);">
+                        <div class="story-bar" id="storyBar" style="flex:1;border-bottom:none;"></div>
+                    </div>
+
+                    <!-- ══ TOP USERS SECTION ══ -->
+                    <div id="topUsersSection" style="display:none;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px;">
+                            <div style="display:flex;align-items:center;gap:7px;">
+                                <span style="font-size:18px;">🏆</span>
+                                <span id="topUsersSectionTitle" style="font-size:14px;font-weight:800;color:var(--text-primary);">টপ ইউজার</span>
+                            </div>
+                        </div>
+                        <div id="topUsersScroll" style="display:flex;gap:10px;padding:4px 14px 14px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;"></div>
+                    </div>
+
+                    <!-- ══ TRENDING POSTS SECTION ══ -->
+                    <div id="trendingPostsSection" style="display:none;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px;">
+                            <div style="display:flex;align-items:center;gap:7px;">
+                                <span style="font-size:18px;">🔥</span>
+                                <span id="trendingPostsSectionTitle" style="font-size:14px;font-weight:800;color:var(--text-primary);">ট্রেন্ডিং পোস্ট</span>
+                            </div>
+                        </div>
+                        <div id="trendingPostsScroll" style="display:flex;gap:10px;padding:4px 14px 14px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;"></div>
+                    </div>
+
+                    <div class="photo-grid" id="postsGallery"></div>
+                </div><!-- end #homeRealContent -->
             </div>
             <div id="events" class="tab-content">
                 <h2 style="margin-bottom:16px" id="allEventsTitle">সব ইভেন্ট</h2>
@@ -3039,6 +3745,107 @@ if (typeof twemoji === 'undefined') {
             </div>
             <!-- ══ SETTINGS TAB ══ -->
             <div id="settings" class="tab-content">
+
+                <!-- ⚡ SETTINGS SKELETON -->
+                <div id="settingsSkeleton" class="skel-settings-wrap">
+                    <!-- Title -->
+                    <div class="skeleton skel-settings-title" style="margin-bottom:22px;"></div>
+
+                    <!-- Profile Edit Card Skeleton -->
+                    <div class="skel-settings-profile-card">
+                        <div class="skel-settings-profile-row">
+                            <div class="skeleton skel-settings-av"></div>
+                            <div style="flex:1;">
+                                <div class="skeleton skel-settings-pname"></div>
+                                <div class="skeleton skel-settings-pemail"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton skel-settings-input"></div>
+                        <div class="skeleton skel-settings-input-sm"></div>
+                        <div class="skeleton skel-settings-input-sm"></div>
+                        <div class="skeleton skel-settings-save-btn"></div>
+                    </div>
+
+                    <!-- Appearance Card Skeleton -->
+                    <div class="skel-settings-card">
+                        <div class="skeleton skel-settings-section-label"></div>
+                        <!-- Dark Mode Row -->
+                        <div class="skel-settings-row">
+                            <div class="skel-settings-row-left">
+                                <div class="skeleton skel-settings-icon"></div>
+                                <div class="skel-settings-label-wrap">
+                                    <div class="skeleton skel-settings-label-line"></div>
+                                    <div class="skeleton skel-settings-sub-line"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton skel-settings-toggle"></div>
+                        </div>
+                        <!-- Color Theme Row -->
+                        <div style="padding-top:10px;">
+                            <div class="skeleton" style="width:80px;height:12px;border-radius:5px;margin-bottom:10px;"></div>
+                            <div class="skel-settings-theme-row">
+                                <div class="skeleton skel-settings-theme-btn"></div>
+                                <div class="skeleton skel-settings-theme-btn"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sound Card Skeleton -->
+                    <div class="skel-settings-card">
+                        <div class="skel-settings-row" style="border-bottom:none;padding:2px 0;">
+                            <div class="skel-settings-row-left">
+                                <div class="skeleton skel-settings-icon"></div>
+                                <div class="skel-settings-label-wrap">
+                                    <div class="skeleton skel-settings-label-line" style="width:130px;"></div>
+                                    <div class="skeleton skel-settings-sub-line" style="width:110px;"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton skel-settings-btn-sm"></div>
+                        </div>
+                    </div>
+
+                    <!-- Language Card Skeleton -->
+                    <div class="skel-settings-card">
+                        <div class="skeleton skel-settings-section-label" style="width:60px;margin-bottom:14px;"></div>
+                        <div class="skel-settings-lang-row">
+                            <div class="skeleton skel-settings-lang-btn"></div>
+                            <div class="skeleton skel-settings-lang-btn"></div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Card Skeleton -->
+                    <div class="skel-settings-card">
+                        <div class="skeleton skel-settings-section-label" style="width:95px;"></div>
+                        <div class="skel-settings-row">
+                            <div class="skel-settings-row-left">
+                                <div class="skeleton skel-settings-icon"></div>
+                                <div class="skel-settings-label-wrap">
+                                    <div class="skeleton skel-settings-label-line" style="width:120px;"></div>
+                                    <div class="skeleton skel-settings-sub-line" style="width:150px;"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton skel-settings-btn-sm"></div>
+                        </div>
+                        <div class="skeleton" style="width:100%;height:11px;border-radius:5px;margin-top:6px;"></div>
+                        <div class="skeleton" style="width:80%;height:11px;border-radius:5px;margin-top:6px;"></div>
+                    </div>
+
+                    <!-- Account Card Skeleton -->
+                    <div class="skel-settings-card">
+                        <div class="skeleton skel-settings-section-label" style="width:75px;"></div>
+                        <div class="skel-settings-row">
+                            <div class="skel-settings-row-left">
+                                <div class="skeleton skel-settings-icon"></div>
+                                <div class="skeleton skel-settings-label-line" style="width:110px;margin-bottom:0;"></div>
+                            </div>
+                            <div class="skeleton skel-settings-btn-sm" style="width:55px;"></div>
+                        </div>
+                        <div class="skeleton skel-settings-logout"></div>
+                    </div>
+                </div><!-- end #settingsSkeleton -->
+
+                <!-- REAL SETTINGS CONTENT -->
+                <div id="settingsRealContent">
                 <div style="max-width:600px;margin:0 auto;padding:20px;">
                     <h2 style="font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:20px;">⚙️ <span id="settingsTitle">সেটিংস</span></h2>
 
@@ -3140,7 +3947,8 @@ if (typeof twemoji === 'undefined') {
                         <p style="font-size:12px;color:var(--text-muted-light);margin:0;">MeetApp v2.0 • © 2026 MD Imtiaz Hossain Somrat</p>
                     </div>
                 </div>
-            </div>
+                </div><!-- end #settingsRealContent -->
+            </div><!-- end #settings tab -->
 
             <!-- ══ MESSAGES TAB ══ -->
             <!-- ══ MESSAGES TAB ══ -->
@@ -4486,7 +5294,23 @@ function navigateToPost(postId, postType){
         }
     }, 500);
 }
-function showLoadingAnimation(type){ return `<div class="loading-container"><div class="loading-spinner"></div><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><div class="loading-text">${t(type==='posts'?'loadingPosts':'loadingEvents')}</div><div class="loading-bar"><div class="loading-bar-fill"></div></div></div>`; }
+function showLoadingAnimation(type){
+    // Posts-এর জন্য — homeSkeleton আলাদাভাবে দেখাচ্ছে, তাই gallery খালি রাখো
+    if(type==='posts') return '';
+    // Events-এর জন্য skeleton cards
+    return `
+    <div style="padding:8px 0;">
+        ${[1,2,3].map(function(i){return `
+        <div class="event-skel-card" style="margin-bottom:10px;background:var(--bg-card-solid,white);border:1px solid var(--border-light);border-radius:14px;padding:14px;display:flex;align-items:center;gap:10px;">
+            <div class="skeleton event-skel-icon" style="width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(90deg,var(--skeleton-base,#e8e8e8) 25%,var(--skeleton-highlight,#f5f5f5) 50%,var(--skeleton-base,#e8e8e8) 75%);background-size:200% 100%;animation:skeletonPulse 1.4s ease-in-out infinite;animation-delay:${i*0.12}s;"></div>
+            <div style="flex:1;">
+                <div class="skeleton" style="height:13px;border-radius:6px;width:60%;margin-bottom:8px;background:linear-gradient(90deg,var(--skeleton-base,#e8e8e8) 25%,var(--skeleton-highlight,#f5f5f5) 50%,var(--skeleton-base,#e8e8e8) 75%);background-size:200% 100%;animation:skeletonPulse 1.4s ease-in-out infinite;animation-delay:${i*0.12+0.05}s;"></div>
+                <div class="skeleton" style="height:10px;border-radius:5px;width:40%;background:linear-gradient(90deg,var(--skeleton-base,#e8e8e8) 25%,var(--skeleton-highlight,#f5f5f5) 50%,var(--skeleton-base,#e8e8e8) 75%);background-size:200% 100%;animation:skeletonPulse 1.4s ease-in-out infinite;animation-delay:${i*0.12+0.1}s;"></div>
+            </div>
+            <div class="skeleton" style="width:70px;height:26px;border-radius:20px;flex-shrink:0;background:linear-gradient(90deg,var(--skeleton-base,#e8e8e8) 25%,var(--skeleton-highlight,#f5f5f5) 50%,var(--skeleton-base,#e8e8e8) 75%);background-size:200% 100%;animation:skeletonPulse 1.4s ease-in-out infinite;animation-delay:${i*0.12+0.08}s;"></div>
+        </div>`}).join('')}
+    </div>`;
+}
 
 function showTab(tab,ev){
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -4499,7 +5323,7 @@ function showTab(tab,ev){
     if(tab==='posts') displayPosts();
     if(tab==='events') displayEvents();
     if(tab==='profile') renderProfile();
-    if(tab==='settings') { setTimeout(renderSettingsPage, 50); }
+    if(tab==='settings') { resetSettingsSkeleton(); setTimeout(renderSettingsPage, 50); }
 }
 function selectCreateType(type){
     currentCreateType=type;
@@ -4518,6 +5342,77 @@ function renderProfile(){
     const container=document.getElementById('profileContent');
     if(!container) return;
     if(!currentUser){ container.innerHTML=`<div class="empty-state"><h3>${t('profileLoginPromptTitle')}</h3><p>${t('profileLoginPromptSub')}</p></div>`; return; }
+
+    // ── Profile Skeleton দেখাও যদি এখনো data load না হয় ──
+    var _profileReady = (typeof isLoadingPosts==='undefined'||!isLoadingPosts) &&
+                        (typeof photos!=='undefined') && (typeof allUsers!=='undefined');
+    if(!_profileReady && (!container.innerHTML || container.innerHTML.indexOf('skel-profile')!==-1 || container.innerHTML==='')) {
+        container.innerHTML = `
+        <div class="skel-profile-wrap">
+            <!-- Cover skeleton -->
+            <div class="skeleton" style="width:100%;height:120px;border-radius:0;"></div>
+
+            <!-- Avatar + buttons skeleton -->
+            <div style="padding:0 16px;position:relative;margin-top:-42px;margin-bottom:10px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;">
+                <div class="skeleton" style="width:76px;height:76px;border-radius:50%;border:4px solid var(--bg-card-solid,white);flex-shrink:0;"></div>
+                <div style="display:flex;gap:8px;margin-top:2px;">
+                    <div class="skeleton" style="width:110px;height:30px;border-radius:20px;"></div>
+                    <div class="skeleton" style="width:90px;height:30px;border-radius:20px;"></div>
+                </div>
+            </div>
+
+            <!-- Name + meta skeleton -->
+            <div style="padding:0 16px 12px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <div class="skeleton" style="width:160px;height:20px;border-radius:8px;"></div>
+                    <div class="skeleton" style="width:20px;height:20px;border-radius:50%;"></div>
+                </div>
+                <div class="skeleton" style="width:110px;height:13px;border-radius:6px;margin-bottom:6px;"></div>
+                <div class="skeleton" style="width:130px;height:12px;border-radius:6px;margin-bottom:6px;"></div>
+                <div class="skeleton" style="width:90px;height:12px;border-radius:6px;margin-bottom:12px;"></div>
+                <!-- bio -->
+                <div class="skeleton" style="width:100%;height:12px;border-radius:5px;margin-bottom:6px;"></div>
+                <div class="skeleton" style="width:80%;height:12px;border-radius:5px;margin-bottom:14px;"></div>
+                <!-- settings bar -->
+                <div class="skeleton" style="width:100%;height:42px;border-radius:12px;"></div>
+            </div>
+
+            <!-- Stats row skeleton -->
+            <div style="display:flex;gap:6px;padding:14px 16px;border-top:1px solid var(--border-light,#eee);border-bottom:1px solid var(--border-light,#eee);margin-bottom:14px;">
+                ${[1,2,3,4,5].map(()=>`
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;">
+                    <div class="skeleton" style="width:32px;height:20px;border-radius:6px;"></div>
+                    <div class="skeleton" style="width:38px;height:10px;border-radius:5px;"></div>
+                </div>`).join('')}
+            </div>
+
+            <!-- Following skeleton -->
+            <div style="padding:12px 16px;">
+                <div class="skeleton" style="width:130px;height:14px;border-radius:6px;margin-bottom:12px;"></div>
+                ${[1,2,3].map(i=>`
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light,#eee);">
+                    <div class="skeleton" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div>
+                    <div style="flex:1;">
+                        <div class="skeleton" style="width:120px;height:13px;border-radius:6px;margin-bottom:5px;"></div>
+                        <div class="skeleton" style="width:80px;height:10px;border-radius:5px;"></div>
+                    </div>
+                    <div class="skeleton" style="width:70px;height:28px;border-radius:20px;"></div>
+                </div>`).join('')}
+            </div>
+
+            <!-- My posts skeleton -->
+            <div style="padding:12px 16px 6px;">
+                <div class="skeleton" style="width:150px;height:14px;border-radius:6px;margin-bottom:12px;"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px 20px;">
+                ${[1,2,3,4].map(i=>`
+                <div class="skeleton" style="height:160px;border-radius:14px;animation-delay:${i*0.1}s;"></div>`).join('')}
+            </div>
+        </div>`;
+        // কিছুক্ষণ পর আবার try করো
+        setTimeout(renderProfile, 600);
+        return;
+    }
     const myPosts=[
         ...photos.filter(p=>p.uid===currentUser.uid).map(p=>({...p,type:'photo'})),
         ...videos.filter(v=>v.uid===currentUser.uid).map(v=>({...v,type:'video'})),
@@ -4536,7 +5431,7 @@ function renderProfile(){
       }
     }
     const initial=(currentUser.name||'?').charAt(0).toUpperCase();
-    const avatarHtml=currentUser.avatar?`<img src="${currentUser.avatar}" alt="avatar">`:initial;
+    const avatarHtml=currentUser.avatar?`<img src="${currentUser.avatar}" alt="avatar" style="opacity:0;transition:opacity 0.4s ease;" onload="this.style.opacity='1'">`:initial;
     // Super Admin জোড়ার জন্য combined stats
     let followingList=Object.keys(currentUser.following||{});
     let followersList=Object.keys(currentUser.followers||{});
@@ -4550,9 +5445,16 @@ function renderProfile(){
         followersList = [...new Set([...followersList, ...partnerFollowers])];
       }
     }
-    const followingHtml=followingList.length===0?`<div class="follow-empty">${t('noFollowing')}</div>`:
+    const _allUsersReady = typeof allUsers !== 'undefined' && allUsers && Object.keys(allUsers).length > 0;
+    const _followSkel = `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;">`+
+        [1,2,3].map(()=>`<div style="display:flex;align-items:center;gap:10px;flex:1;padding:8px 0;border-bottom:1px solid var(--border-light,#eee);">
+            <div class="skeleton" style="width:38px;height:38px;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;"><div class="skeleton" style="width:110px;height:12px;border-radius:5px;margin-bottom:5px;"></div><div class="skeleton" style="width:75px;height:10px;border-radius:4px;"></div></div>
+            <div class="skeleton" style="width:65px;height:26px;border-radius:18px;"></div>
+        </div>`).join('')+`</div>`;
+    const followingHtml=!_allUsersReady ? _followSkel : followingList.length===0?`<div class="follow-empty">${t('noFollowing')}</div>`:
         followingList.filter(uid=>canSeeUser(uid)).map(uid=>{ const u=allUsers[uid]; if(!u) return ''; const av=u.avatar?`<img src="${u.avatar}" alt="">`:(u.name||'?').charAt(0).toUpperCase(); return `<div class="follow-user-item"><div class="follow-user-left"><div class="follow-user-avatar">${av}</div><div><div class="follow-user-name">${u.name||''}</div><div class="follow-user-username">@${u.username||''}</div></div></div><button class="follow-btn following" onclick="toggleFollow('${uid}')">${t('unfollowBtn')}</button></div>`; }).join('');
-    const followersHtml=followersList.length===0?`<div class="follow-empty">${t('noFollowers')}</div>`:
+    const followersHtml=!_allUsersReady ? _followSkel : followersList.length===0?`<div class="follow-empty">${t('noFollowers')}</div>`:
         followersList.filter(uid=>canSeeUser(uid)).map(uid=>{ const u=allUsers[uid]; if(!u) return ''; const av=u.avatar?`<img src="${u.avatar}" alt="">`:(u.name||'?').charAt(0).toUpperCase(); const following=isFollowing(uid); return `<div class="follow-user-item"><div class="follow-user-left"><div class="follow-user-avatar">${av}</div><div><div class="follow-user-name">${u.name||''}</div><div class="follow-user-username">@${u.username||''}</div></div></div><button class="follow-btn ${following?'following':'not-following'}" onclick="toggleFollow('${uid}')">${following?t('unfollowBtn'):t('followBtn')}</button></div>`; }).join('');
     const badgeHtml=currentUser.verified?`<span class="verified-badge" title="Verified Account">${sealBadgeSvg(16)}</span>`:
         currentUser.verifyRequested?`<span style="font-size:11px;color:var(--accent-gold);background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);border-radius:20px;padding:3px 10px;">⏳ ${currentLanguage==='bn'?'পেন্ডিং':'Pending'}</span>`:
@@ -4562,7 +5464,7 @@ function renderProfile(){
     container.innerHTML=`
     <div class="profile-card">
         <div class="profile-banner" style="position:relative;min-height:120px;background:${currentUser.coverPhoto?'none':'var(--grad-header)'};overflow:hidden;">
-            ${currentUser.coverPhoto?`<img src="${currentUser.coverPhoto}" alt="cover" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">`:``}
+            ${currentUser.coverPhoto?`<img src="${currentUser.coverPhoto}" alt="cover" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 0.4s ease;" onload="this.style.opacity='1'">`:``}
             <div style="position:absolute;inset:0;background:rgba(0,0,0,${currentUser.coverPhoto?'0.25':'0'});z-index:1;"></div>
             <button onclick="triggerCoverPhotoUpload()" title="${currentLanguage==='bn'?'কভার ফটো পরিবর্তন':'Change cover photo'}"
                 style="position:absolute;top:10px;right:10px;z-index:2;background:rgba(0,0,0,0.45);border:1.5px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans','SolaimanLipi','Noto Sans Bengali',sans-serif;backdrop-filter:blur(4px);">
@@ -4608,7 +5510,7 @@ function renderProfile(){
                 <div class="profile-stats-item stat-item" style="flex:1;text-align:center;"><div class="stat-num">${followingList.length}</div><div class="stat-label">${t('followingLabel')}</div></div>
                 <div class="profile-stats-item stat-item" style="flex:1;text-align:center;"><div class="stat-num">${followersList.length}</div><div class="stat-label">${t('followersLabel')}</div></div>
                 <div class="profile-stats-item stat-item" style="flex:1;text-align:center;"><div class="stat-num">${totalLikes}</div><div class="stat-label">${t('like')}</div></div>
-                <div class="profile-stats-item stat-item" style="flex:1;text-align:center;" id="profileViewStat"><div class="stat-num" id="profileViewNum">...</div><div class="stat-label">👁️ ${currentLanguage==='bn'?'ভিউ':'Views'}</div></div>
+                <div class="profile-stats-item stat-item" style="flex:1;text-align:center;" id="profileViewStat"><div class="stat-num" id="profileViewNum"><span class="skeleton" style="display:inline-block;width:28px;height:16px;border-radius:5px;vertical-align:middle;"></span></div><div class="stat-label">👁️ ${currentLanguage==='bn'?'ভিউ':'Views'}</div></div>
             </div>
         </div>
     </div>
@@ -4623,7 +5525,9 @@ function renderProfile(){
     ${isAdmin() ? renderAdminUsersPanel() : ''}
     <div class="my-posts-title">📌 ${currentLanguage==='bn'?'আমার পোস্টসমূহ':'My Posts'} (${myPosts.length})</div>
     <div class="photo-grid">
-        ${myPosts.length===0?`<div class="empty-state" style="grid-column:1/-1"><p>${t('beFirstToPost')}</p></div>`:myPosts.map(p=>p.type==='photo'?createPhotoCard(p):p.type==='video'?createVideoCard(p):createTextCard(p)).join('')}
+        ${(typeof isLoadingPosts!=='undefined'&&isLoadingPosts&&myPosts.length===0)
+            ? [1,2,3,4].map(i=>`<div class="skeleton" style="height:160px;border-radius:14px;animation-delay:${i*0.1}s;"></div>`).join('')
+            : myPosts.length===0?`<div class="empty-state" style="grid-column:1/-1"><p>${t('beFirstToPost')}</p></div>`:myPosts.map(p=>p.type==='photo'?createPhotoCard(p):p.type==='video'?createVideoCard(p):createTextCard(p)).join('')}
     </div>
     <div style="margin-top:20px;">
       <div class="my-posts-title" style="display:flex;align-items:center;justify-content:space-between;">
@@ -5978,7 +6882,20 @@ function initEventSlider(){
     
     // ── Update Upcoming Events count badge ──
     var _cntBadge = document.getElementById('upcomingEventsCount');
-    if(_cntBadge) _cntBadge.textContent = active.length;
+    if(_cntBadge){
+        // events এখনো loading — badge-এ skeleton shimmer রাখো
+        if(typeof isLoadingEvents !== 'undefined' && isLoadingEvents){
+            _cntBadge.textContent = '·';
+            _cntBadge.style.background = 'rgba(255,255,255,0.25)';
+        } else {
+            _cntBadge.textContent = active.length;
+            _cntBadge.style.background = active.length > 0
+                ? 'linear-gradient(135deg,#a29bfe,#fd79a8)'
+                : 'rgba(255,255,255,0.25)';
+            _cntBadge.style.animation = 'countPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both';
+            setTimeout(function(){ _cntBadge.style.animation=''; }, 500);
+        }
+    }
 
     // Event slider (ticker) update
     if(slider){
@@ -5986,29 +6903,71 @@ function initEventSlider(){
         else{ const items=active.map(e=>`<div class="event-item">${e.title} — ${e.time}</div>`).join(''); slider.innerHTML=items+items+items; }
     }
     
-    // Header banner upcoming events update
+    // Header banner upcoming events update — skeleton → real data (fade in)
     if(headerCards){
+        // এখনো Firebase events load হয়নি — skeleton থাকুক
+        if(typeof isLoadingEvents !== 'undefined' && isLoadingEvents) return;
+
+        var newHTML = '';
         if(active.length===0){
-            if(headerText) headerText.style.display='';
-            headerCards.innerHTML='<div id="headerEventsText" style="text-align:center;color:white;font-weight:700;font-size:14px;">'+(currentLanguage==='bn'?'কোনো আসন্ন ইভেন্ট নেই':'No upcoming events')+'</div>';
+            newHTML = '<div style="text-align:center;color:rgba(255,255,255,0.7);font-size:13px;font-weight:600;padding:8px 0;">'+(currentLanguage==='bn'?'কোনো আসন্ন ইভেন্ট নেই 📅':'No upcoming events 📅')+'</div>';
         } else {
-            // সর্বোচ্চ ৩টি upcoming event দেখাও
             const show = active.slice(0,3);
-            headerCards.innerHTML = show.map(function(e){
+            newHTML = show.map(function(e){
                 const d = new Date(e.rawTime);
                 const diffMs = d.getTime() - now;
                 const diffDays = Math.ceil(diffMs / (1000*60*60*24));
-                const timeLeft = diffDays<=0 ? (currentLanguage==='bn'?'আজ!':'Today!') : diffDays===1 ? (currentLanguage==='bn'?'কাল':'Tomorrow') : diffDays + (currentLanguage==='bn'?' দিন বাকি':' days left');
-                return `<div style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.3);border-radius:14px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
-                    <div style="font-size:22px;">📅</div>
+                const timeLeft = diffDays<=0
+                    ? (currentLanguage==='bn'?'🎉 আজ!':'🎉 Today!')
+                    : diffDays===1
+                    ? (currentLanguage==='bn'?'আগামীকাল':'Tomorrow')
+                    : diffDays + (currentLanguage==='bn'?' দিন বাকি':' days left');
+
+                // Event date number & month
+                const evMonth = d.toLocaleDateString('en-US',{month:'short'}).toUpperCase();
+                const evDay   = d.getDate();
+
+                return `<div style="
+                    background:rgba(255,255,255,0.15);
+                    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+                    border:1px solid rgba(255,255,255,0.28);
+                    border-radius:14px;padding:10px 14px;
+                    margin-bottom:8px;
+                    display:flex;align-items:center;gap:10px;
+                    animation:eventCardFadeIn 0.4s ease both;">
+                    <!-- Calendar icon with real date -->
+                    <div style="
+                        width:36px;height:36px;border-radius:10px;
+                        background:white;
+                        display:flex;flex-direction:column;
+                        align-items:center;justify-content:center;
+                        flex-shrink:0;overflow:hidden;
+                        box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                        <div style="background:#ff4757;width:100%;text-align:center;font-size:7px;font-weight:800;color:white;letter-spacing:0.05em;line-height:1.4;">${evMonth}</div>
+                        <div style="font-size:14px;font-weight:800;color:#1a1a2e;line-height:1.2;">${evDay}</div>
+                    </div>
                     <div style="flex:1;min-width:0;">
                         <div style="font-size:13px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.title}</div>
-                        <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;">${e.time}</div>
+                        <div style="font-size:11px;color:rgba(255,255,255,0.72);margin-top:2px;">${e.time}</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.25);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:white;white-space:nowrap;">${timeLeft}</div>
+                    <div style="
+                        background:rgba(255,255,255,0.22);
+                        border:1px solid rgba(255,255,255,0.35);
+                        border-radius:20px;padding:4px 10px;
+                        font-size:11px;font-weight:700;color:white;
+                        white-space:nowrap;flex-shrink:0;">${timeLeft}</div>
                 </div>`;
             }).join('');
         }
+        // Skeleton → real content, fade in
+        headerCards.style.opacity = '0';
+        headerCards.style.transition = 'opacity 0.35s ease';
+        headerCards.innerHTML = newHTML;
+        requestAnimationFrame(function(){
+            requestAnimationFrame(function(){
+                headerCards.style.opacity = '1';
+            });
+        });
     }
 }
 
@@ -6124,7 +7083,7 @@ function initFirebaseListeners(){
     var cachedLoaded = loadOfflineData(true);
     if(cachedLoaded){ isLoadingPosts = false; isLoadingEvents = false; }
     // Pre-render immediately if cache exists
-    if(cachedLoaded){ displayPosts(); renderProfile(); }
+    if(cachedLoaded){ displayPosts(); renderProfile(); initEventSlider(); }
 
     if(!db){
         isLoadingPosts=false; isLoadingEvents=false;
@@ -6144,6 +7103,7 @@ function initFirebaseListeners(){
             isLoadingPosts=false; isLoadingEvents=false;
             var loaded = loadOfflineData(true);
             if(!loaded){ displayPosts(); displayEvents(); initStoryBar(); }
+            else { initEventSlider(); }
             setNetState('slow');
         }
     }, 2000);
@@ -7123,7 +8083,7 @@ function bnSwitch(tab, el) {
     if(tab === 'posts') displayPosts();
     if(tab === 'events') { displayEvents(); initEventSlider(); }
     if(tab === 'profile') renderProfile();
-    if(tab === 'settings') { setTimeout(renderSettingsPage, 50); }
+    if(tab === 'settings') { resetSettingsSkeleton(); setTimeout(renderSettingsPage, 50); }
     if(tab === 'about') updateAboutPage();
     // Scroll to top
     window.scrollTo({top: 0, behavior: 'smooth'});
@@ -10702,8 +11662,40 @@ function pickRandomUser(){
 // ⚙️ SETTINGS PAGE — Dynamic Render
 // ══════════════════════════════════════════════════════
 function renderSettingsPage(){
-    renderSettingsEditProfile();
-    renderSettingsAdminSection();
+    // Show skeleton briefly, then reveal real content
+    var skel = document.getElementById('settingsSkeleton');
+    var real = document.getElementById('settingsRealContent');
+    if(skel && real && skel.style.display !== 'none') {
+        // Render real content first (off-screen)
+        renderSettingsEditProfile();
+        renderSettingsAdminSection();
+        // Fade skeleton out → fade real content in
+        skel.style.transition = 'opacity 0.25s ease';
+        skel.style.opacity = '0';
+        setTimeout(function(){
+            skel.style.display = 'none';
+            real.classList.add('visible');
+            real.style.opacity = '0';
+            real.style.transition = 'opacity 0.25s ease';
+            setTimeout(function(){ real.style.opacity = '1'; }, 20);
+        }, 240);
+    } else {
+        renderSettingsEditProfile();
+        renderSettingsAdminSection();
+    }
+}
+
+function resetSettingsSkeleton(){
+    // Settings tab re-open হলে skeleton reset করো
+    var skel = document.getElementById('settingsSkeleton');
+    var real = document.getElementById('settingsRealContent');
+    if(skel && real) {
+        skel.style.display = '';
+        skel.style.opacity = '1';
+        skel.style.transition = '';
+        real.classList.remove('visible');
+        real.style.opacity = '0';
+    }
 }
 
 function renderSettingsEditProfile(){
@@ -11042,7 +12034,7 @@ function checkAdminMessage() {
 //  🏆 TOP USERS + 🔥 TRENDING POSTS SYSTEM
 // ══════════════════════════════════════════════════════════════════
 
-var _topUsersData = []; // [{uid, goal}]
+var _topUsersData = []; // [{uid, goal, addedAt}]
 
 // ── Goal definitions ──────────────────────────────────────────────
 var TOP_USER_GOALS = {
@@ -11056,6 +12048,64 @@ var TOP_USER_GOALS = {
     'cool':     { label:'😎 কুল',            emoji:'😎', ring:'#3b82f6', bg:'rgba(59,130,246,0.13)', color:'#3b82f6', border:'rgba(59,130,246,0.3)' },
 };
 
+// ── সপ্তাহের শুরু (রবিবার 00:00) timestamp ──
+function _getWeekStartMs() {
+    var now = new Date();
+    var d = new Date(now);
+    d.setDate(now.getDate() - now.getDay());
+    d.setHours(0,0,0,0);
+    return d.getTime();
+}
+
+// ── সপ্তাহের label "১ জুন – ৭ জুন" ──
+function _getWeekLabel() {
+    var months = currentLanguage === 'bn'
+        ? ['জানু','ফেব','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টে','অক্টো','নভে','ডিসে']
+        : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var start = new Date(); start.setDate(start.getDate() - start.getDay()); start.setHours(0,0,0,0);
+    var end = new Date(start); end.setDate(start.getDate() + 6);
+    return start.getDate() + ' ' + months[start.getMonth()] + ' – ' + end.getDate() + ' ' + months[end.getMonth()];
+}
+
+// ── এই সপ্তাহে banner কতবার/কোন দিন দেখাবে (সপ্তাহে ৩ বার, random দিন) ──
+function _getWeekBannerDays() {
+    var weekKey = 'wtb_days_' + _getWeekStartMs();
+    try {
+        var saved = JSON.parse(localStorage.getItem(weekKey) || 'null');
+        if (saved && Array.isArray(saved)) return saved;
+    } catch(e){}
+    // সপ্তাহের ৭ দিন থেকে ৩টা random বেছে নাও (0=রবি…6=শনি)
+    var days = [0,1,2,3,4,5,6];
+    for (var i = days.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = days[i]; days[i] = days[j]; days[j] = tmp;
+    }
+    var chosen = days.slice(0, 3).sort(function(a,b){return a-b;});
+    try { localStorage.setItem(weekKey, JSON.stringify(chosen)); } catch(e){}
+    return chosen;
+}
+
+// ── আজকে banner দেখাবে কিনা ──
+function _shouldShowBannerToday() {
+    var bannerDays = _getWeekBannerDays();
+    var todayDay = new Date().getDay();
+    return bannerDays.indexOf(todayDay) !== -1;
+}
+
+// ── আজকে banner ইতিমধ্যে দেখানো হয়েছে কিনা ──
+function _bannerShownToday() {
+    try {
+        var key = 'wtb_shown_' + new Date().toDateString();
+        return !!localStorage.getItem(key);
+    } catch(e){ return false; }
+}
+function _markBannerShown() {
+    try {
+        var key = 'wtb_shown_' + new Date().toDateString();
+        localStorage.setItem(key, '1');
+    } catch(e){}
+}
+
 // ── Load top users from Firebase ─────────────────────────────────
 function loadTopUsers() {
     if (!db) return;
@@ -11063,6 +12113,11 @@ function loadTopUsers() {
         var data = snap.val() || {};
         _topUsersData = Object.values(data).filter(function(x){ return x && x.uid; });
         renderTopUsersSection();
+        // Banner দেখানোর logic — data load হওয়ার পর check করো
+        if (_topUsersData.length > 0 && _shouldShowBannerToday() && !_bannerShownToday()) {
+            // Page load হওয়ার ৩ সেকেন্ড পর দেখাও
+            setTimeout(showWeeklyTopBanner, 3000);
+        }
     });
 }
 
@@ -11078,7 +12133,10 @@ function renderTopUsersSection() {
         return;
     }
     sec.style.display = 'block';
-    if (title) title.textContent = currentLanguage === 'bn' ? '🏆 টপ ইউজার' : '🏆 Top Users';
+    if (title) {
+        title.innerHTML = (currentLanguage === 'bn' ? '🏆 সাপ্তাহিক টপ ইউজার' : '🏆 Weekly Top Users')
+            + ' <span style="font-size:10px;font-weight:600;color:var(--text-muted-light);margin-left:4px;">• ' + _getWeekLabel() + '</span>';
+    }
 
     scroll.innerHTML = _topUsersData.map(function(item) {
         var u = allUsers[item.uid];
@@ -11100,6 +12158,92 @@ function renderTopUsersSection() {
     }).filter(Boolean).join('');
 }
 
+// ══════════════════════════════════════════════
+//  🏆 WEEKLY TOP USERS BANNER
+// ══════════════════════════════════════════════
+function showWeeklyTopBanner() {
+    if (!_topUsersData.length) return;
+    if (document.getElementById('weeklyTopBannerOverlay')) return; // already shown
+
+    var weekLabel = _getWeekLabel();
+    var isBn = currentLanguage === 'bn';
+
+    // User cards HTML — rank 1 center/larger, rest smaller
+    var sorted = _topUsersData.slice(); // order as admin set it
+    var cardsHtml = sorted.map(function(item, idx) {
+        var u = allUsers[item.uid];
+        if (!u) return '';
+        var goal = TOP_USER_GOALS[item.goal] || TOP_USER_GOALS['star'];
+        var rank = idx + 1;
+        var sizeClass = rank === 1 ? 'rank-1' : rank <= 3 ? 'rank-2' : 'rank-other';
+        var avStyle = (u.avatar && !(u.avatarLocked && u.username !== 'imtiaz'))
+            ? 'background:url(' + u.avatar + ') center/cover no-repeat;'
+            : 'background:' + goal.ring + ';';
+        var avInner = (u.avatar && !(u.avatarLocked && u.username !== 'imtiaz'))
+            ? '' : (u.name || '?').charAt(0).toUpperCase();
+        var rankBadge = rank === 1
+            ? '<div class="wtb-rank-badge">👑 #1</div>'
+            : rank <= 3 ? '<div class="wtb-rank-badge" style="background:linear-gradient(135deg,rgba(255,255,255,0.3),rgba(255,255,255,0.1));color:white;">#' + rank + '</div>' : '';
+        var delay = (idx * 0.08 + 0.2).toFixed(2);
+        return '<div class="wtb-user-card" onclick="closeWeeklyTopBanner();setTimeout(function(){viewUserProfile(\''+u.uid+'\');},300);"'
+            + ' style="animation:wtbUserPop 0.5s cubic-bezier(0.34,1.26,0.64,1) ' + delay + 's both;">'
+            + '<div class="wtb-avatar-wrap">'
+            + rankBadge
+            + '<div class="wtb-avatar ' + sizeClass + '" style="' + avStyle + '">' + avInner + '</div>'
+            + '<div class="wtb-goal-badge">' + goal.emoji + '</div>'
+            + '</div>'
+            + '<div class="wtb-user-name">' + (u.name || '') + '</div>'
+            + '<div class="wtb-goal-pill">' + goal.label + '</div>'
+            + '</div>';
+    }).filter(Boolean).join('');
+
+    var html = '<div id="weeklyTopBannerOverlay" onclick="if(event.target===this)closeWeeklyTopBanner()">'
+        + '<div class="wtb-sheet">'
+        + '<div class="wtb-shimmer-bar"></div>'
+        + '<div class="wtb-header">'
+        + '<span class="wtb-crown">🏆</span>'
+        + '<div class="wtb-title">' + (isBn ? 'এই সপ্তাহের টপ ইউজার!' : "This Week's Top Users!") + '</div>'
+        + '<div class="wtb-week-label">' + weekLabel + '</div>'
+        + '</div>'
+        + '<div class="wtb-users-row">' + cardsHtml + '</div>'
+        + '<div class="wtb-footer">'
+        + '<button class="wtb-close-btn" onclick="closeWeeklyTopBanner()">' + (isBn ? '✕ বন্ধ করুন' : '✕ Close') + '</button>'
+        + '<button class="wtb-profile-btn" onclick="closeWeeklyTopBanner();setTimeout(function(){bnSwitch(\'profile\',document.getElementById(\'bnProfile\'));},300);">👤 ' + (isBn ? 'আমার প্রোফাইল' : 'My Profile') + '</button>'
+        + '</div>'
+        + '<div class="wtb-dont-show" onclick="dontShowBannerAgainThisWeek()">' + (isBn ? 'এই সপ্তাহে আর দেখাবেন না' : "Don't show again this week") + '</div>'
+        + '</div></div>';
+
+    document.body.insertAdjacentHTML('beforeend', html);
+    _markBannerShown();
+    if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+}
+
+function closeWeeklyTopBanner() {
+    var el = document.getElementById('weeklyTopBannerOverlay');
+    if (!el) return;
+    el.style.transition = 'opacity 0.25s ease';
+    el.style.opacity = '0';
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 260);
+}
+
+function dontShowBannerAgainThisWeek() {
+    try {
+        // সপ্তাহের সব দিনগুলো "shown" mark করো
+        var weekStart = _getWeekStartMs();
+        for (var d = 0; d < 7; d++) {
+            var date = new Date(weekStart + d * 86400000);
+            localStorage.setItem('wtb_shown_' + date.toDateString(), '1');
+        }
+    } catch(e) {}
+    closeWeeklyTopBanner();
+}
+
+// Admin: manually banner দেখাও (testing/force)
+function forceShowWeeklyBanner() {
+    _markBannerShown(); // prevent double
+    showWeeklyTopBanner();
+}
+
 // ── Load & Render Trending Posts ──────────────────────────────────
 function loadTrendingPosts() {
     renderTrendingPostsSection();
@@ -11111,17 +12255,49 @@ function renderTrendingPostsSection() {
     var title = document.getElementById('trendingPostsSectionTitle');
     if (!sec || !scroll) return;
 
-    // Combine all posts with type info
+    // ── সপ্তাহের শুরু ও শেষ হিসাব করো (রবিবার থেকে শনিবার) ──
+    var now = new Date();
+    var dayOfWeek = now.getDay(); // 0=রবি, 6=শনি
+    var weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - dayOfWeek);
+    weekStart.setHours(0, 0, 0, 0);
+    var weekStartMs = weekStart.getTime();
+
+    // সপ্তাহের label — "৩ জুন – ৯ জুন"
+    var weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    var months = currentLanguage === 'bn'
+        ? ['জানু','ফেব','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টে','অক্টো','নভে','ডিসে']
+        : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var weekLabel = weekStart.getDate() + ' ' + months[weekStart.getMonth()]
+        + ' – ' + weekEnd.getDate() + ' ' + months[weekEnd.getMonth()];
+
+    // Combine all posts
     var allPosts = [
         ...photos.map(function(p){ return Object.assign({}, p, {type:'photo'}); }),
         ...videos.map(function(v){ return Object.assign({}, v, {type:'video'}); }),
         ...textPosts.map(function(t){ return Object.assign({}, t, {type:'text'}); })
     ].filter(function(p){ return canSeeUser(p.uid); });
 
-    // Score = likes*2 + comments*1
-    allPosts.forEach(function(p){
+    // ── এই সপ্তাহের posts ফিল্টার করো ──
+    var weeklyPosts = allPosts.filter(function(p) {
+        // post এর timestamp — id যদি timestamp হয় অথবা createdAt/timestamp field
+        var ts = p.createdAt || p.timestamp || p.id || 0;
+        // id যদি 13-digit timestamp হয়
+        if (typeof ts === 'number' && ts > 1e12) {
+            return ts >= weekStartMs;
+        }
+        // id যদি ছোট number হয় (incremental), তাহলে সব posts নাও (fallback)
+        return true;
+    });
+
+    // যদি এই সপ্তাহে কোনো posts না থাকে, সব posts থেকে trending দেখাও (fallback)
+    var sourcePosts = weeklyPosts.length >= 3 ? weeklyPosts : allPosts;
+    var isWeekly = weeklyPosts.length >= 3;
+
+    // Score হিসাব করো
+    sourcePosts.forEach(function(p){
         p._score = (p.likes || 0) * 2 + ((p.comments || []).length);
-        // Type priority: photo/video=0, hashtag text=1, plain text=2
         if (p.type === 'photo' || p.type === 'video') {
             p._typePriority = 0;
         } else if (p.type === 'text' && (p.content || '').includes('#')) {
@@ -11131,9 +12307,8 @@ function renderTrendingPostsSection() {
         }
     });
 
-    var trending = allPosts.filter(function(p){ return p._score > 0; })
+    var trending = sourcePosts.filter(function(p){ return p._score > 0; })
         .sort(function(a, b){
-            // First sort by type priority, then by score within same type
             if (a._typePriority !== b._typePriority) return a._typePriority - b._typePriority;
             return b._score - a._score;
         })
@@ -11144,7 +12319,18 @@ function renderTrendingPostsSection() {
         return;
     }
     sec.style.display = 'block';
-    if (title) title.textContent = currentLanguage === 'bn' ? '🔥 ট্রেন্ডিং' : '🔥 Trending';
+
+    // Title: "🔥 সাপ্তাহিক ট্রেন্ডিং • ৩–৯ জুন"
+    if (title) {
+        if (isWeekly) {
+            title.innerHTML = (currentLanguage === 'bn'
+                ? '🔥 সাপ্তাহিক ট্রেন্ডিং'
+                : '🔥 Weekly Trending')
+                + ' <span style="font-size:11px;font-weight:600;color:var(--text-muted-light);margin-left:4px;">• ' + weekLabel + '</span>';
+        } else {
+            title.textContent = currentLanguage === 'bn' ? '🔥 ট্রেন্ডিং' : '🔥 Trending';
+        }
+    }
 
     scroll.innerHTML = trending.map(function(p, idx) {
         var thumbHtml, captionText;
@@ -11418,6 +12604,49 @@ async function togglePushSubscription() {
             }
         }
     }, 400);
+})();
+
+// ── HOME SKELETON HIDE ──
+// displayPosts বা Firebase ready হলে skeleton সরিয়ে real content দেখাও
+(function(){
+    function showHomeRealContent() {
+        var skel = document.getElementById('homeSkeleton');
+        var real = document.getElementById('homeRealContent');
+        if (skel && real && skel.style.display !== 'none') {
+            skel.style.transition = 'opacity 0.3s ease';
+            skel.style.opacity = '0';
+            setTimeout(function(){
+                skel.style.display = 'none';
+                real.style.display = '';
+                real.style.opacity = '0';
+                real.style.transition = 'opacity 0.3s ease';
+                setTimeout(function(){ real.style.opacity = '1'; }, 20);
+            }, 280);
+        }
+    }
+
+    // displayPosts hook
+    var _dpInterval = setInterval(function(){
+        if (typeof window.displayPosts === 'function') {
+            clearInterval(_dpInterval);
+            var _origDP = window.displayPosts;
+            window.displayPosts = function() {
+                _origDP.apply(this, arguments);
+                showHomeRealContent();
+            };
+        }
+    }, 100);
+
+    // fallback: db + allUsers ready হলে 2s পর দেখাও
+    var _fbInterval = setInterval(function(){
+        if (typeof db !== 'undefined' && db && typeof allUsers !== 'undefined') {
+            clearInterval(_fbInterval);
+            setTimeout(showHomeRealContent, 2000);
+        }
+    }, 300);
+
+    // hard fallback: 5s পর যাই হোক দেখাও
+    setTimeout(showHomeRealContent, 5000);
 })();
 
 // ⚡ PERFORMANCE: Lazy load all images that don't have loading attribute
